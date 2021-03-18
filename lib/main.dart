@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:universum_app/pages/home.dart';
 import 'package:universum_app/pages/apod.dart';
 import 'package:universum_app/pages/weather.dart';
+import 'package:universum_app/pages/search.dart';
 
 void main() {
   runApp(MyApp());
@@ -21,6 +22,7 @@ class _MyAppState extends State<MyApp> {
         '/home':(context) => Home(),
         '/apod':(context) => APOD(),
         '/marsWeather':(context) => MarsWeather(),
+        '/search':(context) => NASASearch(),
       },
     );
   }
