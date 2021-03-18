@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:universum_app/pages/home.dart';
 import 'package:universum_app/pages/apod.dart';
+import 'package:universum_app/pages/weather.dart';
 
 void main() {
   runApp(MyApp());
@@ -19,6 +20,7 @@ class _MyAppState extends State<MyApp> {
       routes: {
         '/home':(context) => Home(),
         '/apod':(context) => APOD(),
+        '/marsWeather':(context) => MarsWeather(),
       },
     );
   }

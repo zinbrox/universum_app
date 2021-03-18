@@ -15,7 +15,7 @@ class _APODState extends State<APOD> {
   Future<void> getAPOD() async {
     print("in getAPOD");
     String url;
-    url = "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY";
+    url = "https://api.nasa.gov/planetary/apod?api_key=4bzcuj3O9pBfQzaCONWqeIlD3RbbyaXgjnp9yvxa";
     var response = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(response.body);
     imageURL = jsonData['hdurl'];
@@ -24,7 +24,6 @@ class _APODState extends State<APOD> {
     imageDescription = jsonData['explanation'];
     imageCopyRight = jsonData['copyright'];
     imageDate = jsonData['date'];
-    _loading=false;
     setState(() {
       _loading=false;
     });

@@ -23,6 +23,12 @@ class _HomeState extends State<Home> {
               Navigator.pushNamed(context, '/apod');
             },
           ),
+          ElevatedButton(
+            child: Text("Weather"),
+            onPressed: (){
+              Navigator.pushNamed(context, '/marsWeather');
+            },
+          ),
         ],
       )),
     );
