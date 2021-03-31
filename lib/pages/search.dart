@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
@@ -16,12 +18,19 @@ class NASASearch extends StatefulWidget {
 
 class _NASASearchState extends State<NASASearch> {
   List<Items> searchList = [];
+  final TextEditingController _searchText = new TextEditingController();
 
-  Future<void> getSearch() async {
+  int _index=0;
+  bool expanded=false;
+
+  Future<void> getSearch(String text) async {
     print("In getSearch()");
     Items item;
     String url;
-    url = "https://images-api.nasa.gov/search?q=pluto";
+    if(text!=null)
+      url = "https://images-api.nasa.gov/search?q=$text";
+    else
+      url = "https://images-api.nasa.gov/search?q=pluto";
     var response = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(response.body);
 
@@ -42,11 +51,23 @@ class _NASASearchState extends State<NASASearch> {
         );
         searchList.add(item);
     }
+    setState(() {
+
+    });
   }
+  Future<List<CachedNetworkImageProvider>> _loadAllImages() async{
+    List<CachedNetworkImageProvider> cachedImages = [];
+    for(int i=0;i<searchList.length;i++) {
+      var configuration = createLocalImageConfiguration(context);
+      cachedImages.add(new CachedNetworkImageProvider("${searchList[i].imageURL}")..resolve(configuration));
+    }
+    return cachedImages;
+  }
+
   @override
   void initState() {
     super.initState();
-    getSearch();
+    getSearch("");
   }
 
   @override
@@ -60,31 +81,113 @@ class _NASASearchState extends State<NASASearch> {
         title: Text("NASA Image And Video Library Search"),
         centerTitle: true,
       ),
-      body: ListView.builder(
-          itemCount: searchList.length,
-          itemBuilder: (BuildContext context, int index){
-            return GestureDetector(
-              onTap: (){
+      body: Stack(
+        children: [
+          Center(
+            child: AnimatedContainer(
+              duration: Duration(seconds: 1),
+              height: expanded ? 800 : 500, // card height
+              child: FutureBuilder(
+                future: _loadAllImages(),
+                builder: (context, snapshot) {
+                  if(snapshot.hasData) {
+                    return PageView.builder(
+                      itemCount: searchList.length,
+                      controller: PageController(
+                          initialPage: 1, keepPage: true, viewportFraction: 0.85),
+                      onPageChanged: (int index) {
+                        setState(() {
+                          _index=index;
+                        });
+                      },
+                      itemBuilder: (_, i) {
+                        ImageProvider image = snapshot.data[i];
+                        return GestureDetector(
+                          onTap: (){
+                            setState(() {
+                              expanded = !expanded;
+                            });
+                          },
+                          child: Transform.scale(
+                            scale: i == _index ? 0.95 : 0.9,
+                            child:
+                            Card(
+                              elevation: 6,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20)),
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: <Widget>[
+                                  Image(image: image),
+                                    //Image.network(searchList[_index].imageURL, height: 300,),
+                                    Text(searchList[i].title.toString()),
+                                    Text(searchList[i].description.toString(), overflow: TextOverflow.ellipsis, maxLines: expanded ? 50 : 4,),
+                                    Text(searchList[i].date),
+                                    Text(searchList[i].keywords.toString()),
+                                    Text('Center: ' +
+                                        searchList[i].center.toString()),
+                                    //Text(searchList[index].media_type.toString()),
+                                  ],
+                                ),
+                              ),
+                            ),
 
-              },
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15)
-                ),
-                child: Column(
-                  children: <Widget>[
-                    Image.network(searchList[index].imageURL),
-                    Text(searchList[index].title.toString()),
-                    Text(searchList[index].description.toString()),
-                    Text(searchList[index].date),
-                    Text(searchList[index].keywords.toString()),
-                    Text('Center: ' + searchList[index].center.toString()),
-                    Text(searchList[index].media_type.toString()),
-                  ],
-                ),
+                          ),
+                        );
+                      },
+                    );
+                  }else return new Center(child: CupertinoActivityIndicator());
+                }
               ),
-            );
-          }),
+            ),
+          ),
+          TextField(
+            controller: _searchText,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.grey,
+              border: OutlineInputBorder(),
+              suffixIcon: IconButton(
+                icon: Icon(Icons.send),
+                onPressed: () {
+                  getSearch(_searchText.text);
+                },
+              ),
+              hintText: "Search"
+            ),
+          ),
+        ],
+      ),
     );
   }
+
+
 }
+
+/*
+ ListView.builder(
+              itemCount: searchList.length,
+              itemBuilder: (BuildContext context, int index){
+                return GestureDetector(
+                  onTap: (){
+
+                  },
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)
+                    ),
+                    child: Column(
+                      children: <Widget>[
+                        Image.network(searchList[index].imageURL),
+                        Text(searchList[index].title.toString()),
+                        Text(searchList[index].description.toString()),
+                        Text(searchList[index].date),
+                        Text(searchList[index].keywords.toString()),
+                        Text('Center: ' + searchList[index].center.toString()),
+                        //Text(searchList[index].media_type.toString()),
+                      ],
+                    ),
+                  ),
+                );
+              })
+ */

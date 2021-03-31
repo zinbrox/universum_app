@@ -35,6 +35,12 @@ class _HomeState extends State<Home> {
               Navigator.pushNamed(context, '/search');
             },
           ),
+          ElevatedButton(
+            child: Text("Settings"),
+            onPressed: (){
+              Navigator.pushNamed(context, '/settings');
+            },
+          )
         ],
       )),
     );
