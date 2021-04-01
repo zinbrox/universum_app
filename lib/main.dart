@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universum_app/pages/home.dart';
 import 'package:universum_app/pages/apod.dart';
+import 'package:universum_app/pages/roverPhotos.dart';
 import 'package:universum_app/pages/settingsPage.dart';
 import 'package:universum_app/pages/weather.dart';
 import 'package:universum_app/pages/search.dart';
@@ -46,6 +47,7 @@ class _MyAppState extends State<MyApp> {
               '/marsWeather':(context) => MarsWeather(),
               '/search':(context) => NASASearch(),
               '/settings':(context) => SettingsPage(),
+              '/roverPhotos':(context) => roverPhotos(),
             },
           );
         },

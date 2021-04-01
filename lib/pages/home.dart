@@ -36,11 +36,17 @@ class _HomeState extends State<Home> {
             },
           ),
           ElevatedButton(
+            child: Text("Rover Photos"),
+            onPressed: (){
+              Navigator.pushNamed(context, '/roverPhotos');
+            },
+          ),
+          ElevatedButton(
             child: Text("Settings"),
             onPressed: (){
               Navigator.pushNamed(context, '/settings');
             },
-          )
+          ),
         ],
       )),
     );
