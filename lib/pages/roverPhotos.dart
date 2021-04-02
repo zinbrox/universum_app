@@ -21,6 +21,7 @@ class roverPhotos extends StatefulWidget {
 class _roverPhotosState extends State<roverPhotos> {
 
   List<photoDetails> photosList = [];
+  List<photoDetails> filteredPhotosList=[];
 
   bool _loading=false;
   bool _showPics = false;
@@ -29,6 +30,8 @@ class _roverPhotosState extends State<roverPhotos> {
 
   int _index=0;
   bool _visible=false;
+
+  String roverCameraName = "FHAZ";
 
   Future<void> getPhotos(String rover) async {
     print("In getPhotos");
@@ -57,10 +60,20 @@ class _roverPhotosState extends State<roverPhotos> {
       );
       photosList.add(item);
     }
+    filteredPhotosList = photosList;
 
     setState(() {
       _loading=false;
     });
+  }
+
+  void filterList(String roverCameraName) {
+    filteredPhotosList = [];
+    for(var i in photosList){
+      if(i.cameraName == roverCameraName)
+        filteredPhotosList.add(i);
+    }
+
   }
 
   @override
@@ -75,197 +88,211 @@ class _roverPhotosState extends State<roverPhotos> {
       appBar: AppBar(
         title: Text("Mars Rovers"),
       ),
-      body: Center(
-        child: Column(
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                GestureDetector(
-                  onTap: (){
-                    print("Curiosity Selected");
-                    getPhotos("Curiosity");
-                  },
-                    child: Container(child: Text("Curiosity"),)),
-                GestureDetector(
+      body: GestureDetector(
+        onTap: (){
+          setState(() {
+            _visible=false;
+          });
+        },
+        child: Center(
+          child: Column(
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  GestureDetector(
                     onTap: (){
-                      print("Opportunity Selected");
-                      getPhotos("Opportunity");
+                      print("Curiosity Selected");
+                      getPhotos("Curiosity");
                     },
-                    child: Container(child: Text("Opportunity"),)),
-                GestureDetector(
-                    onTap: (){
-                      print("Spirit Selected");
-                      getPhotos("Spirit");
-                    },
-                    child: Container(child: Text("Spirit"),)),
-              ],
-            ),
-            Expanded(
-              child: Stack(
-                children: [
-                  Container(
-                    alignment: Alignment.center,
-                      child: Image(image: AssetImage("assets/CuriosityMobile.jpg"))),
-                  _loading ? Container() :
-                      Positioned(
-                        bottom: 0,
-                        right: 50,
-                        child: GestureDetector(
-                          onTap: (){
-                            setState(() {
-                              expanded=!expanded;
-                              _visible=!_visible;
-                            });
-                          },
-                          child: Transform.scale(
-                            scale: expanded? 1 : 2,
+                      child: Container(child: Text("Curiosity"),)),
+                  GestureDetector(
+                      onTap: (){
+                        print("Opportunity Selected");
+                        getPhotos("Opportunity");
+                      },
+                      child: Container(child: Text("Opportunity"),)),
+                  GestureDetector(
+                      onTap: (){
+                        print("Spirit Selected");
+                        getPhotos("Spirit");
+                      },
+                      child: Container(child: Text("Spirit"),)),
+                ],
+              ),
+              Expanded(
+                child: Stack(
+                  children: [
+                    Container(
+                      alignment: Alignment.center,
+                        child: Image(image: AssetImage("assets/CuriosityMobile.jpg"))),
+                    _loading ? Container() :
+                        Positioned(
+                          bottom: 0,
+                          right: 50,
+                          child: GestureDetector(
+                            onTap: (){
+                              setState(() {
+                                filterList("FHAZ");
+                                _visible=!_visible;
+                              });
+                            },
                             child: Card(
                               child: Text("FHAZ Photos"),
                             ),
                           ),
                         ),
-                      ),
-                  _loading ? Container() :
-                  Positioned(
-                    top: 0,
-                    right: 50,
-                    child: ElevatedButton(
-                      onPressed: (){
-                        _showPics=!_showPics;
-
-                      },
-                      child: Text("Rear Hazard Avoidance Camera Photos"),
-                    ),
-                  ),
-                  _loading ? Container() :
-                  Positioned(
-                    top: 75,
-                    left: 0,
-                    child: ElevatedButton(
-                      onPressed: (){
-                        _showPics=!_showPics;
-
-                      },
-                      child: Text("Chemistry and Camera Complex Photos"),
-                    ),
-                  ),
-                  _loading ? Container() :
-                  Positioned(
-                    top: 75,
-                    right: 0,
-                    child: ElevatedButton(
-                      onPressed: (){
-                        _showPics=!_showPics;
-
-                      },
-                      child: Text("Navigation Camera Photos"),
-                    ),
-                  ),
-                  _loading ? Container() :
-                  Positioned(
-                    top: 75,
-                    left: 75,
-                    child: ElevatedButton(
-                      onPressed: (){
-                        _showPics=!_showPics;
-
-                      },
-                      child: Text("Navigation Camera Photos"),
-                    ),
-                  ),
-                  _visible ? Center(
-                    child: ClipRect(  // <-- clips to the 200x200 [Container] below
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(
-                          sigmaX: 5.0,
-                          sigmaY: 5.0,
-                        ),
-                        child: Container(
-                          alignment: Alignment.center,
-                          child: Text('Hello World'),
-                        ),
+                    _loading ? Container() :
+                    Positioned(
+                      top: 0,
+                      right: 50,
+                      child: GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            filterList("RHAZ");
+                            _visible=!_visible;
+                          });
+                        },
+                        child: Card(child: Text("Rear Hazard Avoidance Camera Photos")),
                       ),
                     ),
-                  ) : null,
-                  Visibility(
-                    visible: _visible,
-                    maintainState: false,
-                    child: Center(
-                      child: AnimatedContainer(
-                        duration: Duration(seconds: 1),
-                        height: expanded ? 800 : 400, // card height
-                        child: PageView.builder(
-                                  itemCount: photosList.length,
-                                  controller: PageController(
-                                      initialPage: 1, keepPage: true, viewportFraction: 0.8),
-                                  onPageChanged: (int index) {
-                                    setState(() {
-                                      _index=index;
-                                    });
-                                  },
-                                  itemBuilder: (_, i) {
-                                    return GestureDetector(
-                                      onTap: (){
-                                        setState(() {
-                                          expanded = !expanded;
-                                        });
-                                      },
-                                      child: Transform.scale(
-                                        scale: i == _index ? 1 : 0.90,
-                                        child:
-                                        Card(
-                                          elevation: 6,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(20)),
-                                          child: SingleChildScrollView(
-                                            child: Column(
-                                              children: <Widget>[
-                                                Image.network(photosList[i].imgURL, height: 300,),
-                                                Text(photosList[i].roverName),
-                                                Text(photosList[i].cameraFullName,),
-                                                Text('Sol ' + photosList[i].sol.toString()),
-                                                Text('Earth Date: ' + photosList[i].earthDate),
-                                                //Text(searchList[index].media_type.toString()),
-                                              ],
+                    _loading ? Container() :
+                    Positioned(
+                      top: 75,
+                      left: 0,
+                      child: GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            filterList("CHEMCAM");
+                            _visible=!_visible;
+                          });
+                        },
+                        child: Card(child: Text("Chemistry and Camera Complex Photos")),
+                      ),
+                    ),
+                    _loading ? Container() :
+                    Positioned(
+                      top: 75,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            filterList("MAHLI");
+                            _visible=!_visible;
+                          });
+
+                        },
+                        child: Text("Mars Hand Lens Imager Photos"),
+                      ),
+                    ),
+                    _loading ? Container() :
+                    Positioned(
+                      top: 75,
+                      left: 75,
+                      child: GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            filterList("NAVCAM");
+                            _visible=!_visible;
+                          });
+
+                        },
+                        child: Text("Navigation Camera Photos"),
+                      ),
+                    ),
+                    _visible ? Center(
+                      child: ClipRect(  // <-- clips to the 200x200 [Container] below
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(
+                            sigmaX: 5.0,
+                            sigmaY: 5.0,
+                          ),
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Text('Hello World'),
+                          ),
+                        ),
+                      ),
+                    ) : Container(),
+                    Visibility(
+                      visible: _visible,
+                      maintainState: false,
+                      child: Center(
+                        child: AnimatedContainer(
+                          duration: Duration(seconds: 1),
+                          height: 400, // card height
+                          child: PageView.builder(
+                                    itemCount: filteredPhotosList.length,
+                                    controller: PageController(
+                                        initialPage: 0, keepPage: true, viewportFraction: 0.8),
+                                    onPageChanged: (int index) {
+                                      setState(() {
+                                        _index=index;
+                                      });
+                                    },
+                                    itemBuilder: (_, i) {
+                                      return GestureDetector(
+                                        onTap: (){
+                                          setState(() {
+                                            expanded = !expanded;
+                                          });
+                                        },
+                                        child: Transform.scale(
+                                          scale: i == _index ? 1 : 0.90,
+                                          child:
+                                          Card(
+                                            elevation: 6,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(20)),
+                                            child: SingleChildScrollView(
+                                              child: Column(
+                                                children: <Widget>[
+                                                  Image.network(filteredPhotosList[i].imgURL, height: 300,),
+                                                  Text(filteredPhotosList[i].roverName),
+                                                  Text(filteredPhotosList[i].cameraFullName,),
+                                                  Text('Sol ' + filteredPhotosList[i].sol.toString()),
+                                                  Text('Earth Date: ' + filteredPhotosList[i].earthDate),
+                                                  //Text(searchList[index].media_type.toString()),
+                                                ],
+                                              ),
                                             ),
                                           ),
+
                                         ),
-
-                                      ),
-                                    );
-                                  },
-                                ),
+                                      );
+                                    },
+                                  ),
 
 
+                          ),
                         ),
-                      ),
-                  ),
-                ],
+                    ),
+                  ],
 
+                ),
               ),
-            ),
-            /*
-            Expanded(
-              child: ListView.builder(
-                    itemCount: photosList.length,
-                    itemBuilder: (context, index){
-                      return Card(
-                        elevation: 10,
-                        child: Column(
-                          children: <Widget>[
-                            Image.network(photosList[index].imgURL),
-                            Text(photosList[index].roverName),
-                            Text(photosList[index].cameraFullName),
-                            Text(photosList[index].sol.toString()),
-                            Text(photosList[index].earthDate),
-                          ],
-                        ),
-                      );
-                    }),
-              ),
-            */
-          ],
+              /*
+              Expanded(
+                child: ListView.builder(
+                      itemCount: photosList.length,
+                      itemBuilder: (context, index){
+                        return Card(
+                          elevation: 10,
+                          child: Column(
+                            children: <Widget>[
+                              Image.network(photosList[index].imgURL),
+                              Text(photosList[index].roverName),
+                              Text(photosList[index].cameraFullName),
+                              Text(photosList[index].sol.toString()),
+                              Text(photosList[index].earthDate),
+                            ],
+                          ),
+                        );
+                      }),
+                ),
+              */
+            ],
+          ),
         ),
       )
     );
