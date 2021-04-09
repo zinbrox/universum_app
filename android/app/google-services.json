@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "822185356429",
+    "project_id": "universum-app",
+    "storage_bucket": "universum-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:822185356429:android:101fe1e15f3d61f56846c4",
+        "android_client_info": {
+          "package_name": "com.zinbrox.universum_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "822185356429-12l2m3lplm44mnid3jgfjddie7qrr1b1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zinbrox.universum_app",
+            "certificate_hash": "1159808cd86abe1ea9578d24a3459a04c41b033d"
+          }
+        },
+        {
+          "client_id": "822185356429-v6un1d0elg5abdk3u33lmcg64tsldo5c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgiWsM4U5B6iIgLB1RQBc-iH1VgahNigI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "822185356429-v6un1d0elg5abdk3u33lmcg64tsldo5c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
