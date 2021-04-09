@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universum_app/pages/home.dart';
 import 'package:universum_app/pages/apod.dart';
+import 'package:universum_app/pages/iss.dart';
 import 'package:universum_app/pages/roverPhotos.dart';
 import 'package:universum_app/pages/settingsPage.dart';
 import 'package:universum_app/pages/weather.dart';
@@ -48,6 +49,7 @@ class _MyAppState extends State<MyApp> {
               '/search':(context) => NASASearch(),
               '/settings':(context) => SettingsPage(),
               '/roverPhotos':(context) => roverPhotos(),
+              '/issLoc':(context) => ISSPage(),
             },
           );
         },

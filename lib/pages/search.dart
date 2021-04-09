@@ -145,8 +145,8 @@ class _NASASearchState extends State<NASASearch> {
             controller: _searchText,
             decoration: InputDecoration(
               filled: true,
-              fillColor: Colors.grey,
-              border: OutlineInputBorder(),
+              //fillColor: Colors.grey,
+              //border: OutlineInputBorder(),
               suffixIcon: IconButton(
                 icon: Icon(Icons.send),
                 onPressed: () {

@@ -42,6 +42,12 @@ class _HomeState extends State<Home> {
             },
           ),
           ElevatedButton(
+            child: Text("ISS Location"),
+            onPressed: (){
+              Navigator.pushNamed(context, '/issLoc');
+            },
+          ),
+          ElevatedButton(
             child: Text("Settings"),
             onPressed: (){
               Navigator.pushNamed(context, '/settings');
