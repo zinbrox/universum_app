@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class ISSPage extends StatefulWidget {
@@ -14,6 +15,28 @@ class _ISSPageState extends State<ISSPage> {
   int timestamp;
   String ISSLocLat, ISSLocLong;
 
+  bool _mapLoading = true;
+
+  GoogleMapController mapController;
+  LatLng _center;
+  final Map<String, Marker> _markers = {};
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+    setState(() {
+      _markers.clear();
+      final marker = Marker(
+        markerId: MarkerId("ID"),
+        position: LatLng(double.parse(ISSLocLat), double.parse(ISSLocLong)),
+        infoWindow: InfoWindow(
+          title: "ISS Current Location",
+          snippet: "Current Location",
+        ),
+      );
+      _markers["ISS"] = marker;
+    });
+  }
+
   getLocation() async {
     print("In getLocation()");
     String url = "http://api.open-notify.org/iss-now.json?";
@@ -25,7 +48,10 @@ class _ISSPageState extends State<ISSPage> {
     ISSLocLat = jsonData['iss_position']['latitude'];
     ISSLocLong = jsonData['iss_position']['longitude'];
     print(ISSLocLong); print(ISSLocLat);
-
+    _center = LatLng(double.parse(ISSLocLat), double.parse(ISSLocLong));
+    setState(() {
+      _mapLoading=false;
+    });
 
   }
 
@@ -41,7 +67,15 @@ class _ISSPageState extends State<ISSPage> {
       appBar: AppBar(
         title: Text("ISS"),
       ),
-      body: Center(child: Text("ISS Page")),
+      body: _mapLoading ? Center(child: CircularProgressIndicator()) :
+      GoogleMap(
+        onMapCreated: _onMapCreated,
+        initialCameraPosition: CameraPosition(
+          target: _center,
+          zoom: 11.0,
+        ),
+        markers: _markers.values.toSet(),
+      ),
     );
   }
 }
