@@ -91,56 +91,62 @@ class _NASASearchState extends State<NASASearch> {
                 future: _loadAllImages(),
                 builder: (context, snapshot) {
                   if(snapshot.hasData) {
-                    return PageView.builder(
-                      itemCount: searchList.length,
-                      controller: PageController(
-                          initialPage: 1, keepPage: true, viewportFraction: 0.85),
-                      onPageChanged: (int index) {
-                        setState(() {
-                          _index=index;
-                        });
-                      },
-                      itemBuilder: (_, i) {
-                        ImageProvider image = snapshot.data[i];
-                        return GestureDetector(
-                          onTap: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => ArticleView(item: searchList[i], image: image)));
-                            /*
-                            setState(() {
-                              expanded = !expanded;
-                            });
-                            
-                             */
-                          },
-                          child: Transform.scale(
-                            scale: i == _index ? 0.95 : 0.9,
-                            child:
-                            Card(
-                              elevation: 6,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20)),
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  children: <Widget>[
-                                  Hero(
-                                    tag: searchList[i].title,
-                                      child: Image(image: image)),
-                                    //Image.network(searchList[_index].imageURL, height: 300,),
-                                    Text(searchList[i].title.toString()),
-                                    Text(searchList[i].description.toString(), overflow: TextOverflow.ellipsis, maxLines: expanded ? 50 : 4,),
-                                    Text(searchList[i].date),
-                                    Text(searchList[i].keywords.toString()),
-                                    Text('Center: ' +
-                                        searchList[i].center.toString()),
-                                    //Text(searchList[index].media_type.toString()),
-                                  ],
+                    return Scrollbar(
+                      child: PageView.builder(
+                        itemCount: searchList.length,
+                        controller: PageController(
+                            initialPage: 1, keepPage: true, viewportFraction: 0.85),
+                        onPageChanged: (int index) {
+                          setState(() {
+                            _index=index;
+                          });
+                        },
+                        itemBuilder: (_, i) {
+                          ImageProvider image = snapshot.data[i];
+                          //if(searchList[i].media_type=="image")
+                          return GestureDetector(
+                            onTap: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ArticleView(item: searchList[i], image: image)));
+                              /*
+                              setState(() {
+                                expanded = !expanded;
+                              });
+                              
+                               */
+                            },
+                            child: Transform.scale(
+                              scale: i == _index ? 1 : 0.9,
+                              child:
+                              Card(
+                                elevation: 6,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: <Widget>[
+                                    Hero(
+                                      tag: searchList[i].title,
+                                        child: Image(image: image)),
+                                      Text(searchList[i].title.toString()),
+                                      //Text(searchList[i].media_type),
+                                      Text(searchList[i].description.toString(), overflow: TextOverflow.ellipsis, maxLines: expanded ? 50 : 4,),
+                                      /*
+                                      Text(searchList[i].date),
+                                      Text(searchList[i].keywords.toString()),
+                                      Text('Center: ' +
+                                          searchList[i].center.toString()),
+                                      //Text(searchList[index].media_type.toString()),
+
+                                       */
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
 
-                          ),
-                        );
-                      },
+                            ),
+                          );
+                        },
+                      ),
                     );
                   }else return new Center(child: CupertinoActivityIndicator());
                 }
@@ -156,7 +162,11 @@ class _NASASearchState extends State<NASASearch> {
               suffixIcon: IconButton(
                 icon: Icon(Icons.send),
                 onPressed: () {
+                  setState(() {
+                    searchList.clear();
+                  });
                   getSearch(_searchText.text);
+                  FocusScope.of(context).unfocus();
                 },
               ),
               hintText: "Search"
@@ -180,13 +190,18 @@ class ArticleView extends StatelessWidget {
     return Scaffold(
       body: Container(
         child: Center(
-          child: Column(
-            children: <Widget>[
-              Hero(
-                tag: item.title,
-                  child: Image(image: image,)),
-              Text(item.title),
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Hero(
+                  tag: item.title,
+                    child: Image(image: image,)),
+                Text(item.title),
+                Text(item.center),
+                Text(item.date),
+                Text(item.description),
+              ],
+            ),
           ),
         ),
       ),

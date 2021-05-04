@@ -114,7 +114,7 @@ class _ISSPageState extends State<ISSPage> {
         onMapCreated: _onMapCreated,
         initialCameraPosition: CameraPosition(
           target: _center,
-          zoom: 11.0,
+          zoom: 3.0,
         ),
         markers: _markers.values.toSet(),
       ),
