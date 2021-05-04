@@ -13,13 +13,15 @@ class _ISSPageState extends State<ISSPage> {
 
   String message;
   int timestamp;
-  String ISSLocLat, ISSLocLong;
+  String ISSLocLat="", ISSLocLong="";
 
   bool _mapLoading = true;
 
   GoogleMapController mapController;
   LatLng _center;
   final Map<String, Marker> _markers = {};
+
+  var streamSubscription;
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -39,26 +41,66 @@ class _ISSPageState extends State<ISSPage> {
 
   getLocation() async {
     print("In getLocation()");
-    String url = "http://api.open-notify.org/iss-now.json?";
-    var response = await http.get(Uri.parse(url));
-    var jsonData = jsonDecode(response.body);
-    print(jsonData);
-    message = jsonData['message'];
-    timestamp = jsonData['timestamp'];
-    ISSLocLat = jsonData['iss_position']['latitude'];
-    ISSLocLong = jsonData['iss_position']['longitude'];
-    print(ISSLocLong); print(ISSLocLat);
-    _center = LatLng(double.parse(ISSLocLat), double.parse(ISSLocLong));
-    setState(() {
-      _mapLoading=false;
-    });
-
+    while (true) {
+      await Future.delayed(Duration(seconds: 5));
+      String url = "http://api.open-notify.org/iss-now.json?";
+      var response = await http.get(Uri.parse(url));
+      var jsonData = jsonDecode(response.body);
+      //print(jsonData);
+      message = jsonData['message'];
+      timestamp = jsonData['timestamp'];
+      ISSLocLat = jsonData['iss_position']['latitude'];
+      ISSLocLong = jsonData['iss_position']['longitude'];
+      print(ISSLocLong);
+      print(ISSLocLat);
+      _center = LatLng(double.parse(ISSLocLat), double.parse(ISSLocLong));
+      setState(() {
+        _mapLoading = false;
+      });
+    }
   }
+
+  /*
+  // For Continuously getting Locations every 5sec
+  Stream<List<String>> getLocation() async* {
+    //print("In getLocation()");
+    while(true) {
+      await Future.delayed(Duration(seconds: 5));
+      String url = "http://api.open-notify.org/iss-now.json?";
+      var response = await http.get(Uri.parse(url));
+      var jsonData = jsonDecode(response.body);
+      //print(jsonData);
+      message = jsonData['message'];
+      timestamp = jsonData['timestamp'];
+      ISSLocLat = jsonData['iss_position']['latitude'];
+      ISSLocLong = jsonData['iss_position']['longitude'];
+      print(ISSLocLong);
+      print(ISSLocLat);
+
+      List<String> l = [];
+      l.add(ISSLocLat);
+      l.add(ISSLocLong);
+      yield l;
+    }
+  }
+
+   */
 
   @override
   void initState() {
     super.initState();
     getLocation();
+    /*
+    streamSubscription = getLocation().listen((event) {
+        print(event[0]);
+    });
+     */
+  }
+
+  @override
+  void dispose() {
+    streamSubscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -67,7 +109,7 @@ class _ISSPageState extends State<ISSPage> {
       appBar: AppBar(
         title: Text("ISS"),
       ),
-      body: _mapLoading ? Center(child: CircularProgressIndicator()) :
+      body: _mapLoading ? Center(child: Text(ISSLocLat + " " + ISSLocLong)) :
       GoogleMap(
         onMapCreated: _onMapCreated,
         initialCameraPosition: CameraPosition(

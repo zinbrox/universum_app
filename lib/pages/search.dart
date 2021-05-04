@@ -104,9 +104,13 @@ class _NASASearchState extends State<NASASearch> {
                         ImageProvider image = snapshot.data[i];
                         return GestureDetector(
                           onTap: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => ArticleView(item: searchList[i], image: image)));
+                            /*
                             setState(() {
                               expanded = !expanded;
                             });
+                            
+                             */
                           },
                           child: Transform.scale(
                             scale: i == _index ? 0.95 : 0.9,
@@ -118,7 +122,9 @@ class _NASASearchState extends State<NASASearch> {
                               child: SingleChildScrollView(
                                 child: Column(
                                   children: <Widget>[
-                                  Image(image: image),
+                                  Hero(
+                                    tag: searchList[i].title,
+                                      child: Image(image: image)),
                                     //Image.network(searchList[_index].imageURL, height: 300,),
                                     Text(searchList[i].title.toString()),
                                     Text(searchList[i].description.toString(), overflow: TextOverflow.ellipsis, maxLines: expanded ? 50 : 4,),
@@ -164,30 +170,28 @@ class _NASASearchState extends State<NASASearch> {
 
 }
 
-/*
- ListView.builder(
-              itemCount: searchList.length,
-              itemBuilder: (BuildContext context, int index){
-                return GestureDetector(
-                  onTap: (){
+class ArticleView extends StatelessWidget {
+  Items item;
+  ImageProvider image;
+  ArticleView({Key key, @required this.item, @required this.image}) : super(key: key);
 
-                  },
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)
-                    ),
-                    child: Column(
-                      children: <Widget>[
-                        Image.network(searchList[index].imageURL),
-                        Text(searchList[index].title.toString()),
-                        Text(searchList[index].description.toString()),
-                        Text(searchList[index].date),
-                        Text(searchList[index].keywords.toString()),
-                        Text('Center: ' + searchList[index].center.toString()),
-                        //Text(searchList[index].media_type.toString()),
-                      ],
-                    ),
-                  ),
-                );
-              })
- */
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        child: Center(
+          child: Column(
+            children: <Widget>[
+              Hero(
+                tag: item.title,
+                  child: Image(image: image,)),
+              Text(item.title),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
