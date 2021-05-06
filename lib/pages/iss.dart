@@ -19,6 +19,8 @@ class _ISSPageState extends State<ISSPage> {
   String message;
   int timestamp;
   String ISSLocLat="", ISSLocLong="";
+  int numAstronauts;
+  List<String> astronautNames = [], astronautSpacecraft = [];
 
   bool _mapLoading = true;
 
@@ -37,9 +39,8 @@ class _ISSPageState extends State<ISSPage> {
     return (await fi.image.toByteData(format: ui.ImageByteFormat.png)).buffer.asUint8List();
   }
 
-  void _onMapCreated(GoogleMapController controller) {
+  Future<void> _onMapCreated(GoogleMapController controller) async {
     mapController = controller;
-    setState(() async {
       _markers.clear();
       final Uint8List markerIcon = await getBytesFromAsset('assets/ISS.bmp', 150);
       final marker = Marker(
@@ -51,8 +52,9 @@ class _ISSPageState extends State<ISSPage> {
           snippet: "Current Location",
         ),
       );
-      _markers["ISS"] = marker;
-    });
+      setState(() {
+        _markers["ISS"] = marker;
+      });
   }
 
   getLocation() async {
@@ -84,10 +86,12 @@ class _ISSPageState extends State<ISSPage> {
     print(double.parse(ISSLocLat));
     final coordinates = new Coordinates(double.parse(ISSLocLat), double.parse(ISSLocLong));
     var addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    //var addresses = await Geocoder.google('AIzaSyC9bO1piARTK7Q-GdSXCODscUgQkR8-WsA').findAddressesFromCoordinates(coordinates);
     var first = addresses.first;
     addressName = first.featureName;
     addressLine = first.addressLine;
     print("${first.featureName} : ${first.addressLine}");
+    
     setState(() {
 
     });
@@ -118,6 +122,41 @@ class _ISSPageState extends State<ISSPage> {
   }
 
    */
+
+  getHumansInSpace() async {
+    print("In getHumansInSpace");
+    astronautNames.clear();
+    astronautSpacecraft.clear();
+    String url = "http://api.open-notify.org/astros.json";
+    var response = await http.get(Uri.parse(url));
+    var jsonData = jsonDecode(response.body);
+    var message = jsonData['message'];
+    numAstronauts = jsonData['number'];
+    for(var i in jsonData['people']) {
+      if(i['name']!=null && i['craft']!=null) {
+        astronautNames.add(i['name']);
+        astronautSpacecraft.add(i['craft']);
+      }
+    }
+    print(astronautNames);
+    print(astronautSpacecraft);
+    await showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            height: 300,
+            child: ListView.builder(
+                itemCount: astronautNames.length,
+                itemBuilder: (BuildContext context, index){
+                  return ListTile(
+                    title: Text(astronautNames[index]),
+                    trailing: Text(astronautSpacecraft[index]),
+                  );
+                }),
+          );
+        });
+
+  }
 
   @override
   void initState() {
@@ -157,6 +196,9 @@ class _ISSPageState extends State<ISSPage> {
             ),
           ),
           Text("Current Location: " + addressLine),
+          ElevatedButton(onPressed: () async {
+            getHumansInSpace();
+          }, child: Text("Who are currently on the ISS?")),
         ],
       ),
     );
