@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
+import 'dart:ui' as ui;
 
 class ISSPage extends StatefulWidget {
   @override
@@ -27,11 +30,20 @@ class _ISSPageState extends State<ISSPage> {
 
   var addressName = "", addressLine = "";
 
+  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(), targetWidth: width);
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png)).buffer.asUint8List();
+  }
+
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    setState(() {
+    setState(() async {
       _markers.clear();
+      final Uint8List markerIcon = await getBytesFromAsset('assets/ISS.bmp', 150);
       final marker = Marker(
+        icon: await BitmapDescriptor.fromBytes(markerIcon),
         markerId: MarkerId("ID"),
         position: LatLng(double.parse(ISSLocLat), double.parse(ISSLocLong)),
         infoWindow: InfoWindow(
@@ -70,12 +82,15 @@ class _ISSPageState extends State<ISSPage> {
   {
     print("In _getLocationAddress");
     print(double.parse(ISSLocLat));
-    final coordinates = new Coordinates(double.parse("13.0827"), double.parse("80.2707"));
+    final coordinates = new Coordinates(double.parse(ISSLocLat), double.parse(ISSLocLong));
     var addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
     var first = addresses.first;
     addressName = first.featureName;
     addressLine = first.addressLine;
     print("${first.featureName} : ${first.addressLine}");
+    setState(() {
+
+    });
   }
 
   /*
@@ -141,7 +156,7 @@ class _ISSPageState extends State<ISSPage> {
               markers: _markers.values.toSet(),
             ),
           ),
-          Text(addressLine),
+          Text("Current Location: " + addressLine),
         ],
       ),
     );
