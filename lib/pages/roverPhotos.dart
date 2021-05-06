@@ -223,6 +223,7 @@ class _roverPhotosState extends State<roverPhotos> {
                           height: 400, // card height
                           child: PageView.builder(
                                     itemCount: filteredPhotosList.length,
+                                    scrollDirection: Axis.horizontal,
                                     controller: PageController(
                                         initialPage: 0, keepPage: true, viewportFraction: 0.8),
                                     onPageChanged: (int index) {

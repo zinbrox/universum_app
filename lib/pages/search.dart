@@ -111,7 +111,7 @@ class _NASASearchState extends State<NASASearch> {
                               setState(() {
                                 expanded = !expanded;
                               });
-                              
+
                                */
                             },
                             child: Transform.scale(
@@ -153,6 +153,7 @@ class _NASASearchState extends State<NASASearch> {
               ),
             ),
           ),
+
           TextField(
             controller: _searchText,
             decoration: InputDecoration(
@@ -172,6 +173,8 @@ class _NASASearchState extends State<NASASearch> {
               hintText: "Search"
             ),
           ),
+
+
         ],
       ),
     );

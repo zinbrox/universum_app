@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:photo_view/photo_view.dart';
 import 'dart:async';
 
 import 'package:shimmer/shimmer.dart';
@@ -102,20 +104,28 @@ class _APODState extends State<APOD> {
         ),
         child: ListView(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(15.0),
-              child: FadeInImage.assetNetwork(
-                  placeholder: 'assets/LoadingGif.gif',
-                  imageErrorBuilder: (BuildContext context,
-                      Object exception,
-                      StackTrace stackTrace) {
-                    return Column(
-                      children: [
-                        Text("Couldn't Load Image"),
-                      ],
-                    );
-                  },
-                  image: imageURL),
+            InkWell(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: imageURL, title: imageTitle,)));
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15.0),
+                child: Hero(
+                  tag: "APODPhoto",
+                  child: FadeInImage.assetNetwork(
+                      placeholder: 'assets/LoadingGif.gif',
+                      imageErrorBuilder: (BuildContext context,
+                          Object exception,
+                          StackTrace stackTrace) {
+                        return Column(
+                          children: [
+                            Text("Couldn't Load Image"),
+                          ],
+                        );
+                      },
+                      image: imageURL),
+                ),
+              ),
             ),
             
             SingleChildScrollView(
@@ -134,3 +144,28 @@ class _APODState extends State<APOD> {
     );
   }
 }
+
+class PictureView extends StatelessWidget {
+  String imageURL, title;
+  PictureView({Key key, @required this.imageURL, @required this.title}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: Center(
+        child: Container(
+            child: Hero(
+              tag: "APODPhoto",
+              child: PhotoView(
+                imageProvider: NetworkImage(imageURL),
+              ),
+            )
+        ),
+      ),
+    );
+  }
+}
+
