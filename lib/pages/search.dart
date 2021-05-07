@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
 
 class Items {
   String imageURL; // image data
@@ -196,9 +197,14 @@ class ArticleView extends StatelessWidget {
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                Hero(
-                  tag: item.title,
-                    child: Image(image: image,)),
+                InkWell(
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(image: image, title: item.title,)));
+                  },
+                  child: Hero(
+                    tag: item.title,
+                      child: Image(image: image,)),
+                ),
                 Text(item.title),
                 Text(item.center),
                 Text(item.date),
@@ -206,6 +212,31 @@ class ArticleView extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class PictureView extends StatelessWidget {
+  String title;
+  ImageProvider image;
+  PictureView({Key key, @required this.image, @required this.title}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: Center(
+        child: Container(
+            child: Hero(
+              tag: "APODPhoto",
+              child: PhotoView(
+                imageProvider: image,
+              ),
+            )
         ),
       ),
     );

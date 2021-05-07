@@ -38,7 +38,7 @@ class _HomeState extends State<Home> {
           ElevatedButton(
             child: Text("Rover Photos"),
             onPressed: (){
-              Navigator.pushNamed(context, '/roverPhotos');
+              Navigator.pushNamed(context, '/roverSelect');
             },
           ),
           ElevatedButton(

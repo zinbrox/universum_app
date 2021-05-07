@@ -106,6 +106,14 @@ class _APODState extends State<APOD> {
           children: [
             InkWell(
               onTap: (){
+                /*
+                Navigator.of(context).push(
+                  PageRouteBuilder(
+                    opaque: true, // set to false
+                    pageBuilder: (_, __, ___) => PictureView(imageURL: imageURL, title: imageTitle,)),
+                  );
+
+                 */
                 Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: imageURL, title: imageTitle,)));
               },
               child: ClipRRect(
@@ -134,7 +142,7 @@ class _APODState extends State<APOD> {
                   Text(imageTitle),
                   Text(imageDescription),
                   Text(imageDate),
-                  Text(imageCopyRight),
+                  imageCopyRight==null ? Container() : Text(imageCopyRight),
                 ],
               ),
             ),

@@ -50,6 +50,7 @@ class _MyAppState extends State<MyApp> {
               '/marsWeather':(context) => MarsWeather(),
               '/search':(context) => NASASearch(),
               '/settings':(context) => SettingsPage(),
+              '/roverSelect':(context) => roverSelect(),
               '/roverPhotos':(context) => roverPhotos(),
               '/issLoc':(context) => ISSPage(),
 

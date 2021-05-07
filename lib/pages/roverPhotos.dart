@@ -1,8 +1,41 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
+List<String> roverNames = ['Curiosity', 'Perseverance', 'Opportunity', 'Spirit'];
+List<String> roverImages = ['assets/CuriosityMobile.jpg', 'assets/CuriosityMobile.jpg', 'assets/CuriosityMobile.jpg', 'assets/CuriosityMobile.jpg'];
+List<String> activeDates = [];
+
+class roverSelect extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Select a Rover"),
+      ),
+      body: Center(
+        child: GridView.count(
+            crossAxisCount: 2,
+            mainAxisSpacing: 8.0,
+            children: List.generate(roverNames.length, (index) {
+            return InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => roverPhotos(roverName: roverNames[index]))),
+              child: Center(
+                child: Container(
+                  child: Image(image: AssetImage(roverImages[index]),),
+                ),
+              ),
+            );
+          })
+        ),
+      ),
+    );
+  }
+}
+
 
 class photoDetails{
   int sol, photoID, cameraID, roverID;
@@ -14,11 +47,16 @@ class photoDetails{
 }
 
 class roverPhotos extends StatefulWidget {
+
+  String roverName;
+  roverPhotos({Key key, @required this.roverName}) : super(key: key);
+
   @override
   _roverPhotosState createState() => _roverPhotosState();
 }
 
 class _roverPhotosState extends State<roverPhotos> {
+
 
   List<photoDetails> photosList = [];
   List<photoDetails> filteredPhotosList=[];
@@ -33,6 +71,8 @@ class _roverPhotosState extends State<roverPhotos> {
 
   String roverCameraName = "FHAZ";
 
+  List<String> roverCameraNames = [];
+
   Future<void> getPhotos(String rover) async {
     print("In getPhotos");
     photoDetails item;
@@ -41,11 +81,19 @@ class _roverPhotosState extends State<roverPhotos> {
     var jsonData = jsonDecode(response.body);
 
     for(var elements in jsonData['photos']){
+      /*
       print(elements['id'].runtimeType);
       print(elements['sol'].runtimeType);
       print(elements['earth_date'].runtimeType);
       print(elements['id'].runtimeType);
-      print(elements['id'].runtimeType);
+
+       */
+      //numRoverCameras = elements['camera']['name'].length();
+      if(!roverCameraNames.contains(elements['camera']['full_name']))
+        roverCameraNames.add(elements['camera']['full_name']);
+      //print(roverCameraNames);
+
+
       item = new photoDetails(
         photoID: elements['id'],
         sol: elements['sol'],
@@ -60,13 +108,15 @@ class _roverPhotosState extends State<roverPhotos> {
       );
       photosList.add(item);
     }
-    filteredPhotosList = photosList;
+    //filteredPhotosList = photosList;
 
     setState(() {
       _loading=false;
+      _visible=true;
     });
   }
 
+  /*
   void filterList(String roverCameraName) {
     filteredPhotosList = [];
     for(var i in photosList){
@@ -76,10 +126,12 @@ class _roverPhotosState extends State<roverPhotos> {
 
   }
 
+   */
+
   @override
   void initState() {
     super.initState();
-    //getPhotos();
+    getPhotos(widget.roverName);
   }
 
   @override
@@ -94,112 +146,18 @@ class _roverPhotosState extends State<roverPhotos> {
             _visible=false;
           });
         },
-        child: Center(
+        child: ListView.builder(
+          itemCount: roverCameraNames.length,
+            itemBuilder: (context, index){
+            return _returnList(index);
+            }),
+        /*
+        Center(
           child: Column(
             children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: (){
-                      print("Curiosity Selected");
-                      getPhotos("Curiosity");
-                    },
-                      child: Container(child: Text("Curiosity"),)),
-                  GestureDetector(
-                      onTap: (){
-                        print("Opportunity Selected");
-                        getPhotos("Opportunity");
-                      },
-                      child: Container(child: Text("Opportunity"),)),
-                  GestureDetector(
-                      onTap: (){
-                        print("Spirit Selected");
-                        getPhotos("Spirit");
-                      },
-                      child: Container(child: Text("Spirit"),)),
-                ],
-              ),
               Expanded(
                 child: Stack(
                   children: [
-                    Container(
-                      alignment: Alignment.center,
-                        child: Image(image: AssetImage("assets/CuriosityMobile.jpg"))),
-                    _loading ? Container() :
-                        Positioned(
-                          bottom: 0,
-                          right: 50,
-                          child: GestureDetector(
-                            onTap: (){
-                              setState(() {
-                                filterList("FHAZ");
-                                _visible=!_visible;
-                              });
-                            },
-                            child: Card(
-                              child: Text("FHAZ Photos"),
-                            ),
-                          ),
-                        ),
-                    _loading ? Container() :
-                    Positioned(
-                      top: 0,
-                      right: 50,
-                      child: GestureDetector(
-                        onTap: (){
-                          setState(() {
-                            filterList("RHAZ");
-                            _visible=!_visible;
-                          });
-                        },
-                        child: Card(child: Text("Rear Hazard Avoidance Camera Photos")),
-                      ),
-                    ),
-                    _loading ? Container() :
-                    Positioned(
-                      top: 75,
-                      left: 0,
-                      child: GestureDetector(
-                        onTap: (){
-                          setState(() {
-                            filterList("CHEMCAM");
-                            _visible=!_visible;
-                          });
-                        },
-                        child: Card(child: Text("Chemistry and Camera Complex Photos")),
-                      ),
-                    ),
-                    _loading ? Container() :
-                    Positioned(
-                      top: 75,
-                      right: 0,
-                      child: GestureDetector(
-                        onTap: (){
-                          setState(() {
-                            filterList("MAHLI");
-                            _visible=!_visible;
-                          });
-
-                        },
-                        child: Text("Mars Hand Lens Imager Photos"),
-                      ),
-                    ),
-                    _loading ? Container() :
-                    Positioned(
-                      top: 75,
-                      left: 75,
-                      child: GestureDetector(
-                        onTap: (){
-                          setState(() {
-                            filterList("NAVCAM");
-                            _visible=!_visible;
-                          });
-
-                        },
-                        child: Text("Navigation Camera Photos"),
-                      ),
-                    ),
                     _visible ? Center(
                       child: ClipRect(  // <-- clips to the 200x200 [Container] below
                         child: BackdropFilter(
@@ -220,12 +178,12 @@ class _roverPhotosState extends State<roverPhotos> {
                       child: Center(
                         child: AnimatedContainer(
                           duration: Duration(seconds: 1),
-                          height: 400, // card height
+                          height: 300, // card height
                           child: PageView.builder(
                                     itemCount: filteredPhotosList.length,
                                     scrollDirection: Axis.horizontal,
                                     controller: PageController(
-                                        initialPage: 0, keepPage: true, viewportFraction: 0.8),
+                                        initialPage: 0, keepPage: true, viewportFraction: 0.6),
                                     onPageChanged: (int index) {
                                       setState(() {
                                         _index=index;
@@ -295,8 +253,90 @@ class _roverPhotosState extends State<roverPhotos> {
             ],
           ),
         ),
+        */
       )
     );
+  }
+
+  /*
+  Future<List<CachedNetworkImageProvider>> _loadAllImages() async{
+    List<CachedNetworkImageProvider> cachedImages = [];
+    for(int i=0;i<photosList.length;i++) {
+      var configuration = createLocalImageConfiguration(context);
+      cachedImages.add(new CachedNetworkImageProvider("${photosList[i].imgURL}")..resolve(configuration));
+    }
+    return cachedImages;
+  }
+   */
+
+  Widget _returnList(int pos) {
+    //print("In _returnList");
+    filteredPhotosList.clear();
+    for(var i in photosList) {
+      if (i.cameraFullName == roverCameraNames[pos])
+        filteredPhotosList.add(i);
+    }
+
+    return Column(
+            children: [
+              Text(roverCameraNames[pos]),
+              AnimatedContainer(
+                duration: Duration(seconds: 1),
+                height: 300, // card height
+                child: PageView.builder(
+                  itemCount: filteredPhotosList.length,
+                  scrollDirection: Axis.horizontal,
+                  controller: PageController(
+                      initialPage: 0, keepPage: true, viewportFraction: 0.8),
+                  onPageChanged: (int index) {
+                    setState(() {
+                      _index = index;
+                    });
+                  },
+                  itemBuilder: (_, i) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          expanded = !expanded;
+                        });
+                      },
+                      child: Transform.scale(
+                        scale: i == _index ? 1 : 0.90,
+                        child:
+                        Card(
+                          elevation: 6,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: <Widget>[
+                                Image.network(
+                                  filteredPhotosList[i].imgURL, height: 300,),
+                                /*
+                              Text(filteredPhotosList[i].roverName),
+                              Text(filteredPhotosList[i].cameraFullName,),
+                              Text('Sol ' + filteredPhotosList[i].sol.toString()),
+                              Text('Earth Date: ' + filteredPhotosList[i].earthDate),
+                              //Text(searchList[index].media_type.toString()),
+
+                               */
+                              ],
+                            ),
+                          ),
+                        ),
+
+                      ),
+                    );
+                  },
+                ),
+
+
+              ),
+
+              Divider(),
+            ],
+          );
+    
   }
 }
 
