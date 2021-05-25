@@ -6,6 +6,7 @@ import 'package:photo_view/photo_view.dart';
 import 'dart:async';
 
 import 'package:shimmer/shimmer.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class APOD extends StatefulWidget {
   @override
@@ -14,7 +15,11 @@ class APOD extends StatefulWidget {
 
 class _APODState extends State<APOD> {
   bool _loading=true;
+  String mediaType;
   String imageURL, imageTitle, imageDescription, imageCopyRight, imageDate;
+  String videoURL;
+
+
 
 
   Future<void> getAPOD() async {
@@ -23,13 +28,21 @@ class _APODState extends State<APOD> {
     url = "https://api.nasa.gov/planetary/apod?api_key=4bzcuj3O9pBfQzaCONWqeIlD3RbbyaXgjnp9yvxa";
     var response = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(response.body);
+    mediaType = jsonData['media_type'];
+    if(mediaType=="image")
+      print("Image");
+    else
+      videoURL = jsonData['url'];
+    /*
     imageURL = jsonData['hdurl'];
-    precacheImage(NetworkImage(imageURL), context);
+    //precacheImage(NetworkImage(imageURL), context);
     print(imageURL);
     imageTitle = jsonData['title'];
     imageDescription = jsonData['explanation'];
     imageCopyRight = jsonData['copyright'];
     imageDate = jsonData['date'];
+
+     */
     setState(() {
       _loading=false;
     });
@@ -98,6 +111,22 @@ class _APODState extends State<APOD> {
         ),
       )
           :
+          mediaType=="image" ? Center(child: Text("Image"),)
+              :
+          YoutubePlayer(
+            controller: YoutubePlayerController(
+              initialVideoId: YoutubePlayer.convertUrlToId(videoURL), //Add videoID.
+              flags: YoutubePlayerFlags(
+                hideControls: false,
+                controlsVisibleAtStart: true,
+                autoPlay: false,
+                mute: false,
+              ),
+            ),
+            showVideoProgressIndicator: true,
+            progressIndicatorColor: Colors.pinkAccent,
+          ),
+          /*
       Center(child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
@@ -120,6 +149,8 @@ class _APODState extends State<APOD> {
                 borderRadius: BorderRadius.circular(15.0),
                 child: Hero(
                   tag: "APODPhoto",
+                  child: Text(imageURL),
+                  /*
                   child: FadeInImage.assetNetwork(
                       placeholder: 'assets/LoadingGif.gif',
                       imageErrorBuilder: (BuildContext context,
@@ -132,6 +163,7 @@ class _APODState extends State<APOD> {
                         );
                       },
                       image: imageURL),
+                  */
                 ),
               ),
             ),
@@ -149,6 +181,7 @@ class _APODState extends State<APOD> {
           ],
         ),
       ),),
+      */
     );
   }
 }

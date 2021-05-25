@@ -336,7 +336,7 @@ class _roverPhotosState extends State<roverPhotos> {
               Divider(),
             ],
           );
-    
+
   }
 }
 

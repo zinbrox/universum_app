@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -8,6 +9,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'dart:ui' as ui;
+
+class MarkerPoints {
+  double latitude, longitude;
+  MarkerPoints({this.latitude, this.longitude});
+}
 
 class ISSPage extends StatefulWidget {
   @override
@@ -27,6 +33,8 @@ class _ISSPageState extends State<ISSPage> {
   GoogleMapController mapController;
   LatLng _center;
   final Map<String, Marker> _markers = {};
+  final Set<Polyline> _polyline={};
+  List<LatLng> latlng = [];
 
   var streamSubscription;
 
@@ -46,7 +54,7 @@ class _ISSPageState extends State<ISSPage> {
       final marker = Marker(
         icon: await BitmapDescriptor.fromBytes(markerIcon),
         markerId: MarkerId("ID"),
-        position: LatLng(double.parse(ISSLocLat), double.parse(ISSLocLong)),
+        position: LatLng(13.0827, 80.2707),
         infoWindow: InfoWindow(
           title: "ISS Current Location",
           snippet: "Current Location",
@@ -57,6 +65,8 @@ class _ISSPageState extends State<ISSPage> {
       });
   }
 
+  /*
+  // OpenNotify API
   getLocation() async {
     print("In getLocation()");
 
@@ -73,28 +83,52 @@ class _ISSPageState extends State<ISSPage> {
       print(ISSLocLong);
       print(ISSLocLat);
       _center = LatLng(double.parse(ISSLocLat), double.parse(ISSLocLong));
-      _getLocationAddress(ISSLocLat, ISSLocLong);
+      //_getLocationAddress(ISSLocLat, ISSLocLong);
       setState(() {
         _mapLoading = false;
       });
     //}
   }
 
-  _getLocationAddress(String ISSLocLat, String ISSLocLong) async
+   */
+
+  double latitude, longitude, altitude, velocity;
+  String visibility;
+
+  /*
+  // WheretheISSAt API
+  getLoocationWIS() async {
+    print("In getLocationWIS");
+    String url = "https://api.wheretheiss.at/v1/satellites/25544";
+    var response = await http.get(Uri.parse(url));
+    var jsonData = jsonDecode(response.body);
+    latitude = jsonData['latitude'];
+    longitude = jsonData['longitude'];
+    altitude = jsonData['altitude'];
+    velocity = jsonData['velocity'];
+    visibility = jsonData['visibility'];
+    _center = LatLng(latitude, longitude);
+    _getLocationAddress(latitude, longitude);
+    setState(() {
+      _mapLoading=false;
+    });
+
+  }
+   */
+
+
+
+  _getLocationAddress(double ISSLocLat, double ISSLocLong) async
   {
     print("In _getLocationAddress");
-    print(double.parse(ISSLocLat));
-    final coordinates = new Coordinates(double.parse(ISSLocLat), double.parse(ISSLocLong));
+    print(ISSLocLat);
+    final coordinates = new Coordinates(ISSLocLat, ISSLocLong);
     var addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
     //var addresses = await Geocoder.google('AIzaSyC9bO1piARTK7Q-GdSXCODscUgQkR8-WsA').findAddressesFromCoordinates(coordinates);
     var first = addresses.first;
     addressName = first.featureName;
     addressLine = first.addressLine;
     print("${first.featureName} : ${first.addressLine}");
-
-    setState(() {
-
-    });
   }
 
   /*
@@ -123,6 +157,73 @@ class _ISSPageState extends State<ISSPage> {
 
    */
 
+  bool firstIter = true;
+  Stream<List<Marker>> getLocationWIS() async* {
+    print("In getLocationWIS");
+    final Uint8List markerIcon = await getBytesFromAsset('assets/ISS.bmp', 150);
+    while(this.mounted) {
+      if(firstIter) {
+        firstIter = false;
+        var now = DateTime.now().millisecondsSinceEpoch;
+        print(now);
+        String url = "https://api.wheretheiss.at/v1/satellites/25544/positions?timestamps=${now/1000 - 2400},${now/1000 - 2100},${now/1000 - 1800},${now/1000 - 1500},${now/1000 - 1200},${now/1000 - 900},${now/1000 - 750},${now/1000 - 600},${now/1000 - 300},${now/1000 - 100}&units=kilometers";
+
+        var response = await http.get(Uri.parse(url));
+        var jsonData = jsonDecode(response.body);
+        for(var elements in jsonData) {
+          latitude = elements['latitude'];
+          longitude = elements['longitude'];
+          latlng.add(LatLng(latitude, longitude));
+        }
+      }
+      else
+        await Future.delayed(Duration(seconds: 2));
+      String url = "https://api.wheretheiss.at/v1/satellites/25544";
+      var response = await http.get(Uri.parse(url));
+      var jsonData = jsonDecode(response.body);
+      latitude = jsonData['latitude'];
+      longitude = jsonData['longitude'];
+      altitude = jsonData['altitude'];
+      velocity = jsonData['velocity'];
+      visibility = jsonData['visibility'];
+      _getLocationAddress(latitude, longitude);
+      print(latitude);
+      print(longitude);
+
+      //_markers.clear();
+      final marker = Marker(
+        icon: BitmapDescriptor.fromBytes(markerIcon),
+        markerId: MarkerId("ID"),
+        position: LatLng(latitude, longitude),
+        infoWindow: InfoWindow(
+          title: "ISS Current Location",
+          snippet: "Current Location",
+        ),
+      );
+
+
+      latlng.add(LatLng(latitude, longitude));
+      _polyline.add(Polyline(
+        polylineId: PolylineId("PolyID"),
+        visible: true,
+        //latlng is List<LatLng>
+        points: latlng,
+        color: Colors.blue,
+        width: 3,
+      ));
+
+
+      if(this.mounted) {
+        setState(() {
+          _markers["ISS"] = marker;
+          _center = LatLng(latitude, longitude);
+          _mapLoading = false;
+        });
+      }
+    }
+
+  }
+
   getHumansInSpace() async {
     print("In getHumansInSpace");
     astronautNames.clear();
@@ -145,14 +246,17 @@ class _ISSPageState extends State<ISSPage> {
         builder: (context) {
           return Container(
             height: 300,
-            child: ListView.builder(
-                itemCount: astronautNames.length,
-                itemBuilder: (BuildContext context, index){
-                  return ListTile(
-                    title: Text(astronautNames[index]),
-                    trailing: Text(astronautSpacecraft[index]),
-                  );
-                }),
+            child: Scrollbar(
+              isAlwaysShown: true,
+              child: ListView.builder(
+                  itemCount: astronautNames.length,
+                  itemBuilder: (BuildContext context, index){
+                    return ListTile(
+                      title: Text(astronautNames[index]),
+                      trailing: Text(astronautSpacecraft[index]),
+                    );
+                  }),
+            ),
           );
         });
 
@@ -161,17 +265,22 @@ class _ISSPageState extends State<ISSPage> {
   @override
   void initState() {
     super.initState();
-    getLocation();
-    /*
-    streamSubscription = getLocation().listen((event) {
+    //getLoocationWIS();
+
+
+    streamSubscription = getLocationWIS().listen((event) {
         print(event[0]);
     });
-     */
+
+  }
+
+  Future<void> cancelSubscription() async {
+    await streamSubscription.cancel();
   }
 
   @override
   void dispose() {
-    //streamSubscription.cancel();
+    cancelSubscription();
     super.dispose();
   }
 
@@ -185,20 +294,33 @@ class _ISSPageState extends State<ISSPage> {
       Column(
         children: [
           Container(
-            height: MediaQuery.of(context).size.height*0.7,
+            height: MediaQuery.of(context).size.height*0.6,
             child: GoogleMap(
-              onMapCreated: _onMapCreated,
-              initialCameraPosition: CameraPosition(
-                target: _center,
-                zoom: 3.0,
-              ),
-              markers: _markers.values.toSet(),
+                    onMapCreated: _onMapCreated,
+                    initialCameraPosition: CameraPosition(
+                      target: _center,
+                      zoom: 3.0,
+                    ),
+                    markers: _markers.values.toSet(),
+                    polylines: _polyline,
+                  ),
+
+
+            ),
+          SizedBox(height: 10,),
+          Expanded(
+            child: Column(
+              children: [
+                Text("Current Location: " + addressLine),
+                Text("Altitude: " + altitude.toStringAsFixed(2) + " km"),
+                Text("Velocity: " + velocity.toStringAsFixed(2) + " km/s"),
+                Text("Visibility: $visibility"),
+                ElevatedButton(onPressed: () async {
+                  getHumansInSpace();
+                }, child: Text("Who are currently on the ISS?")),
+              ],
             ),
           ),
-          Text("Current Location: " + addressLine),
-          ElevatedButton(onPressed: () async {
-            getHumansInSpace();
-          }, child: Text("Who are currently on the ISS?")),
         ],
       ),
     );
