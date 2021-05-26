@@ -1,4 +1,6 @@
+import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:universum_app/helpers/notificationsPlugin.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -6,6 +8,19 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  void initState() {
+    super.initState();
+    localNotifyManager.setListenerForLowerVersions(onNotificationInLowerVersions);
+    localNotifyManager.setOnNotificationClick(onNotificationClick);
+  }
+
+  onNotificationInLowerVersions(ReceivedNotification receivedNotification) {}
+  Future onNotificationClick(String payload) {
+    print("Pressed Notification");
+    print("Payload: $payload");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,8 +68,24 @@ class _HomeState extends State<Home> {
               Navigator.pushNamed(context, '/settings');
             },
           ),
+          ElevatedButton(
+              onPressed: (){
+                print("Started");
+                AndroidAlarmManager.periodic(const Duration(seconds: 10), 0, showPrint);
+              },
+              child: Text("Alarm Manager")),
+          ElevatedButton(onPressed: (){
+            print("Cancelled");
+            AndroidAlarmManager.cancel(0);
+            localNotifyManager.cancelAllNotification();
+
+          }, child: Text("Cancel Notifications"))
         ],
       )),
     );
   }
+}
+
+showPrint() {
+  localNotifyManager.repeatNotification();
 }

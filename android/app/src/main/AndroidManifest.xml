@@ -1,12 +1,41 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.zinbrox.universum_app">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
    <application
+       android:name=".Application"
         android:label="universum_app"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
 
        <meta-data android:name="com.google.android.geo.API_KEY"
            android:value="AIzaSyC9bO1piARTK7Q-GdSXCODscUgQkR8-WsA"/>
+
+       <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+           <intent-filter>
+               <action android:name="android.intent.action.BOOT_COMPLETED"/>
+               <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+           </intent-filter>
+       </receiver>
+
+       <service
+           android:name="io.flutter.plugins.androidalarmmanager.AlarmService"
+           android:permission="android.permission.BIND_JOB_SERVICE"
+           android:exported="false"/>
+       <receiver
+           android:name="io.flutter.plugins.androidalarmmanager.AlarmBroadcastReceiver"
+           android:exported="false"/>
+       <receiver
+           android:name="io.flutter.plugins.androidalarmmanager.RebootBroadcastReceiver"
+           android:enabled="false">
+           <intent-filter>
+               <action android:name="android.intent.action.BOOT_COMPLETED"/>
+           </intent-filter>
+       </receiver>
 
         <activity
             android:name=".MainActivity"

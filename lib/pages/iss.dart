@@ -123,12 +123,21 @@ class _ISSPageState extends State<ISSPage> {
     print("In _getLocationAddress");
     print(ISSLocLat);
     final coordinates = new Coordinates(ISSLocLat, ISSLocLong);
-    var addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    try {
+      var addresses = await Geocoder.local.findAddressesFromCoordinates(
+          coordinates);
+      var first = addresses.first;
+      addressName = first.featureName;
+      addressLine = first.addressLine;
+    }
+    catch(e) {
+      addressName="Error";
+      addressLine="Error";
+    }
     //var addresses = await Geocoder.google('AIzaSyC9bO1piARTK7Q-GdSXCODscUgQkR8-WsA').findAddressesFromCoordinates(coordinates);
-    var first = addresses.first;
-    addressName = first.featureName;
-    addressLine = first.addressLine;
-    print("${first.featureName} : ${first.addressLine}");
+   print(addressName);
+    print(addressLine);
+    //print("${first.featureName} : ${first.addressLine}");
   }
 
   /*
@@ -294,7 +303,7 @@ class _ISSPageState extends State<ISSPage> {
       Column(
         children: [
           Container(
-            height: MediaQuery.of(context).size.height*0.6,
+            height: MediaQuery.of(context).size.height*0.7,
             child: GoogleMap(
                     onMapCreated: _onMapCreated,
                     initialCameraPosition: CameraPosition(
@@ -309,16 +318,18 @@ class _ISSPageState extends State<ISSPage> {
             ),
           SizedBox(height: 10,),
           Expanded(
-            child: Column(
-              children: [
-                Text("Current Location: " + addressLine),
-                Text("Altitude: " + altitude.toStringAsFixed(2) + " km"),
-                Text("Velocity: " + velocity.toStringAsFixed(2) + " km/s"),
-                Text("Visibility: $visibility"),
-                ElevatedButton(onPressed: () async {
-                  getHumansInSpace();
-                }, child: Text("Who are currently on the ISS?")),
-              ],
+            child: Center(
+              child: ListView(
+                children: [
+                  Text("Current Location: " + addressLine),
+                  Text("Altitude: " + altitude.toStringAsFixed(2) + " km"),
+                  Text("Velocity: " + velocity.toStringAsFixed(2) + " km/s"),
+                  Text("Visibility: $visibility"),
+                  ElevatedButton(onPressed: () async {
+                    getHumansInSpace();
+                  }, child: Text("Who are currently on the ISS?")),
+                ],
+              ),
             ),
           ),
         ],

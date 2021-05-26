@@ -129,12 +129,12 @@ class _APODState extends State<APOD> {
                       );
 
                      */
-                Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: imageURL, title: contentTitle,)));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: imageURL, title: contentTitle, index: -1,)));
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15.0),
                 child: Hero(
-                  tag: "APODPhoto",
+                  tag: "tag${-1}",
                   child: FadeInImage.assetNetwork(
                       placeholder: 'assets/LoadingGif.gif',
                       imageErrorBuilder: (BuildContext context,
@@ -196,18 +196,19 @@ class _APODState extends State<APOD> {
 
 class PictureView extends StatelessWidget {
   String imageURL, title;
-  PictureView({Key key, @required this.imageURL, @required this.title}) : super(key: key);
+  int index;
+  PictureView({Key key, @required this.imageURL, @required this.title, @required this.index}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(index.toString()),
       ),
       body: Center(
         child: Container(
             child: Hero(
-              tag: "APODPhoto",
+              tag: "tag$index",
               child: PhotoView(
                 imageProvider: NetworkImage(imageURL),
               ),
