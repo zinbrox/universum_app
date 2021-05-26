@@ -16,7 +16,7 @@ class APOD extends StatefulWidget {
 class _APODState extends State<APOD> {
   bool _loading=true;
   String mediaType;
-  String imageURL, imageTitle, imageDescription, imageCopyRight, imageDate;
+  String imageURL, contentTitle, contentDescription, contentCopyRight, contentDate;
   String videoURL;
 
 
@@ -29,20 +29,20 @@ class _APODState extends State<APOD> {
     var response = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(response.body);
     mediaType = jsonData['media_type'];
-    if(mediaType=="image")
-      print("Image");
-    else
+    if(mediaType=="image") {
+      imageURL = jsonData['hdurl'];
+      //precacheImage(NetworkImage(imageURL), context);
+    }
+    else {
       videoURL = jsonData['url'];
-    /*
-    imageURL = jsonData['hdurl'];
-    //precacheImage(NetworkImage(imageURL), context);
-    print(imageURL);
-    imageTitle = jsonData['title'];
-    imageDescription = jsonData['explanation'];
-    imageCopyRight = jsonData['copyright'];
-    imageDate = jsonData['date'];
+    }
 
-     */
+    contentTitle = jsonData['title'];
+    contentDescription = jsonData['explanation'];
+    contentCopyRight = jsonData['copyright'];
+    contentDate = jsonData['date'];
+
+
     setState(() {
       _loading=false;
     });
@@ -111,46 +111,30 @@ class _APODState extends State<APOD> {
         ),
       )
           :
-          mediaType=="image" ? Center(child: Text("Image"),)
-              :
-          YoutubePlayer(
-            controller: YoutubePlayerController(
-              initialVideoId: YoutubePlayer.convertUrlToId(videoURL), //Add videoID.
-              flags: YoutubePlayerFlags(
-                hideControls: false,
-                controlsVisibleAtStart: true,
-                autoPlay: false,
-                mute: false,
-              ),
-            ),
-            showVideoProgressIndicator: true,
-            progressIndicatorColor: Colors.pinkAccent,
-          ),
-          /*
+
       Center(child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
         ),
-        child: ListView(
+        child: Column(
           children: [
+            mediaType=="image" ?
             InkWell(
               onTap: (){
                 /*
-                Navigator.of(context).push(
-                  PageRouteBuilder(
-                    opaque: true, // set to false
-                    pageBuilder: (_, __, ___) => PictureView(imageURL: imageURL, title: imageTitle,)),
-                  );
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        opaque: true, // set to false
+                        pageBuilder: (_, __, ___) => PictureView(imageURL: imageURL, title: imageTitle,)),
+                      );
 
-                 */
-                Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: imageURL, title: imageTitle,)));
+                     */
+                Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: imageURL, title: contentTitle,)));
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15.0),
                 child: Hero(
                   tag: "APODPhoto",
-                  child: Text(imageURL),
-                  /*
                   child: FadeInImage.assetNetwork(
                       placeholder: 'assets/LoadingGif.gif',
                       imageErrorBuilder: (BuildContext context,
@@ -163,25 +147,49 @@ class _APODState extends State<APOD> {
                         );
                       },
                       image: imageURL),
-                  */
                 ),
               ),
+            )
+                :
+            YoutubePlayerBuilder(
+              player: YoutubePlayer(
+                controller: YoutubePlayerController(
+                  initialVideoId: YoutubePlayer.convertUrlToId(videoURL), //Add videoID.
+                  flags: YoutubePlayerFlags(
+                    hideControls: false,
+                    controlsVisibleAtStart: true,
+                    autoPlay: false,
+                    mute: false,
+                  ),
+                ),
+                showVideoProgressIndicator: true,
+                progressIndicatorColor: Colors.pinkAccent,
+              ),
+              builder: (context, player){
+                return Column(
+                  children: [
+                    player,
+                  ],
+                );
+              },
             ),
-            
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  Text(imageTitle),
-                  Text(imageDescription),
-                  Text(imageDate),
-                  imageCopyRight==null ? Container() : Text(imageCopyRight),
-                ],
+            SizedBox(height: 5,),
+            Expanded(
+              child: Center(
+                child: ListView(
+                  children: [
+                    Center(child: Text(contentTitle)),
+                    Text(contentDescription),
+                    Text(contentDate),
+                    contentCopyRight==null ? Container() : Center(child: Text(contentCopyRight)),
+                  ],
+                ),
               ),
             ),
           ],
         ),
       ),),
-      */
+
     );
   }
 }

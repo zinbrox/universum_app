@@ -25,7 +25,12 @@ class roverSelect extends StatelessWidget {
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => roverPhotos(roverName: roverNames[index]))),
               child: Center(
                 child: Container(
-                  child: Image(image: AssetImage(roverImages[index]),),
+                  child: Stack(
+                    children: [
+                      Image(image: AssetImage(roverImages[index]),),
+                      Text(roverNames[index]),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -73,6 +78,8 @@ class _roverPhotosState extends State<roverPhotos> {
 
   List<String> roverCameraNames = [];
 
+  List<int> indexSelected;
+
   Future<void> getPhotos(String rover) async {
     print("In getPhotos");
     photoDetails item;
@@ -109,7 +116,7 @@ class _roverPhotosState extends State<roverPhotos> {
       photosList.add(item);
     }
     //filteredPhotosList = photosList;
-
+    indexSelected=List<int>.generate(roverCameraNames.length, (int index) => 0);
     setState(() {
       _loading=false;
       _visible=true;
@@ -290,7 +297,7 @@ class _roverPhotosState extends State<roverPhotos> {
                       initialPage: 0, keepPage: true, viewportFraction: 0.8),
                   onPageChanged: (int index) {
                     setState(() {
-                      _index = index;
+                      indexSelected[pos] = index;
                     });
                   },
                   itemBuilder: (_, i) {
@@ -301,27 +308,16 @@ class _roverPhotosState extends State<roverPhotos> {
                         });
                       },
                       child: Transform.scale(
-                        scale: i == _index ? 1 : 0.90,
+                        scale: i == indexSelected[pos] ? 1 : 0.90,
                         child:
                         Card(
                           elevation: 6,
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20)),
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: <Widget>[
-                                Image.network(
-                                  filteredPhotosList[i].imgURL, height: 300,),
-                                /*
-                              Text(filteredPhotosList[i].roverName),
-                              Text(filteredPhotosList[i].cameraFullName,),
-                              Text('Sol ' + filteredPhotosList[i].sol.toString()),
-                              Text('Earth Date: ' + filteredPhotosList[i].earthDate),
-                              //Text(searchList[index].media_type.toString()),
-
-                               */
-                              ],
-                            ),
+                              borderRadius: BorderRadius.circular(10)),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.network(
+                              filteredPhotosList[i].imgURL, fit: BoxFit.fill,),
                           ),
                         ),
 
