@@ -138,12 +138,12 @@ class _ISSPageState extends State<ISSPage> {
       addressLine = first.addressLine;
     }
     catch(e) {
-      addressName="Error";
-      addressLine="Error";
+      addressName="Couldn't find Location";
+      addressLine="Couldn't find Location";
     }
     //var addresses = await Geocoder.google('AIzaSyC9bO1piARTK7Q-GdSXCODscUgQkR8-WsA').findAddressesFromCoordinates(coordinates);
-   print(addressName);
-    print(addressLine);
+   //print(addressName);
+    //print(addressLine);
     //print("${first.featureName} : ${first.addressLine}");
   }
 
@@ -193,7 +193,7 @@ class _ISSPageState extends State<ISSPage> {
         }
       }
       else
-        await Future.delayed(Duration(seconds: 2));
+        await Future.delayed(Duration(seconds: 1));
       String url = "https://api.wheretheiss.at/v1/satellites/25544";
       var response = await http.get(Uri.parse(url));
       var jsonData = jsonDecode(response.body);
@@ -203,8 +203,8 @@ class _ISSPageState extends State<ISSPage> {
       velocity = jsonData['velocity'];
       visibility = jsonData['visibility'];
       _getLocationAddress(latitude, longitude);
-      print(latitude);
-      print(longitude);
+      //print(latitude);
+      //print(longitude);
 
       //_markers.clear();
       final marker = Marker(
@@ -224,7 +224,7 @@ class _ISSPageState extends State<ISSPage> {
         visible: true,
         //latlng is List<LatLng>
         points: latlng,
-        color: Colors.blue,
+        color: Colors.orange,
         width: 3,
       ));
 
