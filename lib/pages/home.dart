@@ -1,5 +1,6 @@
 import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:universum_app/helpers/notificationsPlugin.dart';
 
 class Home extends StatefulWidget {
@@ -8,6 +9,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
 
   void initState() {
     super.initState();
@@ -66,6 +68,12 @@ class _HomeState extends State<Home> {
             child: Text("Settings"),
             onPressed: (){
               Navigator.pushNamed(context, '/settings');
+            },
+          ),
+          ElevatedButton(
+            child: Text("Upcoming Launches"),
+            onPressed: (){
+              Navigator.pushNamed(context, '/upcomingLaunches');
             },
           ),
           ElevatedButton(

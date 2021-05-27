@@ -7,7 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:geolocator/geolocator.dart';
+import 'package:universum_app/helpers/ad_helper.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:ui' as ui;
 
 class MarkerPoints {
@@ -21,6 +22,12 @@ class ISSPage extends StatefulWidget {
 }
 
 class _ISSPageState extends State<ISSPage> {
+
+  // TODO: Add _bannerAd
+  BannerAd _bannerAd;
+
+  // TODO: Add _isBannerAdReady
+  bool _isBannerAdReady = false;
 
   String message;
   int timestamp;
@@ -271,12 +278,41 @@ class _ISSPageState extends State<ISSPage> {
 
   }
 
+  void initialiseBanner() {
+    // TODO: Initialize _bannerAd
+    _bannerAd = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Failed to load a banner ad: ${err.message}');
+          _isBannerAdReady = false;
+          ad.dispose();
+        },
+        // Called when an ad opens an overlay that covers the screen.
+        onAdOpened: (Ad ad) => print('Ad opened.'),
+        // Called when an ad removes an overlay that covers the screen.
+        onAdClosed: (Ad ad) => print('Ad closed.'),
+        // Called when an impression occurs on the ad.
+        onAdImpression: (Ad ad) => print('Ad impression.'),
+      ),
+    );
+
+    _bannerAd.load();
+  }
+
   @override
   void initState() {
     super.initState();
     //getLoocationWIS();
 
-
+    //initialiseBanner();
     streamSubscription = getLocationWIS().listen((event) {
         print(event[0]);
     });
@@ -319,7 +355,7 @@ class _ISSPageState extends State<ISSPage> {
           SizedBox(height: 10,),
           Expanded(
             child: Center(
-              child: ListView(
+              child: Column(
                 children: [
                   Text("Current Location: " + addressLine),
                   Text("Altitude: " + altitude.toStringAsFixed(2) + " km"),
@@ -328,6 +364,21 @@ class _ISSPageState extends State<ISSPage> {
                   ElevatedButton(onPressed: () async {
                     getHumansInSpace();
                   }, child: Text("Who are currently on the ISS?")),
+                  /*
+                  _isBannerAdReady ?
+                    Container(
+                    //height: 100,
+                    width: MediaQuery.of(context).size.width*0.4,
+                      //width: _bannerAd.size.width.toDouble(),
+                      height: _bannerAd.size.height.toDouble(),
+                      child: AdWidget(ad: _bannerAd),
+                    ) : Container(),
+
+                   */
+
+
+
+
                 ],
               ),
             ),
