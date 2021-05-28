@@ -2,6 +2,9 @@ import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:universum_app/helpers/notificationsPlugin.dart';
+import 'package:universum_app/pages/explorePage.dart';
+import 'package:universum_app/pages/homePage.dart';
+import 'package:universum_app/pages/settingsPage.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -9,6 +12,13 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  int _currentIndex=0;
+  final tabs=[
+    HomePage(),
+    ExplorePage(),
+    SettingsPage(),
+  ];
 
 
   void initState() {
@@ -26,70 +36,38 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Home"),
-        centerTitle: true,
-      ),
-      body: Center(child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text("Hello"),
-          ElevatedButton(
-            child: Text("APOD"),
-            onPressed: (){
-              Navigator.pushNamed(context, '/apod');
-            },
-          ),
-          ElevatedButton(
-            child: Text("Weather"),
-            onPressed: (){
-              Navigator.pushNamed(context, '/marsWeather');
-            },
-          ),
-          ElevatedButton(
-            child: Text("Search"),
-            onPressed: (){
-              Navigator.pushNamed(context, '/search');
-            },
-          ),
-          ElevatedButton(
-            child: Text("Rover Photos"),
-            onPressed: (){
-              Navigator.pushNamed(context, '/roverSelect');
-            },
-          ),
-          ElevatedButton(
-            child: Text("ISS Location"),
-            onPressed: (){
-              Navigator.pushNamed(context, '/issLoc');
-            },
-          ),
-          ElevatedButton(
-            child: Text("Settings"),
-            onPressed: (){
-              Navigator.pushNamed(context, '/settings');
-            },
-          ),
-          ElevatedButton(
-            child: Text("Upcoming Launches"),
-            onPressed: (){
-              Navigator.pushNamed(context, '/upcomingLaunches');
-            },
-          ),
-          ElevatedButton(
-              onPressed: (){
-                print("Started");
-                AndroidAlarmManager.periodic(const Duration(seconds: 10), 0, showPrint);
-              },
-              child: Text("Alarm Manager")),
-          ElevatedButton(onPressed: (){
-            print("Cancelled");
-            AndroidAlarmManager.cancel(0);
-            localNotifyManager.cancelAllNotification();
-
-          }, child: Text("Cancel Notifications"))
+      bottomNavigationBar: BottomNavigationBar(
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _currentIndex,
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home Page"),
+          BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Search Page"),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings Page"),
         ],
-      )),
+        onTap: (index){
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+      ),
+      body: Stack(
+        children: [
+          Offstage(
+            offstage: _currentIndex!=0,
+            child: tabs[0],
+          ),
+          Offstage(
+            offstage: _currentIndex!=1,
+            child: tabs[1],
+          ),
+          Offstage(
+            offstage: _currentIndex!=2,
+            child: tabs[2],
+          ),
+        ],
+      ),
     );
   }
 }

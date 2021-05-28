@@ -43,6 +43,7 @@ dependencies:
   android_alarm_manager: ^2.0.1
   path_provider: ^2.0.2
   google_mobile_ads: ^0.13.0
+  palette_generator: ^0.3.0
 
 
   # The following adds the Cupertino Icons font to your application.
