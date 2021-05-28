@@ -9,7 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:universum_app/pages/apod.dart';
 
 List<String> roverNames = ['Curiosity', 'Perseverance', 'Opportunity', 'Spirit'];
-List<String> roverImages = ['assets/CuriosityMobile.jpg', 'assets/CuriosityMobile.jpg', 'assets/CuriosityMobile.jpg', 'assets/CuriosityMobile.jpg'];
+List<String> roverImages = ['assets/Curiosity.jpg', 'assets/Perseverance.jpg', 'assets/Opportunity.jpg', 'assets/Spirit.jpg'];
 List<String> activeDates = [];
 
 class roverSelect extends StatelessWidget {
@@ -22,18 +22,36 @@ class roverSelect extends StatelessWidget {
       body: Center(
         child: GridView.count(
             crossAxisCount: 2,
-            mainAxisSpacing: 8.0,
+            mainAxisSpacing: 20,
+            childAspectRatio: 0.8,
             children: List.generate(roverNames.length, (index) {
             return InkWell(
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => roverPhotos(roverName: roverNames[index]))),
               child: Center(
                 child: Container(
+                  height: 400,
+                  //height: MediaQuery.of(context).size.height*0.8,
+                  width: MediaQuery.of(context).size.width*0.45,
+                  child: Center(child: Text(roverNames[index], style: TextStyle(color: Colors.white, fontSize: 25),)),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    image: DecorationImage(
+                      fit: BoxFit.fitHeight,
+                      image: AssetImage(roverImages[index]),
+                    ),
+                  ),
+
+                  /*
                   child: Stack(
                     children: [
-                      Image(image: AssetImage(roverImages[index]),),
+                      FittedBox(
+                          child: Image(image: AssetImage(roverImages[index]),
+                            fit: BoxFit.fill,
+                          )),
                       Text(roverNames[index]),
                     ],
                   ),
+                  */
                 ),
               ),
             );
@@ -350,7 +368,30 @@ class _roverPhotosState extends State<roverPhotos> {
       if (i.cameraFullName == roverCameraNames[pos])
         filteredPhotosList.add(i);
     }
+    return Column(
+      children: [
+        Text(roverCameraNames[pos]),
+        Container(
+          height: 300,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: filteredPhotosList.length,
+              itemBuilder: (context, index){
+                return Card(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Hero(
+                      tag: "tag${pos+1}$index",
+                      child: Image(image: NetworkImage(filteredPhotosList[index].imgURL)),
 
+                    ),
+                  ),
+                );
+              }),
+        ),
+      ],
+    );
+    /*
     return Column(
             children: [
               Text(roverCameraNames[pos]),
@@ -410,6 +451,7 @@ class _roverPhotosState extends State<roverPhotos> {
               Divider(),
             ],
           );
+    */
 
   }
 }

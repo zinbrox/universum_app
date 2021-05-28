@@ -19,7 +19,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  bool _loading=true;
+  bool _articlesLoading=true, _blogsLoading=true;
+  String dropdownValue="Articles";
   List<Article> articles = [];
   List<Blog> blogs = [];
 
@@ -41,7 +42,7 @@ class _HomePageState extends State<HomePage> {
       articles.add(article);
     }
     setState(() {
-      _loading=false;
+      _articlesLoading=false;
     });
   }
 
@@ -54,27 +55,50 @@ class _HomePageState extends State<HomePage> {
     for(var result in jsonData) {
       blog = Blog(
         title: result['title'],
-        imageURL: result['imageURL'],
+        imageURL: result['imageUrl'],
         summary: result['summary'],
         newsSite: result['newsSite'],
         date: result['publishedAt'],
       );
       blogs.add(blog);
     }
+    setState(() {
+      _blogsLoading=false;
+    });
   }
 
   @override
   void initState() {
     super.initState();
     getArticles();
+    getBlogs();
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("HomePage"),
+        actions: [
+          DropdownButton<String>(
+            value: dropdownValue,
+            underline: Container(),
+            onChanged: (String newValue) {
+              setState(() {
+                dropdownValue = newValue;
+              });
+            },
+            items: <String>['Articles', 'Blogs']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value, style: TextStyle(fontSize: 18),),
+              );
+            }).toList(),
+          ),
+        ],
       ),
-      body: _loading? Center(child: CircularProgressIndicator(),) :
+      body: //Center(child: CircularProgressIndicator(),)
+      (dropdownValue=="Articles" && _articlesLoading==false)?
           ListView.builder(
             itemCount: articles.length,
               itemBuilder: (context, index){
@@ -90,7 +114,25 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),);
-              })
+              }) :
+      (dropdownValue=="Blogs" && _blogsLoading==false)?
+      ListView.builder(
+          itemCount: articles.length,
+          itemBuilder: (context, index){
+            return Container(child: Card(
+              elevation: 5,
+              child: Column(
+                children: [
+                  Image.network(blogs[index].imageURL),
+                  Text(blogs[index].title),
+                  Text(blogs[index].summary),
+                  Text(blogs[index].newsSite),
+                  Text(blogs[index].date),
+                ],
+              ),
+            ),);
+          }) :
+          Center(child: CircularProgressIndicator(),),
     );
   }
 }

@@ -40,6 +40,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
     final DateFormat dateFormatter = DateFormat('dd-MM-yyyy');
     final DateFormat timeFormatter = DateFormat('HH:MM:SS');
     print(DateTime.now());
+    //print(jsonData['results']);
     /*
     if(DateTime.now().isUtc)
       print("Yes");
@@ -50,25 +51,30 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
 
     for(var results in jsonData['results']) {
       date = DateTime.parse(results['net']).toLocal();
-      print(results['rocket']['full_name']);
+      //print(results['rocket']['configuration']['full_name']);
       
 
       launch = LaunchDetails(
-        launchName: results['name'],
-        date: dateFormatter.format(date),
-        time: timeFormatter.format(date),
-        dateObject: date,
-        rocketName: results['rocket']['configuration']['full_name'],
-        rocketFamily: results['rocket']['configuration']['family'],
-        missionName: results['mission']['name'],
-        missionDescription: results['mission']['description'],
-        padName: results['pad']['name'],
-        padLocation: results['pad']['location']['name'],
-        padURL: results['pad']['wiki_url'],
-        type: results['launch_service_provider']['type'],
-        status: results['status']['name'],
-        imageURL: results['image'],
+        launchName: results['name']?? "",
+        date: dateFormatter.format(date)?? "",
+        time: timeFormatter.format(date)?? "",
+        dateObject: date ?? DateTime.now(),
+        rocketName: results['rocket']['configuration']['full_name']?? "",
+        rocketFamily: results['rocket']['configuration']['family']?? "",
+        missionName: results['mission']['name']?? "",
+        missionDescription: results['mission']['description']?? "",
+        padName: results['pad']['name']?? "",
+        padLocation: results['pad']['location']['name']?? "",
+        padURL: results['pad']['wiki_url']?? "",
+        type: results['launch_service_provider']['type']?? "",
+        status: results['status']['name']?? "",
+        imageURL: results['image']?? "",
       );
+      print(launch.rocketName);
+      print(launch.missionName);
+      print(launch.padName);
+      print(launch.type);
+      print(launch.status);
       launches.add(launch);
     }
 
@@ -96,7 +102,9 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
           ListView.builder(
             itemCount: launches.length,
               itemBuilder: (context, index) {
-              return Container(
+              return Text("Hello");
+              /*
+                Container(
                 child: Card(
                   elevation: 5,
                   child: Column(
@@ -106,7 +114,9 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                           Image(image: NetworkImage(launches[index].imageURL)),
                           Align(
                             alignment: Alignment.topRight,
-                            child: IconButton(icon: Icon(Icons.notifications, color: Colors.white,), onPressed: (){},),
+                            child: Container(
+                                color: Colors.black12,
+                                child: IconButton(icon: Icon(Icons.notifications, color: Colors.white,), onPressed: (){},)),
                           ),
                         ],
                       ),
@@ -114,7 +124,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(launches[index].missionName, style: TextStyle(fontSize: 25),),
+                          //Text(launches[index].missionName, style: TextStyle(fontSize: 25),),
                           Column(
                             children: [
                               Text("Date: " + launches[index].date, style: TextStyle(fontSize: 20),),
@@ -148,7 +158,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                           ),
                         ],
                       ),
-                      Text("Status: " + launches[index].status),
+                      //Text("Status: " + launches[index].status),
 
                       StreamBuilder(
                         stream: Stream.periodic(Duration(seconds: 1), (i) => 1),
@@ -176,6 +186,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                   ),
                 ),
               );
+              */
               })
     );
   }

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+List<String> titles = ["APOD", "ISS Tracker", "Mars Rover Photos", "Upcoming Launches"];
+List<String> images = ["assets/OrionNebula.jpg", "assets/ISS.jpg", "assets/Curiosity.jpg", "assets/RocketLaunch.jpg"];
+List<String> links = ['/apod', '/issLoc', '/roverSelect', '/upcomingLaunches'];
+
 class ExplorePage extends StatefulWidget {
   @override
   _ExplorePageState createState() => _ExplorePageState();
@@ -13,8 +17,93 @@ class _ExplorePageState extends State<ExplorePage> {
         title: Text("Explore"),
       ),
       body: Center(child: Column(
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 5),
+            child: TextField(
+              //controller: _searchText,
+              decoration: InputDecoration(
+                  //contentPadding: EdgeInsets.all(20.0),
+                  border: new OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  prefixIcon: Icon(Icons.search),
+                  /*
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.send),
+                    onPressed: () {
+                      setState(() {
+                        //searchList.clear();
+                      });
+                      //getSearch(_searchText.text);
+                      FocusScope.of(context).unfocus();
+                    },
+                  ),
+                  */
+                  hintText: "Search"
+              ),
+            ),
+          ),
+          SizedBox(height: 10,),
+          Expanded(
+            child: GridView.count(
+                crossAxisCount: 2,
+                mainAxisSpacing: 20,
+                childAspectRatio: 0.8,
+                children: List.generate(titles.length, (index) {
+                  return InkWell(
+                    onTap: () => Navigator.pushNamed(context, links[index]),
+                    child: Center(
+                      child: Container(
+                        height: 400,
+                        //height: MediaQuery.of(context).size.height*0.8,
+                        width: MediaQuery.of(context).size.width*0.45,
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Container(
+                          color: Colors.black12,
+                            child: Text(titles[index], style: TextStyle(fontSize: 30, color: Colors.white), textAlign: TextAlign.center,)),),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          image: DecorationImage(
+                            fit: BoxFit.fitHeight,
+                            image: AssetImage(images[index]),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                })
+            ),
+          ),
+        ],
+      ),
+          /*
+      Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          TextField(
+            //controller: _searchText,
+            decoration: InputDecoration(
+                filled: true,
+                //fillColor: Colors.grey,
+                //border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.search),
+                /*
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.send),
+                  onPressed: () {
+                    setState(() {
+                      //searchList.clear();
+                    });
+                    //getSearch(_searchText.text);
+                    FocusScope.of(context).unfocus();
+                  },
+                ),
+                */
+                hintText: "Search"
+            ),
+          ),
           Text("Hello"),
           ElevatedButton(
             child: Text("APOD"),
@@ -72,8 +161,11 @@ class _ExplorePageState extends State<ExplorePage> {
 
           }, child: Text("Cancel Notifications"))
            */
+          Spacer(),
         ],
-      )),
+      )
+          */
+      ),
     );
   }
 }
