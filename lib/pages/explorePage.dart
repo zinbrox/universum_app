@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:universum_app/pages/search.dart';
 
 List<String> titles = ["APOD", "ISS Tracker", "Mars Rover Photos", "Upcoming Launches"];
 List<String> images = ["assets/OrionNebula.jpg", "assets/ISS.jpg", "assets/Curiosity.jpg", "assets/RocketLaunch.jpg"];
@@ -10,6 +11,8 @@ class ExplorePage extends StatefulWidget {
 }
 
 class _ExplorePageState extends State<ExplorePage> {
+
+  final TextEditingController _searchText = new TextEditingController();
 
   @override
   void initState() {
@@ -32,25 +35,30 @@ class _ExplorePageState extends State<ExplorePage> {
           Container(
             margin: EdgeInsets.symmetric(horizontal: 5),
             child: TextField(
-              //controller: _searchText,
+              controller: _searchText,
+              onChanged: (String text) {
+                _searchText.text=text;
+              },
+              onSubmitted: (String text){
+                FocusScope.of(context).unfocus();
+                Navigator.push(context, MaterialPageRoute(builder: (context) => NASASearch(keyword: text)));
+              },
               decoration: InputDecoration(
                   //contentPadding: EdgeInsets.all(20.0),
                   border: new OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
                   prefixIcon: Icon(Icons.search),
-                  /*
                   suffixIcon: IconButton(
-                    icon: Icon(Icons.send),
+                    icon: Icon(Icons.navigate_next),
                     onPressed: () {
                       setState(() {
                         //searchList.clear();
                       });
-                      //getSearch(_searchText.text);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => NASASearch(keyword: _searchText.text)));
                       FocusScope.of(context).unfocus();
                     },
                   ),
-                  */
                   hintText: "Search"
               ),
             ),

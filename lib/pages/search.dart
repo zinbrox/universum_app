@@ -13,6 +13,9 @@ class Items {
 }
 
 class NASASearch extends StatefulWidget {
+
+  String keyword;
+  NASASearch({Key key, @required this.keyword}) : super(key: key);
   @override
   _NASASearchState createState() => _NASASearchState();
 }
@@ -21,6 +24,7 @@ class _NASASearchState extends State<NASASearch> {
   List<Items> searchList = [];
   final TextEditingController _searchText = new TextEditingController();
 
+  bool _loading=true;
   int _index=0;
   bool expanded=false;
 
@@ -28,12 +32,10 @@ class _NASASearchState extends State<NASASearch> {
     print("In getSearch()");
     Items item;
     String url;
-    if(text!=null)
-      url = "https://images-api.nasa.gov/search?q=$text";
-    else
-      url = "https://images-api.nasa.gov/search?q=pluto";
+    url = "https://images-api.nasa.gov/search?q=$text";
     var response = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(response.body);
+
 
     for(var elements in jsonData['collection']['items']) {
       //print(elements['data'][0]['title']);
@@ -53,7 +55,7 @@ class _NASASearchState extends State<NASASearch> {
         searchList.add(item);
     }
     setState(() {
-
+      _loading=false;
     });
   }
   Future<List<CachedNetworkImageProvider>> _loadAllImages() async{
@@ -68,7 +70,7 @@ class _NASASearchState extends State<NASASearch> {
   @override
   void initState() {
     super.initState();
-    getSearch("");
+    getSearch(widget.keyword);
   }
 
   @override
@@ -82,101 +84,27 @@ class _NASASearchState extends State<NASASearch> {
         title: Text("NASA Image And Video Library Search"),
         centerTitle: true,
       ),
-      body: Stack(
-        children: [
-          Center(
-            child: AnimatedContainer(
-              duration: Duration(seconds: 1),
-              height: expanded ? 800 : 500, // card height
-              child: FutureBuilder(
-                future: _loadAllImages(),
-                builder: (context, snapshot) {
-                  if(snapshot.hasData) {
-                    return Scrollbar(
-                      child: PageView.builder(
-                        itemCount: searchList.length,
-                        controller: PageController(
-                            initialPage: 1, keepPage: true, viewportFraction: 0.85),
-                        onPageChanged: (int index) {
-                          setState(() {
-                            _index=index;
-                          });
-                        },
-                        itemBuilder: (_, i) {
-                          ImageProvider image = snapshot.data[i];
-                          //if(searchList[i].media_type=="image")
-                          return GestureDetector(
-                            onTap: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => ArticleView(item: searchList[i], image: image)));
-                              /*
-                              setState(() {
-                                expanded = !expanded;
-                              });
-
-                               */
-                            },
-                            child: Transform.scale(
-                              scale: i == _index ? 1 : 0.9,
-                              child:
-                              Card(
-                                elevation: 6,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20)),
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    children: <Widget>[
-                                    Hero(
-                                      tag: searchList[i].title,
-                                        child: Image(image: image)),
-                                      Text(searchList[i].title.toString()),
-                                      //Text(searchList[i].media_type),
-                                      Text(searchList[i].description.toString(), overflow: TextOverflow.ellipsis, maxLines: expanded ? 50 : 4,),
-                                      /*
-                                      Text(searchList[i].date),
-                                      Text(searchList[i].keywords.toString()),
-                                      Text('Center: ' +
-                                          searchList[i].center.toString()),
-                                      //Text(searchList[index].media_type.toString()),
-
-                                       */
-                                    ],
-                                  ),
-                                ),
-                              ),
-
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  }else return new Center(child: CupertinoActivityIndicator());
-                }
+      body: _loading? Center(child: CircularProgressIndicator(),) : Center(
+        child: ListView.builder(
+          itemCount: searchList.length,
+            itemBuilder: (context, index){
+            return InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ArticleView(item: searchList[index], imageURL: searchList[index].imageURL,))),
+              child: Container(
+                child: Card(
+                  child: Column(
+                    children: [
+                      Image(image: NetworkImage(searchList[index].imageURL),),
+                      Text(searchList[index].title),
+                      Text(searchList[index].description, maxLines: 4, overflow: TextOverflow.ellipsis,),
+                      Text(searchList[index].date),
+                      Text(searchList[index].center),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
-
-          TextField(
-            controller: _searchText,
-            decoration: InputDecoration(
-              filled: true,
-              //fillColor: Colors.grey,
-              //border: OutlineInputBorder(),
-              suffixIcon: IconButton(
-                icon: Icon(Icons.send),
-                onPressed: () {
-                  setState(() {
-                    searchList.clear();
-                  });
-                  getSearch(_searchText.text);
-                  FocusScope.of(context).unfocus();
-                },
-              ),
-              hintText: "Search"
-            ),
-          ),
-
-
-        ],
+            );
+            }),
       ),
     );
   }
@@ -186,31 +114,39 @@ class _NASASearchState extends State<NASASearch> {
 
 class ArticleView extends StatelessWidget {
   Items item;
-  ImageProvider image;
-  ArticleView({Key key, @required this.item, @required this.image}) : super(key: key);
+  String imageURL;
+  ArticleView({Key key, @required this.item, @required this.imageURL}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Article View"),
+      ),
       body: Container(
         child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                InkWell(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(image: image, title: item.title,)));
-                  },
-                  child: Hero(
-                    tag: item.title,
-                      child: Image(image: image,)),
+          child: Column(
+            children: <Widget>[
+              InkWell(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: imageURL, title: item.title,)));
+                },
+                child: Hero(
+                  tag: item.title,
+                    child: Image(image: NetworkImage(imageURL),),
+              ),
+              ),
+              Expanded(
+                child: ListView(
+                  children: [
+                    Text(item.title),
+                    Text(item.center),
+                    Text(item.date),
+                    Text(item.description),
+                  ],
                 ),
-                Text(item.title),
-                Text(item.center),
-                Text(item.date),
-                Text(item.description),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -219,9 +155,8 @@ class ArticleView extends StatelessWidget {
 }
 
 class PictureView extends StatelessWidget {
-  String title;
-  ImageProvider image;
-  PictureView({Key key, @required this.image, @required this.title}) : super(key: key);
+  String title, imageURL;
+  PictureView({Key key, @required this.imageURL, @required this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -234,7 +169,7 @@ class PictureView extends StatelessWidget {
             child: Hero(
               tag: "APODPhoto",
               child: PhotoView(
-                imageProvider: image,
+                imageProvider: NetworkImage(imageURL),
               ),
             )
         ),
