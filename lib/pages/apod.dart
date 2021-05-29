@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:photo_view/photo_view.dart';
 import 'dart:async';
 
 import 'package:shimmer/shimmer.dart';
+import 'package:universum_app/helpers/ad_helper.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class APOD extends StatefulWidget {
@@ -14,6 +16,13 @@ class APOD extends StatefulWidget {
 }
 
 class _APODState extends State<APOD> {
+
+  // TODO: Add _bannerAd
+  BannerAd _bannerAd;
+
+  // TODO: Add _isBannerAdReady
+  bool _isBannerAdReady = false;
+
   bool _loading=true;
   String mediaType;
   String imageURL, contentTitle, contentDescription, contentCopyRight, contentDate;
@@ -48,14 +57,39 @@ class _APODState extends State<APOD> {
     });
   }
 
+  void initialiseBanner() {
+    _bannerAd = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Failed to load a banner ad: ${err.message}');
+          _isBannerAdReady = false;
+          ad.dispose();
+        },
+        // Called when an ad opens an overlay that covers the screen.
+        onAdOpened: (Ad ad) => print('Ad opened.'),
+        // Called when an ad removes an overlay that covers the screen.
+        onAdClosed: (Ad ad) => print('Ad closed.'),
+        // Called when an impression occurs on the ad.
+        onAdImpression: (Ad ad) => print('Ad impression.'),
+      ),
+    );
+
+    _bannerAd.load();
+  }
+
   @override
   void initState() {
-    print(_loading);
     super.initState();
+    initialiseBanner();
     getAPOD();
-    print(_loading);
-    setState(() {
-    });
   }
   @override
   Widget build(BuildContext context) {
@@ -186,6 +220,15 @@ class _APODState extends State<APOD> {
                 ),
               ),
             ),
+            _isBannerAdReady ?
+            Container(
+              alignment: Alignment.bottomCenter,
+              //height: 100,
+              //width: MediaQuery.of(context).size.width*0.4,
+              width: _bannerAd.size.width.toDouble(),
+              height: _bannerAd.size.height.toDouble(),
+              child: AdWidget(ad: _bannerAd),
+            ) : Container(),
           ],
         ),
       ),),

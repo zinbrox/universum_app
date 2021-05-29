@@ -4,8 +4,10 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:universum_app/helpers/ad_helper.dart';
 import 'package:universum_app/pages/apod.dart';
 
 List<String> roverNames = ['Curiosity', 'Perseverance', 'Opportunity', 'Spirit'];
@@ -92,6 +94,9 @@ class roverPhotos extends StatefulWidget {
 }
 
 class _roverPhotosState extends State<roverPhotos> {
+
+  BannerAd _bannerAd;
+  bool _isBannerAdReady = false;
 
   List<photoDetails> photosList = [];
   List<photoDetails> filteredPhotosList=[];
@@ -218,14 +223,49 @@ class _roverPhotosState extends State<roverPhotos> {
 
    */
 
+  void initialiseBanner() {
+    _bannerAd = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Failed to load a banner ad: ${err.message}');
+          _isBannerAdReady = false;
+          ad.dispose();
+        },
+        // Called when an ad opens an overlay that covers the screen.
+        onAdOpened: (Ad ad) => print('Ad opened.'),
+        // Called when an ad removes an overlay that covers the screen.
+        onAdClosed: (Ad ad) => print('Ad closed.'),
+        // Called when an impression occurs on the ad.
+        onAdImpression: (Ad ad) => print('Ad impression.'),
+      ),
+    );
+
+    _bannerAd.load();
+  }
+
   @override
   void initState() {
     super.initState();
+    initialiseBanner();
     if(widget.lastActiveDay=="Active")
       selectedDate = DateTime.now().subtract(Duration(days: 3));
     else
       selectedDate = DateTime.parse(widget.lastActiveDay);
     getPhotos(widget.roverName);
+  }
+
+  @override
+  void dispose() {
+    _bannerAd.dispose();
+    super.dispose();
   }
 
   @override
@@ -283,9 +323,13 @@ class _roverPhotosState extends State<roverPhotos> {
           )) :
       Column(
         children: [
-          Text(widget.roverName + " Rover"),
-          Text("Active Days: " + widget.activeDays),
-          Text("Sol: " + finalList[0][0].sol.toString(), style: TextStyle(fontSize: 20),),
+          Column(
+            children: [
+              Text(widget.roverName + " Rover"),
+              Text("Active Days: " + widget.activeDays),
+              Text("Sol: " + finalList[0][0].sol.toString(), style: TextStyle(fontSize: 20),),
+            ],
+          ),
           Expanded(
             child: ListView.builder(
               scrollDirection: Axis.vertical,
@@ -319,6 +363,15 @@ class _roverPhotosState extends State<roverPhotos> {
                   );
                 }),
           ),
+          _isBannerAdReady ?
+          Container(
+            alignment: Alignment.bottomCenter,
+            //height: 100,
+            //width: MediaQuery.of(context).size.width*0.4,
+            width: _bannerAd.size.width.toDouble(),
+            height: _bannerAd.size.height.toDouble(),
+            child: AdWidget(ad: _bannerAd),
+          ) : Container(),
         ],
       ),
     );

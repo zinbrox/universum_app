@@ -3,8 +3,10 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:universum_app/helpers/ad_helper.dart';
 
 class LaunchDetails {
   String launchName, date, time;
@@ -25,6 +27,12 @@ class upcomingLaunches extends StatefulWidget {
 
 class _upcomingLaunchesState extends State<upcomingLaunches> {
 
+  // TODO: Add _bannerAd
+  BannerAd _bannerAd;
+
+  // TODO: Add _isBannerAdReady
+  bool _isBannerAdReady = false;
+
   List<LaunchDetails> launches = [];
 
   bool _loading = true;
@@ -38,7 +46,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
     var response = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(response.body);
 
-    final DateFormat dateFormatter = DateFormat('dd-MM-yyyy');
+      final DateFormat dateFormatter = DateFormat('dd-MM-yyyy');
     final DateFormat timeFormatter = DateFormat('HH:MM:SS');
     print(DateTime.now());
     //print(jsonData['results']);
@@ -123,11 +131,46 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
 
   }
 
+  void initialiseBanner() {
+    _bannerAd = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Failed to load a banner ad: ${err.message}');
+          _isBannerAdReady = false;
+          ad.dispose();
+        },
+        // Called when an ad opens an overlay that covers the screen.
+        onAdOpened: (Ad ad) => print('Ad opened.'),
+        // Called when an ad removes an overlay that covers the screen.
+        onAdClosed: (Ad ad) => print('Ad closed.'),
+        // Called when an impression occurs on the ad.
+        onAdImpression: (Ad ad) => print('Ad impression.'),
+      ),
+    );
+
+    _bannerAd.load();
+  }
+
 
   @override
   void initState() {
     super.initState();
+    initialiseBanner();
     getLaunches();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd.dispose();
+    super.dispose();
   }
 
   @override
@@ -137,107 +180,123 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
         title: Text("Upcoming Launches"),
       ),
       body: _loading? Center(child: CircularProgressIndicator(),) : statusCode==429? Center(child: Text("Too Many Requests! Try again in some time")) :
-          ListView.builder(
-            itemCount: launches.length,
-              itemBuilder: (context, index) {
-              return Container(
-                child: Card(
-                  elevation: 5,
-                  child: Column(
-                    children: [
-                      Stack(
-                        children: [
-                          Image(image: NetworkImage(launches[index].imageURL)),
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: Container(
-                                color: Colors.black12,
-                                child: IconButton(icon: Icon(Icons.notifications, color: Colors.white,), onPressed: (){},)),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            width: MediaQuery.of(context).size.width*0.5,
-                              child: Text(launches[index].missionName, style: TextStyle(fontSize: 25), maxLines: 2,)),
-                          Expanded(
-                            child: Column(
+          Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: launches.length,
+                    itemBuilder: (context, index) {
+                    return Container(
+                      child: Card(
+                        elevation: 5,
+                        child: Column(
+                          children: [
+                            Stack(
                               children: [
-                                Text("Date: " + launches[index].date, style: TextStyle(fontSize: 20,)),
-                                Text("Time: " + launches[index].time, style: TextStyle(fontSize: 20),),
+                                Image(image: NetworkImage(launches[index].imageURL)),
+                                Align(
+                                  alignment: Alignment.topRight,
+                                  child: Container(
+                                      color: Colors.black12,
+                                      child: IconButton(icon: Icon(Icons.notifications, color: Colors.white,), onPressed: (){},)),
+                                ),
                               ],
                             ),
-                          ),
-
-                        ],
-                      ),
-
-                      Text(launches[index].missionDescription),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("Rocket: " + launches[index].rocketName),
-                              Text("Family: " + launches[index].rocketFamily),
-                              Text("Type: " + launches[index].type),
-                            ],
-                          ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("Pad: " + launches[index].padName),
-                                Text("Location: " + launches[index].padLocation, textAlign: TextAlign.center,),
+                                Container(
+                                  width: MediaQuery.of(context).size.width*0.5,
+                                    child: Text(launches[index].missionName, style: TextStyle(fontSize: 25), maxLines: 2,)),
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      Text("Date: " + launches[index].date, style: TextStyle(fontSize: 20,)),
+                                      Text("Time: " + launches[index].time, style: TextStyle(fontSize: 20),),
+                                    ],
+                                  ),
+                                ),
+
                               ],
                             ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                        Text("Status: "),
-                        Container(
-                          padding: EdgeInsets.all(5),
-                          child: Text(launches[index].status),
-                          decoration: BoxDecoration(
-                            color: launches[index].status=="Successful" || launches[index].status=="In Flight" || launches[index].status=="Go"? Colors.green : launches[index].status=="TBD"? Colors.grey : launches[index].status=="Delayed"? Colors.orange : Colors.red,
-                          ),
+
+                            Text(launches[index].missionDescription),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("Rocket: " + launches[index].rocketName),
+                                    Text("Family: " + launches[index].rocketFamily),
+                                    Text("Type: " + launches[index].type),
+                                  ],
+                                ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text("Pad: " + launches[index].padName),
+                                      Text("Location: " + launches[index].padLocation, textAlign: TextAlign.center,),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                              Text("Status: "),
+                              Container(
+                                padding: EdgeInsets.all(5),
+                                child: Text(launches[index].status),
+                                decoration: BoxDecoration(
+                                  color: launches[index].status=="Success" || launches[index].status=="In Flight" || launches[index].status=="Go"? Colors.green : launches[index].status=="TBD"? Colors.grey : launches[index].status=="Delayed"? Colors.orange : Colors.red,
+                                ),
+                              ),
+                            ],),
+
+                            StreamBuilder(
+                              stream: Stream.periodic(Duration(seconds: 1), (i) => 1),
+                                builder: (context, snapshot){
+                                if(DateTime.now().isBefore(launches[index].dateObject)) {
+                                  DateFormat format = DateFormat("mm:ss");
+                                  int now = DateTime.now().millisecondsSinceEpoch;
+                                  int estimateTs = launches[index].dateObject.millisecondsSinceEpoch;
+                                  Duration remaining = Duration(milliseconds: estimateTs - now);
+                                  Format(Duration d) => d.toString().split('.').first.padLeft(8, "0");
+                                  /*
+                                  var dateString = '${remaining.inDays}:${remaining.inHours}:${format.format(
+                                      DateTime.fromMillisecondsSinceEpoch(remaining.inMilliseconds))}';
+
+                                   */
+                                  return Text("Countdown: " +
+                                      Format(remaining).toString(), style: TextStyle(fontSize: 20),);
+                                }
+                                else
+                                  return Container();
+
+                                }),
+                            SizedBox(height: 15,),
+                          ],
                         ),
-                      ],),
+                      ),
+                    );
+                    }),
+              ),
+              _isBannerAdReady ?
+              Container(
+                alignment: Alignment.bottomCenter,
+                //height: 100,
+                //width: MediaQuery.of(context).size.width*0.4,
+                width: _bannerAd.size.width.toDouble(),
+                height: _bannerAd.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd),
+              ) : Container(),
+            ],
+          ),
 
-                      StreamBuilder(
-                        stream: Stream.periodic(Duration(seconds: 1), (i) => 1),
-                          builder: (context, snapshot){
-                          if(DateTime.now().isBefore(launches[index].dateObject)) {
-                            DateFormat format = DateFormat("mm:ss");
-                            int now = DateTime.now().millisecondsSinceEpoch;
-                            int estimateTs = launches[index].dateObject.millisecondsSinceEpoch;
-                            Duration remaining = Duration(milliseconds: estimateTs - now);
-                            Format(Duration d) => d.toString().split('.').first.padLeft(8, "0");
-                            /*
-                            var dateString = '${remaining.inDays}:${remaining.inHours}:${format.format(
-                                DateTime.fromMillisecondsSinceEpoch(remaining.inMilliseconds))}';
-
-                             */
-                            return Text("Countdown: " +
-                                Format(remaining).toString(), style: TextStyle(fontSize: 20),);
-                          }
-                          else
-                            return Container();
-
-                          }),
-                      SizedBox(height: 15,),
-                    ],
-                  ),
-                ),
-              );
-              })
     );
   }
   _returnCountdown(int index){

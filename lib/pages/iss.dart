@@ -279,42 +279,44 @@ class _ISSPageState extends State<ISSPage> {
   }
 
   void initialiseBanner() {
-    _bannerAd = BannerAd(
-      adUnitId: AdHelper.bannerAdUnitId,
-      request: AdRequest(),
-      size: AdSize.banner,
-      listener: BannerAdListener(
-        onAdLoaded: (_) {
-          setState(() {
-            _isBannerAdReady = true;
-          });
-        },
-        onAdFailedToLoad: (ad, err) {
-          print('Failed to load a banner ad: ${err.message}');
-          _isBannerAdReady = false;
-          ad.dispose();
-        },
-        // Called when an ad opens an overlay that covers the screen.
-        onAdOpened: (Ad ad) => print('Ad opened.'),
-        // Called when an ad removes an overlay that covers the screen.
-        onAdClosed: (Ad ad) => print('Ad closed.'),
-        // Called when an impression occurs on the ad.
-        onAdImpression: (Ad ad) => print('Ad impression.'),
-      ),
-    );
+    Future.delayed(const Duration(seconds: 3), ()
+    {
+      _bannerAd = BannerAd(
+        adUnitId: AdHelper.bannerAdUnitId,
+        request: AdRequest(),
+        size: AdSize.banner,
+        listener: BannerAdListener(
+          onAdLoaded: (_) {
+            setState(() {
+              _isBannerAdReady = true;
+            });
+          },
+          onAdFailedToLoad: (ad, err) {
+            print('Failed to load a banner ad: ${err.message}');
+            _isBannerAdReady = false;
+            ad.dispose();
+          },
+          // Called when an ad opens an overlay that covers the screen.
+          onAdOpened: (Ad ad) => print('Ad opened.'),
+          // Called when an ad removes an overlay that covers the screen.
+          onAdClosed: (Ad ad) => print('Ad closed.'),
+          // Called when an impression occurs on the ad.
+          onAdImpression: (Ad ad) => print('Ad impression.'),
+        ),
+      );
 
-    _bannerAd.load();
+      _bannerAd.load();
+    });
   }
 
   @override
   void initState() {
     super.initState();
     //getLoocationWIS();
-
-    initialiseBanner();
     streamSubscription = getLocationWIS().listen((event) {
         print(event[0]);
     });
+    initialiseBanner();
 
   }
 
@@ -325,6 +327,7 @@ class _ISSPageState extends State<ISSPage> {
   @override
   void dispose() {
     cancelSubscription();
+    _bannerAd.dispose();
     super.dispose();
   }
 
@@ -338,7 +341,7 @@ class _ISSPageState extends State<ISSPage> {
       Column(
         children: [
           Container(
-            height: MediaQuery.of(context).size.height*0.7,
+            height: MediaQuery.of(context).size.height*0.6,
             child: GoogleMap(
                     onMapCreated: _onMapCreated,
                     initialCameraPosition: CameraPosition(
@@ -364,18 +367,14 @@ class _ISSPageState extends State<ISSPage> {
                     getHumansInSpace();
                   }, child: Text("Who are currently on the ISS?")),
                   _isBannerAdReady ?
-                    Container(
+                  Container(
+                    alignment: Alignment.bottomCenter,
                     //height: 100,
-                    width: MediaQuery.of(context).size.width*0.4,
-                      //width: _bannerAd.size.width.toDouble(),
-                      height: _bannerAd.size.height.toDouble(),
-                      child: AdWidget(ad: _bannerAd),
-                    ) : Container(),
-
-
-
-
-
+                    //width: MediaQuery.of(context).size.width*0.4,
+                    width: _bannerAd.size.width.toDouble(),
+                    height: _bannerAd.size.height.toDouble(),
+                    child: AdWidget(ad: _bannerAd),
+                  ) : Container(),
                 ],
               ),
             ),

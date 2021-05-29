@@ -1,13 +1,17 @@
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:universum_app/helpers/ad_helper.dart';
 
 class Items {
   String imageURL; // image data
-  String center, media_type, description, title, date;
+  String center, media_type, description, title;
+  DateTime date;
   var keywords;// data
   Items({this.imageURL, this.center, this.media_type, this.description, this.title, this.date, this.keywords});
 }
@@ -21,8 +25,14 @@ class NASASearch extends StatefulWidget {
 }
 
 class _NASASearchState extends State<NASASearch> {
+
+  BannerAd _bannerAd;
+  bool _isBannerAdReady = false;
+
   List<Items> searchList = [];
   final TextEditingController _searchText = new TextEditingController();
+
+  final DateFormat dateFormatter = DateFormat('dd-MM-yyyy');
 
   bool _loading=true;
   int _index=0;
@@ -31,8 +41,7 @@ class _NASASearchState extends State<NASASearch> {
   Future<void> getSearch(String text) async {
     print("In getSearch()");
     Items item;
-    String url;
-    url = "https://images-api.nasa.gov/search?q=$text";
+    String url="https://images-api.nasa.gov/search?q=$text";
     var response = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(response.body);
 
@@ -49,7 +58,7 @@ class _NASASearchState extends State<NASASearch> {
           media_type: elements['data'][0]['media_type'],
           description: elements['data'][0]['description'],
           title: elements['data'][0]['title'],
-          date: elements['data'][0]['date_created'],
+          date: DateTime.parse(elements['data'][0]['date_created']),
           keywords: elements['data'][0]['keywords'],
         );
         searchList.add(item);
@@ -67,44 +76,94 @@ class _NASASearchState extends State<NASASearch> {
     return cachedImages;
   }
 
+  void initialiseBanner() {
+    _bannerAd = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Failed to load a banner ad: ${err.message}');
+          _isBannerAdReady = false;
+          ad.dispose();
+        },
+        // Called when an ad opens an overlay that covers the screen.
+        onAdOpened: (Ad ad) => print('Ad opened.'),
+        // Called when an ad removes an overlay that covers the screen.
+        onAdClosed: (Ad ad) => print('Ad closed.'),
+        // Called when an impression occurs on the ad.
+        onAdImpression: (Ad ad) => print('Ad impression.'),
+      ),
+    );
+
+    _bannerAd.load();
+  }
+
   @override
   void initState() {
     super.initState();
+    initialiseBanner();
     getSearch(widget.keyword);
   }
 
   @override
   void dispose() {
+    _bannerAd.dispose();
     super.dispose();
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("NASA Image And Video Library Search"),
+        title: Text("Results for \"${widget.keyword}\""),
         centerTitle: true,
       ),
       body: _loading? Center(child: CircularProgressIndicator(),) : Center(
-        child: ListView.builder(
-          itemCount: searchList.length,
-            itemBuilder: (context, index){
-            return InkWell(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ArticleView(item: searchList[index], imageURL: searchList[index].imageURL,))),
-              child: Container(
-                child: Card(
-                  child: Column(
-                    children: [
-                      Image(image: NetworkImage(searchList[index].imageURL),),
-                      Text(searchList[index].title),
-                      Text(searchList[index].description, maxLines: 4, overflow: TextOverflow.ellipsis,),
-                      Text(searchList[index].date),
-                      Text(searchList[index].center),
-                    ],
-                  ),
-                ),
-              ),
-            );
-            }),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.separated(
+                itemCount: searchList.length,
+                  separatorBuilder: (context, index) => SizedBox(height: 10),
+                  itemBuilder: (context, index){
+                  return InkWell(
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ArticleView(item: searchList[index], imageURL: searchList[index].imageURL,))),
+                    child: Container(
+                      child: Card(
+                        elevation: 5,
+                        child: Column(
+                          children: [
+                            Image(image: NetworkImage(searchList[index].imageURL),),
+                            Text(searchList[index].title, style: TextStyle(fontSize: 20),),
+                            SizedBox(height: 10,),
+                            Text(searchList[index].description, maxLines: 4, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15), textAlign: TextAlign.center,),
+                            SizedBox(height: 5,),
+                            Text(dateFormatter.format(searchList[index].date)),
+                            Text("Center: " + searchList[index].center),
+                            SizedBox(height: 10,)
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                  }),
+            ),
+            _isBannerAdReady ?
+            Container(
+              alignment: Alignment.bottomCenter,
+              //height: 100,
+              //width: MediaQuery.of(context).size.width*0.4,
+              width: _bannerAd.size.width.toDouble(),
+              height: _bannerAd.size.height.toDouble(),
+              child: AdWidget(ad: _bannerAd),
+            ) : Container(),
+          ],
+        ),
       ),
     );
   }
@@ -116,6 +175,8 @@ class ArticleView extends StatelessWidget {
   Items item;
   String imageURL;
   ArticleView({Key key, @required this.item, @required this.imageURL}) : super(key: key);
+
+  final DateFormat dateFormatter = DateFormat('dd-MM-yyyy');
 
   @override
   Widget build(BuildContext context) {
@@ -139,10 +200,19 @@ class ArticleView extends StatelessWidget {
               Expanded(
                 child: ListView(
                   children: [
-                    Text(item.title),
-                    Text(item.center),
-                    Text(item.date),
-                    Text(item.description),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width*0.5,
+                            child: Text(item.title, style: TextStyle(fontSize: 20),)),
+                        Expanded(child: Text("Date: " + dateFormatter.format(item.date), style: TextStyle(fontSize: 20), textAlign: TextAlign.right,)),
+                      ],
+                    ),
+                    Text("Center: " + item.center, style: TextStyle(fontSize: 15),),
+                    SizedBox(height: 10,),
+                    Text(item.description, style: TextStyle(fontSize: 18), textAlign: TextAlign.center,),
+                    Text("Keywords: " + item.keywords.toString(), textAlign: TextAlign.center,),
                   ],
                 ),
               ),

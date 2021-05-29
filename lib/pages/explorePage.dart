@@ -36,9 +36,6 @@ class _ExplorePageState extends State<ExplorePage> {
             margin: EdgeInsets.symmetric(horizontal: 5),
             child: TextField(
               controller: _searchText,
-              onChanged: (String text) {
-                _searchText.text=text;
-              },
               onSubmitted: (String text){
                 FocusScope.of(context).unfocus();
                 Navigator.push(context, MaterialPageRoute(builder: (context) => NASASearch(keyword: text)));
@@ -52,11 +49,8 @@ class _ExplorePageState extends State<ExplorePage> {
                   suffixIcon: IconButton(
                     icon: Icon(Icons.navigate_next),
                     onPressed: () {
-                      setState(() {
-                        //searchList.clear();
-                      });
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => NASASearch(keyword: _searchText.text)));
                       FocusScope.of(context).unfocus();
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => NASASearch(keyword: _searchText.text)));
                     },
                   ),
                   hintText: "Search"
