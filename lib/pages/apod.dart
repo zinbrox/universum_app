@@ -203,7 +203,7 @@ class PictureView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(index.toString()),
+        title: Text(title),
       ),
       body: Center(
         child: Container(

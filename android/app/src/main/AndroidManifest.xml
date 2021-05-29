@@ -8,8 +8,8 @@
 
    <application
        android:name=".Application"
-        android:label="universum_app"
-        android:icon="@mipmap/ic_launcher"
+        android:label="OrbitFeed"
+        android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="true">
 
        <meta-data android:name="com.google.android.geo.API_KEY"

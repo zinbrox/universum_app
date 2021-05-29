@@ -35,7 +35,7 @@ class LocalNotifyManager {
 
   initializePlatformSpecifics() {
     var initSettingAndroid = new AndroidInitializationSettings(
-        '@mipmap/ic_launcher');
+        'notification_icon_logo');
     var initSettingsIOS = IOSInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,

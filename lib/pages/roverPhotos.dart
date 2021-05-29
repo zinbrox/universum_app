@@ -10,7 +10,7 @@ import 'package:universum_app/pages/apod.dart';
 
 List<String> roverNames = ['Curiosity', 'Perseverance', 'Opportunity', 'Spirit'];
 List<String> roverImages = ['assets/Curiosity.jpg', 'assets/Perseverance.jpg', 'assets/Opportunity.jpg', 'assets/Spirit.jpg'];
-List<String> activeDates = [];
+List<String> activeDays = ['06/08/2012 - Current', '18/02/2021 - Current', '26/01/2004 - 09/06/2018', '05/01/2004 - 21/03/2010'];
 
 class roverSelect extends StatelessWidget {
   @override
@@ -23,16 +23,26 @@ class roverSelect extends StatelessWidget {
         child: GridView.count(
             crossAxisCount: 2,
             mainAxisSpacing: 20,
-            childAspectRatio: 0.8,
+            childAspectRatio: 0.7,
             children: List.generate(roverNames.length, (index) {
             return InkWell(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => roverPhotos(roverName: roverNames[index]))),
+              onTap: () {
+                String date;
+                roverNames[index]=="Curiosity" || roverNames[index]=="Perseverance"? date="Active" : roverNames[index]=="Opportunity"? date="2004-01-26" : date="2004-01-05";
+                Navigator.push(context, MaterialPageRoute(builder: (context) => roverPhotos(roverName: roverNames[index], lastActiveDay: date, activeDays: activeDays[index])));
+                },
               child: Center(
                 child: Container(
                   height: 400,
                   //height: MediaQuery.of(context).size.height*0.8,
                   width: MediaQuery.of(context).size.width*0.45,
-                  child: Center(child: Text(roverNames[index], style: TextStyle(color: Colors.white, fontSize: 25),)),
+                  child: Center(child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(child: Text(roverNames[index], style: TextStyle(color: Colors.white, fontSize: 25),)),
+                      Text("Active Dates: ${activeDays[index]}", style: TextStyle(color: Colors.white, fontSize: 15), textAlign: TextAlign.center,),
+                    ],
+                  )),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                     image: DecorationImage(
@@ -74,8 +84,8 @@ class photoDetails{
 
 class roverPhotos extends StatefulWidget {
 
-  String roverName;
-  roverPhotos({Key key, @required this.roverName}) : super(key: key);
+  String roverName, lastActiveDay, activeDays;
+  roverPhotos({Key key, @required this.roverName, @required this.lastActiveDay, @required this.activeDays}) : super(key: key);
 
   @override
   _roverPhotosState createState() => _roverPhotosState();
@@ -83,9 +93,10 @@ class roverPhotos extends StatefulWidget {
 
 class _roverPhotosState extends State<roverPhotos> {
 
-
   List<photoDetails> photosList = [];
   List<photoDetails> filteredPhotosList=[];
+  List<List> finalList = [[]];
+  //List<List<photoDetails>>> finalList=[];
 
   bool _loading=false;
   bool _showPics = false;
@@ -104,6 +115,8 @@ class _roverPhotosState extends State<roverPhotos> {
   DateTime selectedDate;
   var formatter = new DateFormat('yyyy-MM-dd');
 
+  int statusCode;
+
   Future<void> getPhotos(String rover) async {
     print("In getPhotos");
     setState(() {
@@ -115,61 +128,82 @@ class _roverPhotosState extends State<roverPhotos> {
     var response = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(response.body);
 
-    if(jsonData['photos'].isEmpty) {
-      print("Empty");
-      Fluttertoast.showToast(
-          msg: "",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.white,
-          textColor: Colors.black,
-          fontSize: 16.0
-      );
-      setState(() {
-        _loading=false;
-      });
-    }
+    statusCode=response.statusCode;
 
-    else {
-      photosList.clear();
-      roverCameraNames.clear();
-      for (var elements in jsonData['photos']) {
-        /*
+    if(statusCode==200) {
+      if (jsonData['photos'].isEmpty) {
+        print("Empty");
+        Fluttertoast.showToast(
+            msg: "",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.white,
+            textColor: Colors.black,
+            fontSize: 16.0
+        );
+        setState(() {
+          _loading = false;
+        });
+      }
+
+      else {
+        photosList.clear();
+        finalList.clear();
+        roverCameraNames.clear();
+        for (var elements in jsonData['photos']) {
+          /*
       print(elements['id'].runtimeType);
       print(elements['sol'].runtimeType);
       print(elements['earth_date'].runtimeType);
       print(elements['id'].runtimeType);
 
        */
-        //numRoverCameras = elements['camera']['name'].length();
-        if (!roverCameraNames.contains(elements['camera']['full_name']))
-          roverCameraNames.add(elements['camera']['full_name']);
-        //print(roverCameraNames);
+          //numRoverCameras = elements['camera']['name'].length();
+          if (!roverCameraNames.contains(elements['camera']['full_name']))
+            roverCameraNames.add(elements['camera']['full_name']);
+          //print(roverCameraNames);
 
 
-        item = new photoDetails(
-          photoID: elements['id'],
-          sol: elements['sol'],
-          cameraID: elements['camera']['id'],
-          cameraName: elements['camera']['name'],
-          cameraFullName: elements['camera']['full_name'],
-          imgURL: elements['img_src'],
-          earthDate: elements['earth_date'],
-          roverID: elements['rover']['id'],
-          roverName: elements['rover']['name'],
-          roverStatus: elements['rover']['status'],
-        );
-        photosList.add(item);
+          item = new photoDetails(
+            photoID: elements['id'],
+            sol: elements['sol'],
+            cameraID: elements['camera']['id'],
+            cameraName: elements['camera']['name'],
+            cameraFullName: elements['camera']['full_name'],
+            imgURL: elements['img_src'],
+            earthDate: elements['earth_date'],
+            roverID: elements['rover']['id'],
+            roverName: elements['rover']['name'],
+            roverStatus: elements['rover']['status'],
+          );
+          photosList.add(item);
+        }
+
+        for (var item in photosList)
+          precacheImage(NetworkImage(item.imgURL), context);
+
+        finalList.clear();
+        finalList = List<List>.generate(roverCameraNames.length, (index) => []);
+        indexSelected =
+        List<int>.generate(roverCameraNames.length, (int index) => 0);
+        print("Here");
+        for (int i = 0; i < photosList.length; ++i)
+          for (int j = 0; j < roverCameraNames.length; ++j)
+            if (photosList[i].cameraFullName == roverCameraNames[j])
+              finalList[j].add(photosList[i]);
+        print("Next");
+
+
+        setState(() {
+          _loading = false;
+          _visible = true;
+        });
       }
-      //filteredPhotosList = photosList;
-      indexSelected =
-      List<int>.generate(roverCameraNames.length, (int index) => 0);
-      setState(() {
-        _loading = false;
-        _visible = true;
-      });
     }
+    setState(() {
+      _loading=false;
+    });
   }
 
   /*
@@ -187,7 +221,10 @@ class _roverPhotosState extends State<roverPhotos> {
   @override
   void initState() {
     super.initState();
-    selectedDate = DateTime.now().subtract(Duration(days: 2));
+    if(widget.lastActiveDay=="Active")
+      selectedDate = DateTime.now().subtract(Duration(days: 3));
+    else
+      selectedDate = DateTime.parse(widget.lastActiveDay);
     getPhotos(widget.roverName);
   }
 
@@ -198,8 +235,8 @@ class _roverPhotosState extends State<roverPhotos> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Mars Rovers"),
-            Text(formatter.format(selectedDate)),
+            Text("Rover Images"),
+            Text(formatter.format(selectedDate), style: TextStyle(fontSize: 18),),
           ],
         ),
         actions: [
@@ -212,145 +249,83 @@ class _roverPhotosState extends State<roverPhotos> {
                   firstDate: DateTime(2000),
                   lastDate: DateTime(2025),
                 );
-                if (picked != null && picked != selectedDate && picked.isBefore(DateTime.now().subtract(Duration(days: 2))))
-                  setState(() {
-                    selectedDate = picked;
-                    getPhotos(widget.roverName);
-                  });
-                else if(picked.isAfter(DateTime.now().subtract(Duration(days: 2))))
-                  Fluttertoast.showToast(
-                      msg: "No pictures available for this day",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      timeInSecForIosWeb: 1,
-                      backgroundColor: Colors.white,
-                      textColor: Colors.black,
-                      fontSize: 16.0
-                  );
+                if(picked!=null) {
+                  if (picked != null && picked != selectedDate &&
+                      picked.isBefore(
+                          DateTime.now().subtract(Duration(days: 2))))
+                    setState(() {
+                      selectedDate = picked;
+                      getPhotos(widget.roverName);
+                    });
+                  else if (picked.isAfter(
+                      DateTime.now().subtract(Duration(days: 2))))
+                    Fluttertoast.showToast(
+                        msg: "No pictures available for this day",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.white,
+                        textColor: Colors.black,
+                        fontSize: 16.0
+                    );
+                }
               })
         ],
       ),
-      body: _loading? CircularProgressIndicator() :
-          roverCameraNames.length==0 ? Text("Empty") :
-      GestureDetector(
-        onTap: (){
-          setState(() {
-            _visible=false;
-          });
-        },
-        child: ListView.builder(
-          itemCount: roverCameraNames.length,
-            itemBuilder: (context, index){
-            return _returnList(index);
-            }),
-        /*
-        Center(
-          child: Column(
-            children: <Widget>[
-              Expanded(
-                child: Stack(
-                  children: [
-                    _visible ? Center(
-                      child: ClipRect(  // <-- clips to the 200x200 [Container] below
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(
-                            sigmaX: 5.0,
-                            sigmaY: 5.0,
-                          ),
-                          child: Container(
-                            alignment: Alignment.center,
-                            child: Text('Hello World'),
-                          ),
-                        ),
-                      ),
-                    ) : Container(),
-                    Visibility(
-                      visible: _visible,
-                      maintainState: false,
-                      child: Center(
-                        child: AnimatedContainer(
-                          duration: Duration(seconds: 1),
-                          height: 300, // card height
-                          child: PageView.builder(
-                                    itemCount: filteredPhotosList.length,
-                                    scrollDirection: Axis.horizontal,
-                                    controller: PageController(
-                                        initialPage: 0, keepPage: true, viewportFraction: 0.6),
-                                    onPageChanged: (int index) {
-                                      setState(() {
-                                        _index=index;
-                                      });
-                                    },
-                                    itemBuilder: (_, i) {
-                                      return GestureDetector(
-                                        onTap: (){
-                                          setState(() {
-                                            expanded = !expanded;
-                                          });
-                                        },
-                                        child: Transform.scale(
-                                          scale: i == _index ? 1 : 0.90,
-                                          child:
-                                          Card(
-                                            elevation: 6,
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(20)),
-                                            child: SingleChildScrollView(
-                                              child: Column(
-                                                children: <Widget>[
-                                                  Image.network(filteredPhotosList[i].imgURL, height: 300,),
-                                                  Text(filteredPhotosList[i].roverName),
-                                                  Text(filteredPhotosList[i].cameraFullName,),
-                                                  Text('Sol ' + filteredPhotosList[i].sol.toString()),
-                                                  Text('Earth Date: ' + filteredPhotosList[i].earthDate),
-                                                  //Text(searchList[index].media_type.toString()),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-
-                                        ),
-                                      );
-                                    },
-                                  ),
-
-
-                          ),
-                        ),
-                    ),
-                  ],
-
-                ),
-              ),
-              /*
-              Expanded(
-                child: ListView.builder(
-                      itemCount: photosList.length,
-                      itemBuilder: (context, index){
-                        return Card(
-                          elevation: 10,
-                          child: Column(
-                            children: <Widget>[
-                              Image.network(photosList[index].imgURL),
-                              Text(photosList[index].roverName),
-                              Text(photosList[index].cameraFullName),
-                              Text(photosList[index].sol.toString()),
-                              Text(photosList[index].earthDate),
-                            ],
-                          ),
-                        );
-                      }),
-                ),
-              */
+      body: _loading? CircularProgressIndicator() : statusCode==429? Center(child: Text("Too many requests! Try again in some time"),) :
+          roverCameraNames.length==0 ? Center(child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(widget.roverName + " Rover"),
+              Text("Active Days: " + widget.activeDays),
+              Text("Couldn't find any pictures for this day"),
             ],
+          )) :
+      Column(
+        children: [
+          Text(widget.roverName + " Rover"),
+          Text("Active Days: " + widget.activeDays),
+          Text("Sol: " + finalList[0][0].sol.toString(), style: TextStyle(fontSize: 20),),
+          Expanded(
+            child: ListView.builder(
+              scrollDirection: Axis.vertical,
+              itemCount: roverCameraNames.length,
+                itemBuilder: (context, index){
+                //return _returnList(index);
+                  return Column(
+                    children: [
+                      Text(roverCameraNames[index], style: TextStyle(fontSize: 20),),
+                      Container(
+                        height: 300,
+                        child: ListView.builder(
+                          itemCount: finalList[index].length,
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context, i){
+                              return InkWell(
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: finalList[index][i].imgURL, title: "Photo ID: ${finalList[index][i].photoID}", index: -1,))),
+                                child: Card(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Hero(
+                                      tag: "tag${index+1}$i",
+                                      child: finalList[index][i].imgURL!=null? Image(image: NetworkImage(finalList[index][i].imgURL)) : Text("Empty"),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
+                      ),
+                    ],
+                  );
+                }),
           ),
-        ),
-        */
-      )
+        ],
+      ),
     );
   }
 
 
+  /*
   Future<List<CachedNetworkImageProvider>> _loadAllImages() async{
     List<CachedNetworkImageProvider> cachedImages = [];
     for(int i=0;i<filteredPhotosList.length;i++) {
@@ -359,6 +334,8 @@ class _roverPhotosState extends State<roverPhotos> {
     }
     return cachedImages;
   }
+
+   */
    
 
   Widget _returnList(int pos) {
@@ -376,13 +353,13 @@ class _roverPhotosState extends State<roverPhotos> {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: filteredPhotosList.length,
-              itemBuilder: (context, index){
+              itemBuilder: (context, i){
                 return Card(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: Hero(
-                      tag: "tag${pos+1}$index",
-                      child: Image(image: NetworkImage(filteredPhotosList[index].imgURL)),
+                      tag: "tag${pos+1}$i",
+                      child: Image(image: NetworkImage(filteredPhotosList[i].imgURL)),
 
                     ),
                   ),
@@ -456,24 +433,3 @@ class _roverPhotosState extends State<roverPhotos> {
   }
 }
 
-
-/*
-_loading ? Center(
-        child: CircularProgressIndicator(),) :
-          ListView.builder(
-              itemCount: photosList.length,
-              itemBuilder: (context, index){
-            return Card(
-            elevation: 10,
-            child: Column(
-            children: <Widget>[
-              Image.network(photosList[index].imgURL),
-              Text(photosList[index].roverName),
-              Text(photosList[index].cameraFullName),
-              Text(photosList[index].sol.toString()),
-              Text(photosList[index].earthDate),
-          ],
-            ),
-            );
-          })
- */

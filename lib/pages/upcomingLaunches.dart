@@ -28,6 +28,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
   List<LaunchDetails> launches = [];
 
   bool _loading = true;
+  int statusCode;
 
   Future<void> getLaunches() async {
     print("In getLaunches");
@@ -48,35 +49,72 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
       print("No");
 
      */
+    statusCode = response.statusCode;
+    //print(response.statusCode);
+    if(statusCode == 200) {
+      String rocketName, rocketFamily, missionName, missionDescription, padName,
+          padLocation, padURL, type, status, imageURL;
+      for (var results in jsonData['results']) {
+        date = DateTime.parse(results['net']).toLocal();
+        rocketName =
+        results['rocket'] == null ? "" : results['rocket']['configuration'] !=
+            null ? results['rocket']['configuration']['full_name'] : "";
+        rocketFamily =
+        results['rocket'] == null ? "" : results['rocket']['configuration'] !=
+            null ? results['rocket']['configuration']['family'] : "";
+        missionName =
+        results['mission'] == null ? "" : results['mission']['name'] != null
+            ? results['mission']['name']
+            : "";
+        missionDescription =
+        results['mission'] == null ? "" : results['mission']['description'] !=
+            null ? results['mission']['description'] : "";
+        padName = results['pad'] == null ? "" : results['pad']['name'] != null
+            ? results['pad']['name']
+            : "";
+        padLocation =
+        results['pad'] == null ? "" : results['pad']['location'] != null
+            ? results['pad']['location']['name']
+            : "";
+        padURL =
+        results['pad'] == null ? "" : results['pad']['wiki_url'] != null
+            ? results['pad']['wiki_url']
+            : "";
+        type = results['launch_service_provider'] == null
+            ? ""
+            : results['launch_service_provider']['type'] != null
+            ? results['launch_service_provider']['type']
+            : "";
+        status =
+        results['status'] == null ? "" : results['status']['name'] != null
+            ? results['status']['name']
+            : "";
+        imageURL = results['image'] == null ? null : results['image'];
+        launch = LaunchDetails(
+          launchName: results['name'],
+          date: dateFormatter.format(date),
+          time: timeFormatter.format(date),
+          dateObject: date,
+          rocketName: rocketName,
+          rocketFamily: rocketFamily,
+          missionName: missionName,
+          missionDescription: missionDescription,
+          padName: padName,
+          padLocation: padLocation,
+          padURL: padURL,
+          type: type,
+          status: status,
+          imageURL: imageURL,
+        );
+        /*
 
-    for(var results in jsonData['results']) {
-      date = DateTime.parse(results['net']).toLocal();
-      //print(results['rocket']['configuration']['full_name']);
-      
-
-      launch = LaunchDetails(
-        launchName: results['name']?? "",
-        date: dateFormatter.format(date)?? "",
-        time: timeFormatter.format(date)?? "",
-        dateObject: date ?? DateTime.now(),
-        rocketName: results['rocket']['configuration']['full_name']?? "",
-        rocketFamily: results['rocket']['configuration']['family']?? "",
-        missionName: results['mission']['name']?? "",
-        missionDescription: results['mission']['description']?? "",
-        padName: results['pad']['name']?? "",
-        padLocation: results['pad']['location']['name']?? "",
-        padURL: results['pad']['wiki_url']?? "",
-        type: results['launch_service_provider']['type']?? "",
-        status: results['status']['name']?? "",
-        imageURL: results['image']?? "",
-      );
-      print(launch.rocketName);
-      print(launch.missionName);
-      print(launch.padName);
-      print(launch.type);
-      print(launch.status);
-      launches.add(launch);
+       */
+        launches.add(launch);
+      }
     }
+
+    for(var launch in launches)
+      precacheImage(new NetworkImage(launch.imageURL), context);
 
     setState(() {
       _loading=false;
@@ -98,13 +136,11 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
       appBar: AppBar(
         title: Text("Upcoming Launches"),
       ),
-      body: _loading? Center(child: CircularProgressIndicator(),) :
+      body: _loading? Center(child: CircularProgressIndicator(),) : statusCode==429? Center(child: Text("Too Many Requests! Try again in some time")) :
           ListView.builder(
             itemCount: launches.length,
               itemBuilder: (context, index) {
-              return Text("Hello");
-              /*
-                Container(
+              return Container(
                 child: Card(
                   elevation: 5,
                   child: Column(
@@ -120,20 +156,24 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                           ),
                         ],
                       ),
-                      //Text("Name: " + launches[index].launchName),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          //Text(launches[index].missionName, style: TextStyle(fontSize: 25),),
-                          Column(
-                            children: [
-                              Text("Date: " + launches[index].date, style: TextStyle(fontSize: 20),),
-                              Text("Time: " + launches[index].time, style: TextStyle(fontSize: 20),),
-                            ],
+                          Container(
+                            width: MediaQuery.of(context).size.width*0.5,
+                              child: Text(launches[index].missionName, style: TextStyle(fontSize: 25), maxLines: 2,)),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Text("Date: " + launches[index].date, style: TextStyle(fontSize: 20,)),
+                                Text("Time: " + launches[index].time, style: TextStyle(fontSize: 20),),
+                              ],
+                            ),
                           ),
 
                         ],
                       ),
+
                       Text(launches[index].missionDescription),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -152,13 +192,24 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text("Pad: " + launches[index].padName),
-                                Text("Location: " + launches[index].padLocation),
+                                Text("Location: " + launches[index].padLocation, textAlign: TextAlign.center,),
                               ],
                             ),
                           ),
                         ],
                       ),
-                      //Text("Status: " + launches[index].status),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                        Text("Status: "),
+                        Container(
+                          padding: EdgeInsets.all(5),
+                          child: Text(launches[index].status),
+                          decoration: BoxDecoration(
+                            color: launches[index].status=="Successful" || launches[index].status=="In Flight" || launches[index].status=="Go"? Colors.green : launches[index].status=="TBD"? Colors.grey : launches[index].status=="Delayed"? Colors.orange : Colors.red,
+                          ),
+                        ),
+                      ],),
 
                       StreamBuilder(
                         stream: Stream.periodic(Duration(seconds: 1), (i) => 1),
@@ -186,7 +237,6 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                   ),
                 ),
               );
-              */
               })
     );
   }

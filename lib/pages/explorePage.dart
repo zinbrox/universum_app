@@ -10,6 +10,17 @@ class ExplorePage extends StatefulWidget {
 }
 
 class _ExplorePageState extends State<ExplorePage> {
+
+  @override
+  void initState() {
+    super.initState();
+    /*
+    for(var i in images) {
+      precacheImage(new AssetImage(i), context);
+    }
+
+     */
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

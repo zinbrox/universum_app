@@ -17,7 +17,7 @@ import 'package:universum_app/styles/color_styles.dart';
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AndroidAlarmManager.initialize();
-  //MobileAds.instance.initialize();
+  MobileAds.instance.initialize();
   runApp(MyApp());
 }
 
@@ -47,6 +47,7 @@ class _MyAppState extends State<MyApp> {
       child: Consumer<DarkThemeProvider>(
         builder: (BuildContext context, value, Widget child) {
           return MaterialApp(
+            title: "OrbitFeed",
             debugShowCheckedModeBanner: false,
             theme: Styles.themeData(themeChangeProvider.darkTheme, context),
             initialRoute: '/loginPage',

@@ -43,7 +43,6 @@ dependencies:
   android_alarm_manager: ^2.0.1
   path_provider: ^2.0.2
   google_mobile_ads: ^0.13.0
-  palette_generator: ^0.3.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -53,6 +52,12 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.9.0
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/OrbitFeedLogo.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -82,7 +87,22 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
+  fonts:
+    - family: Nasalization
+      fonts:
+        - asset: assets/fonts/nasalization-rg.otf
+    - family: StarWars
+      fonts:
+        - asset: assets/fonts/Starjedi.ttf
+    - family: Alien
+      fonts:
+        - asset: assets/fonts/Homepagebaukasten-Bold.ttf
+    - family: BTTF
+      fonts:
+        - asset: assets/fonts/BTTf.ttf
+    - family: StarTrek
+      fonts:
+        - asset: assets/fonts/starseri.TTF
   #   - family: Schyler
   #     fonts:
   #       - asset: fonts/Schyler-Regular.ttf

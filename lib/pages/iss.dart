@@ -279,7 +279,6 @@ class _ISSPageState extends State<ISSPage> {
   }
 
   void initialiseBanner() {
-    // TODO: Initialize _bannerAd
     _bannerAd = BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,
       request: AdRequest(),
@@ -312,7 +311,7 @@ class _ISSPageState extends State<ISSPage> {
     super.initState();
     //getLoocationWIS();
 
-    //initialiseBanner();
+    initialiseBanner();
     streamSubscription = getLocationWIS().listen((event) {
         print(event[0]);
     });
@@ -364,7 +363,6 @@ class _ISSPageState extends State<ISSPage> {
                   ElevatedButton(onPressed: () async {
                     getHumansInSpace();
                   }, child: Text("Who are currently on the ISS?")),
-                  /*
                   _isBannerAdReady ?
                     Container(
                     //height: 100,
@@ -374,7 +372,6 @@ class _ISSPageState extends State<ISSPage> {
                       child: AdWidget(ad: _bannerAd),
                     ) : Container(),
 
-                   */
 
 
 
