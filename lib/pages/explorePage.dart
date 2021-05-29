@@ -10,27 +10,43 @@ class ExplorePage extends StatefulWidget {
   _ExplorePageState createState() => _ExplorePageState();
 }
 
-class _ExplorePageState extends State<ExplorePage> {
+class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClientMixin<ExplorePage>{
+  @override
+  bool get wantKeepAlive => true;
 
   final TextEditingController _searchText = new TextEditingController();
+  bool _loading=true;
 
   @override
   void initState() {
     super.initState();
-    /*
-    for(var i in images) {
-      precacheImage(new AssetImage(i), context);
-    }
-
-     */
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    cacheImages();
+  }
+
+  Future<void> cacheImages() async {
+    await Future.wait(
+      images.map((image) => cacheImage(context, image)).toList(),
+    );
+    setState(() {
+      _loading=false;
+    });
+  }
+
+  Future cacheImage(BuildContext context, String image) => precacheImage(AssetImage(image), context);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Explore"),
       ),
-      body: Center(child: Column(
+      body: _loading? Center(child: CircularProgressIndicator(),) :
+      Center(child: Column(
         children: [
           Container(
             margin: EdgeInsets.symmetric(horizontal: 5),

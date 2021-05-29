@@ -316,7 +316,7 @@ class _ISSPageState extends State<ISSPage> {
     streamSubscription = getLocationWIS().listen((event) {
         print(event[0]);
     });
-    initialiseBanner();
+    //initialiseBanner();
 
   }
 
@@ -341,7 +341,7 @@ class _ISSPageState extends State<ISSPage> {
       Column(
         children: [
           Container(
-            height: MediaQuery.of(context).size.height*0.6,
+            height: MediaQuery.of(context).size.height*0.7,
             child: GoogleMap(
                     onMapCreated: _onMapCreated,
                     initialCameraPosition: CameraPosition(
@@ -366,6 +366,7 @@ class _ISSPageState extends State<ISSPage> {
                   ElevatedButton(onPressed: () async {
                     getHumansInSpace();
                   }, child: Text("Who are currently on the ISS?")),
+                  /*
                   _isBannerAdReady ?
                   Container(
                     alignment: Alignment.bottomCenter,
@@ -375,6 +376,7 @@ class _ISSPageState extends State<ISSPage> {
                     height: _bannerAd.size.height.toDouble(),
                     child: AdWidget(ad: _bannerAd),
                   ) : Container(),
+                   */
                 ],
               ),
             ),

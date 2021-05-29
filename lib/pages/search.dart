@@ -47,11 +47,6 @@ class _NASASearchState extends State<NASASearch> {
 
 
     for(var elements in jsonData['collection']['items']) {
-      //print(elements['data'][0]['title']);
-      //var responseLink = await http.get(Uri.parse(elements['href']));
-      //var jsonDataLinks = jsonDecode(responseLink.body);
-      //print(jsonDataLinks[0]);
-      print(elements['links'][0]['href']);
         item = Items(
           imageURL: elements['links'][0]['href'],
           center: elements['data'][0]['center'],
@@ -63,18 +58,19 @@ class _NASASearchState extends State<NASASearch> {
         );
         searchList.add(item);
     }
+    searchList.sort((b,a) => a.date.compareTo(b.date));
+
+    await Future.wait(
+      searchList.map((item) => cacheImage(context, item.imageURL)).toList(),
+    );
+
     setState(() {
       _loading=false;
     });
   }
-  Future<List<CachedNetworkImageProvider>> _loadAllImages() async{
-    List<CachedNetworkImageProvider> cachedImages = [];
-    for(int i=0;i<searchList.length;i++) {
-      var configuration = createLocalImageConfiguration(context);
-      cachedImages.add(new CachedNetworkImageProvider("${searchList[i].imageURL}")..resolve(configuration));
-    }
-    return cachedImages;
-  }
+
+  Future cacheImage(BuildContext context, String imageURL) => precacheImage(
+      CachedNetworkImageProvider(imageURL), context);
 
   void initialiseBanner() {
     _bannerAd = BannerAd(
@@ -138,7 +134,7 @@ class _NASASearchState extends State<NASASearch> {
                         elevation: 5,
                         child: Column(
                           children: [
-                            Image(image: NetworkImage(searchList[index].imageURL),),
+                            Image(image: CachedNetworkImageProvider(searchList[index].imageURL),),
                             Text(searchList[index].title, style: TextStyle(fontSize: 20),),
                             SizedBox(height: 10,),
                             Text(searchList[index].description, maxLines: 4, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15), textAlign: TextAlign.center,),

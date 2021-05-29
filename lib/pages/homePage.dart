@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -21,7 +22,9 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<HomePage>{
+  @override
+  bool get wantKeepAlive => true;
 
   bool _articlesLoading=true, _blogsLoading=true;
   String dropdownValue="Articles";
@@ -54,10 +57,16 @@ class _HomePageState extends State<HomePage> {
         articles.add(article);
       }
     }
+    await Future.wait(
+      articles.map((item) => cacheImage(context, item.imageURL)).toList(),
+    );
     setState(() {
       _articlesLoading=false;
     });
   }
+
+  Future cacheImage(BuildContext context, String imageURL) => precacheImage(
+      CachedNetworkImageProvider(imageURL), context);
 
   Future<void> getBlogs() async {
     print("In getBlogs");
@@ -79,6 +88,9 @@ class _HomePageState extends State<HomePage> {
         blogs.add(blog);
       }
     }
+    await Future.wait(
+      blogs.map((item) => cacheImage(context, item.imageURL)).toList(),
+    );
     setState(() {
       _blogsLoading=false;
     });
@@ -127,7 +139,7 @@ class _HomePageState extends State<HomePage> {
                   elevation: 5,
                   child: Column(
                     children: [
-                      Image.network(articles[index].imageURL),
+                      Image(image: CachedNetworkImageProvider(articles[index].imageURL)),
                       Text(articles[index].title, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,),
                       SizedBox(height: 10,),
                       Text(articles[index].summary, style: TextStyle(fontSize: 15), textAlign: TextAlign.center,),
@@ -151,7 +163,7 @@ class _HomePageState extends State<HomePage> {
                 elevation: 5,
                 child: Column(
                   children: [
-                    Image.network(blogs[index].imageURL),
+                    Image(image: CachedNetworkImageProvider(blogs[index].imageURL)),
                     Text(blogs[index].title, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,),
                     SizedBox(height: 10,),
                     Text(blogs[index].summary, style: TextStyle(fontSize: 18), textAlign: TextAlign.center,),
@@ -175,7 +187,9 @@ class WebViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text("Article View"),
+      ),
       body: WebView(
         initialUrl: url,
       ),

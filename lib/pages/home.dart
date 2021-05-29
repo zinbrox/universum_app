@@ -20,6 +20,13 @@ class _HomeState extends State<Home> {
     SettingsPage(),
   ];
 
+  final pageController = PageController();
+  void onPageChanged(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
 
   void initState() {
     super.initState();
@@ -50,23 +57,13 @@ class _HomeState extends State<Home> {
           setState(() {
             _currentIndex = index;
           });
+          pageController.jumpToPage(index);
         },
       ),
-      body: Stack(
-        children: [
-          Offstage(
-            offstage: _currentIndex!=0,
-            child: tabs[0],
-          ),
-          Offstage(
-            offstage: _currentIndex!=1,
-            child: tabs[1],
-          ),
-          Offstage(
-            offstage: _currentIndex!=2,
-            child: tabs[2],
-          ),
-        ],
+      body: PageView(
+        children: tabs,
+        controller: pageController,
+        onPageChanged: onPageChanged,
       ),
     );
   }

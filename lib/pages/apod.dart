@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -40,7 +41,7 @@ class _APODState extends State<APOD> {
     mediaType = jsonData['media_type'];
     if(mediaType=="image") {
       imageURL = jsonData['hdurl'];
-      //precacheImage(NetworkImage(imageURL), context);
+      precacheImage(CachedNetworkImageProvider(imageURL), context);
     }
     else {
       videoURL = jsonData['url'];
@@ -169,7 +170,9 @@ class _APODState extends State<APOD> {
                 borderRadius: BorderRadius.circular(15.0),
                 child: Hero(
                   tag: "tag${-1}",
-                  child: FadeInImage.assetNetwork(
+                  child: Image(image: CachedNetworkImageProvider(imageURL),),
+
+                  /*FadeInImage.assetNetwork(
                       placeholder: 'assets/LoadingGif.gif',
                       imageErrorBuilder: (BuildContext context,
                           Object exception,
@@ -181,6 +184,8 @@ class _APODState extends State<APOD> {
                         );
                       },
                       image: imageURL),
+
+                   */
                 ),
               ),
             )

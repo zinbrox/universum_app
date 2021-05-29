@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -49,14 +50,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
       final DateFormat dateFormatter = DateFormat('dd-MM-yyyy');
     final DateFormat timeFormatter = DateFormat('HH:MM:SS');
     print(DateTime.now());
-    //print(jsonData['results']);
-    /*
-    if(DateTime.now().isUtc)
-      print("Yes");
-    else
-      print("No");
 
-     */
     statusCode = response.statusCode;
     //print(response.statusCode);
     if(statusCode == 200) {
@@ -114,22 +108,25 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
           status: status,
           imageURL: imageURL,
         );
-        /*
 
-       */
         launches.add(launch);
       }
     }
 
-    for(var launch in launches)
-      precacheImage(new NetworkImage(launch.imageURL), context);
-
+    await Future.wait(
+      launches.map((launch) => cacheImage(context, launch.imageURL)).toList(),
+    );
+    
     setState(() {
       _loading=false;
     });
 
 
   }
+
+  Future cacheImage(BuildContext context, String imageURL) => precacheImage(
+      CachedNetworkImageProvider(imageURL), context);
+
 
   void initialiseBanner() {
     _bannerAd = BannerAd(
@@ -193,7 +190,8 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                           children: [
                             Stack(
                               children: [
-                                Image(image: NetworkImage(launches[index].imageURL)),
+                                Image(image: CachedNetworkImageProvider(launches[index].imageURL),),
+                                //Image(image: NetworkImage(launches[index].imageURL)),
                                 Align(
                                   alignment: Alignment.topRight,
                                   child: Container(

@@ -101,7 +101,6 @@ class _roverPhotosState extends State<roverPhotos> {
   List<photoDetails> photosList = [];
   List<photoDetails> filteredPhotosList=[];
   List<List> finalList = [[]];
-  //List<List<photoDetails>>> finalList=[];
 
   bool _loading=false;
   bool _showPics = false;
@@ -185,20 +184,18 @@ class _roverPhotosState extends State<roverPhotos> {
           photosList.add(item);
         }
 
-        for (var item in photosList)
-          precacheImage(NetworkImage(item.imgURL), context);
-
         finalList.clear();
         finalList = List<List>.generate(roverCameraNames.length, (index) => []);
         indexSelected =
         List<int>.generate(roverCameraNames.length, (int index) => 0);
-        print("Here");
         for (int i = 0; i < photosList.length; ++i)
           for (int j = 0; j < roverCameraNames.length; ++j)
             if (photosList[i].cameraFullName == roverCameraNames[j])
               finalList[j].add(photosList[i]);
-        print("Next");
 
+        await Future.wait(
+          photosList.map((item) => cacheImage(context, item.imgURL)).toList(),
+        );
 
         setState(() {
           _loading = false;
@@ -210,6 +207,9 @@ class _roverPhotosState extends State<roverPhotos> {
       _loading=false;
     });
   }
+
+  Future cacheImage(BuildContext context, String imageURL) => precacheImage(
+      CachedNetworkImageProvider(imageURL), context);
 
   /*
   void filterList(String roverCameraName) {
@@ -352,7 +352,7 @@ class _roverPhotosState extends State<roverPhotos> {
                                     borderRadius: BorderRadius.circular(10),
                                     child: Hero(
                                       tag: "tag${index+1}$i",
-                                      child: finalList[index][i].imgURL!=null? Image(image: NetworkImage(finalList[index][i].imgURL)) : Text("Empty"),
+                                      child: finalList[index][i].imgURL!=null? Image(image: CachedNetworkImageProvider(finalList[index][i].imgURL)) : Text("Empty"),
                                     ),
                                   ),
                                 ),
