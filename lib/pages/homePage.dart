@@ -2,14 +2,18 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class Article {
-  String title, imageURL, summary, newsSite, date;
-  Article({this.title, this.imageURL, this.summary, this.newsSite, this.date});
+  String title, imageURL, summary, newsSite, newsURL;
+  DateTime date;
+  Article({this.title, this.imageURL, this.summary, this.newsSite, this.date, this.newsURL});
 }
 class Blog {
-  String title, imageURL, summary, newsSite, date;
-  Blog({this.title, this.imageURL, this.summary, this.newsSite, this.date});
+  String title, imageURL, summary, newsSite, newsURL;
+  DateTime date;
+  Blog({this.title, this.imageURL, this.summary, this.newsSite, this.date, this.newsURL});
 }
 
 class HomePage extends StatefulWidget {
@@ -24,6 +28,10 @@ class _HomePageState extends State<HomePage> {
   List<Article> articles = [];
   List<Blog> blogs = [];
 
+  int statusCodeArticles, statusCodeBlogs;
+
+  final DateFormat dateFormatter = DateFormat('dd-MM-yyyy');
+
   Future<void> getArticles() async {
     print("In getArticles");
     Article article;
@@ -31,15 +39,20 @@ class _HomePageState extends State<HomePage> {
     var response = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(response.body);
 
-    for(var result in jsonData) {
-      article = Article(
-        title: result['title'],
-        imageURL: result['imageUrl'],
-        summary: result['summary'],
-        newsSite: result['newsSite'],
-        date: result['publishedAt'],
-      );
-      articles.add(article);
+    statusCodeArticles=response.statusCode;
+
+    if(statusCodeArticles==200) {
+      for (var result in jsonData) {
+        article = Article(
+          title: result['title'],
+          imageURL: result['imageUrl'],
+          summary: result['summary'],
+          newsSite: result['newsSite'],
+          newsURL: result['url'],
+          date: DateTime.parse(result['publishedAt']),
+        );
+        articles.add(article);
+      }
     }
     setState(() {
       _articlesLoading=false;
@@ -52,15 +65,19 @@ class _HomePageState extends State<HomePage> {
     Blog blog;
     var response = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(response.body);
-    for(var result in jsonData) {
-      blog = Blog(
-        title: result['title'],
-        imageURL: result['imageUrl'],
-        summary: result['summary'],
-        newsSite: result['newsSite'],
-        date: result['publishedAt'],
-      );
-      blogs.add(blog);
+    statusCodeBlogs=response.statusCode;
+    if(statusCodeBlogs==200) {
+      for (var result in jsonData) {
+        blog = Blog(
+          title: result['title'],
+          imageURL: result['imageUrl'],
+          summary: result['summary'],
+          newsSite: result['newsSite'],
+          newsURL: result['url'],
+          date: DateTime.parse(result['publishedAt']),
+        );
+        blogs.add(blog);
+      }
     }
     setState(() {
       _blogsLoading=false;
@@ -97,42 +114,72 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: //Center(child: CircularProgressIndicator(),)
+      body:
       (dropdownValue=="Articles" && _articlesLoading==false)?
-          ListView.builder(
+          statusCodeArticles==429? Center(child: Text("Too many requests! Try again in some time"),) : statusCodeArticles!=200? Center(child: Text("Error. Status Code: $statusCodeArticles"),) :
+          ListView.separated(
             itemCount: articles.length,
+              separatorBuilder: (context, index) => SizedBox(height: 10,),
               itemBuilder: (context, index){
-              return Container(child: Card(
+              return InkWell(
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: articles[index].newsURL,))),
+                child: Container(child: Card(
+                  elevation: 5,
+                  child: Column(
+                    children: [
+                      Image.network(articles[index].imageURL),
+                      Text(articles[index].title, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,),
+                      SizedBox(height: 10,),
+                      Text(articles[index].summary, style: TextStyle(fontSize: 15), textAlign: TextAlign.center,),
+                      SizedBox(height: 5,),
+                      Text("Souce: " + articles[index].newsSite),
+                      Text(dateFormatter.format(articles[index].date)),
+                    ],
+                  ),
+                ),),
+              );
+              }) :
+      (dropdownValue=="Blogs" && _blogsLoading==false)?
+      statusCodeBlogs==429? Center(child: Text("Too many requests! Try again in some time"),) : statusCodeBlogs!=200? Center(child: Text("Error. Status Code: $statusCodeBlogs"),) :
+      ListView.separated(
+          itemCount: articles.length,
+          separatorBuilder: (context, index) => SizedBox(height: 10,),
+          itemBuilder: (context, index){
+            return InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: blogs[index].newsURL,))),
+              child: Container(child: Card(
                 elevation: 5,
                 child: Column(
                   children: [
-                    Image.network(articles[index].imageURL),
-                    Text(articles[index].title),
-                    Text(articles[index].summary),
-                    Text(articles[index].newsSite),
-                    Text(articles[index].date),
+                    Image.network(blogs[index].imageURL),
+                    Text(blogs[index].title, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,),
+                    SizedBox(height: 10,),
+                    Text(blogs[index].summary, style: TextStyle(fontSize: 18), textAlign: TextAlign.center,),
+                    SizedBox(height: 5,),
+                    Text(dateFormatter.format(blogs[index].date)),
+                    Text("Source: " + blogs[index].newsSite),
                   ],
                 ),
-              ),);
-              }) :
-      (dropdownValue=="Blogs" && _blogsLoading==false)?
-      ListView.builder(
-          itemCount: articles.length,
-          itemBuilder: (context, index){
-            return Container(child: Card(
-              elevation: 5,
-              child: Column(
-                children: [
-                  Image.network(blogs[index].imageURL),
-                  Text(blogs[index].title),
-                  Text(blogs[index].summary),
-                  Text(blogs[index].newsSite),
-                  Text(blogs[index].date),
-                ],
-              ),
-            ),);
+              ),),
+            );
           }) :
           Center(child: CircularProgressIndicator(),),
     );
   }
 }
+
+class WebViewer extends StatelessWidget {
+  String url;
+  WebViewer({Key key, @required this.url}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: WebView(
+        initialUrl: url,
+      ),
+    );
+  }
+}
+
