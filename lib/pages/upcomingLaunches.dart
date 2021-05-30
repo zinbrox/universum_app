@@ -1,13 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
+import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universum_app/helpers/ad_helper.dart';
+import 'package:universum_app/helpers/notificationsPlugin.dart';
+
 
 class LaunchDetails {
   String launchName, date, time;
@@ -38,6 +43,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
 
   bool _loading = true;
   int statusCode;
+
 
   Future<void> getLaunches() async {
     print("In getLaunches");
@@ -196,7 +202,15 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                   alignment: Alignment.topRight,
                                   child: Container(
                                       color: Colors.black12,
-                                      child: IconButton(icon: Icon(Icons.notifications, color: Colors.white,), onPressed: (){},)),
+                                      child: IconButton(icon: Icon(Icons.notifications, color: Colors.white,),
+                                        onPressed: () async {
+                                          DateTime date = DateTime.now().add(Duration(seconds: 10));
+                                          print("Notification in ");
+                                          AndroidAlarmManager.oneShotAt(date, Random().nextInt(pow(2, 31)), showNotificationFunction);
+
+
+
+                                      },)),
                                 ),
                               ],
                             ),
@@ -309,4 +323,20 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
      */
     return launches[index].dateObject.difference(DateTime.now());
   }
+}
+int id;
+String name;
+showName() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  int counter= prefs.getInt('noLaunches') ?? 0;
+  List<String> names = prefs.getStringList('launchNames')?? [];
+  print(counter);
+  print(names);
+  print("Hello");
+}
+showNotificationFunction() async {
+  print("In calling function");
+  //List<String> names = await SharedPrefUtils.readPrefStr('launchNames');
+  //print(names);
+  localNotifyManager.showNotification();
 }

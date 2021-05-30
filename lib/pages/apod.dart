@@ -41,7 +41,7 @@ class _APODState extends State<APOD> {
     mediaType = jsonData['media_type'];
     if(mediaType=="image") {
       imageURL = jsonData['hdurl'];
-      precacheImage(CachedNetworkImageProvider(imageURL), context);
+      await precacheImage(CachedNetworkImageProvider(imageURL), context);
     }
     else {
       videoURL = jsonData['url'];
@@ -102,47 +102,45 @@ class _APODState extends State<APOD> {
       body: _loading ?
       // Shimmer Loading Effect
       Shimmer.fromColors(
-        baseColor: Colors.grey[300],
-        highlightColor: Colors.grey[100],
+        baseColor: Colors.white,
+        highlightColor: Colors.white70,
         enabled: _loading,
-        child: ListView.builder(
-          itemBuilder: (_, __) => Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: 300.0,
-                    color: Colors.white,
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: 8.0,
-                    color: Colors.white,
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 2.0),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    height: 8.0,
-                    color: Colors.white,
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 2.0),
-                  ),
-                  Container(
-                    width: 40.0,
-                    height: 8.0,
-                    color: Colors.white,
-                  ),
-                ],
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              height: MediaQuery.of(context).size.height*0.4,
+              width: MediaQuery.of(context).size.width*0.9,
+              decoration: BoxDecoration(
+                color: Colors.white10,
+                borderRadius: BorderRadius.circular(15),
               ),
-            )
-          ),
-          itemCount: 5,
+            ),
+            SizedBox(height: 10,),
+            Container(
+              height: MediaQuery.of(context).size.height*0.025,
+              width: MediaQuery.of(context).size.width*0.7,
+              decoration: BoxDecoration(
+                color: Colors.white10,
+              ),
+            ),
+            SizedBox(height: 10,),
+            Expanded(
+              child: ListView.separated(
+                itemCount: 10,
+                separatorBuilder: (context, index) => SizedBox(height: 10,),
+                itemBuilder: (context, index){
+                  return Container(
+                    height: MediaQuery.of(context).size.height*0.015,
+                    width: MediaQuery.of(context).size.width*0.9,
+                    decoration: BoxDecoration(
+                      color: Colors.white10,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       )
           :
@@ -217,8 +215,9 @@ class _APODState extends State<APOD> {
               child: Center(
                 child: ListView(
                   children: [
-                    Center(child: Text(contentTitle)),
-                    Text(contentDescription),
+                    Center(child: Text(contentTitle, style: TextStyle(fontSize: 20),)),
+                    SizedBox(height: 10,),
+                    Text(contentDescription, textAlign: TextAlign.center, style: TextStyle(fontSize: 15),),
                     Text(contentDate),
                     contentCopyRight==null ? Container() : Center(child: Text(contentCopyRight)),
                   ],

@@ -23,11 +23,11 @@ class ISSPage extends StatefulWidget {
 
 class _ISSPageState extends State<ISSPage> {
 
-  // TODO: Add _bannerAd
-  BannerAd _bannerAd;
+  // TODO: Add _interstitialAd
+  InterstitialAd _interstitialAd;
 
-  // TODO: Add _isBannerAdReady
-  bool _isBannerAdReady = false;
+  // TODO: Add _isInterstitialAdReady
+  bool _isInterstitialAdReady = false;
 
   String message;
   int timestamp;
@@ -277,37 +277,31 @@ class _ISSPageState extends State<ISSPage> {
         });
 
   }
-
+  /*
   void initialiseBanner() {
-    Future.delayed(const Duration(seconds: 3), ()
-    {
-      _bannerAd = BannerAd(
-        adUnitId: AdHelper.bannerAdUnitId,
+      _interstitialAd = InterstitialAd(
+        adUnitId: AdHelper.interstitialAdUnitId,
         request: AdRequest(),
-        size: AdSize.banner,
-        listener: BannerAdListener(
+        listener: AdListener(
           onAdLoaded: (_) {
-            setState(() {
-              _isBannerAdReady = true;
-            });
+            _isInterstitialAdReady = true;
           },
           onAdFailedToLoad: (ad, err) {
-            print('Failed to load a banner ad: ${err.message}');
-            _isBannerAdReady = false;
+            print('Failed to load an interstitial ad: ${err.message}');
+            _isInterstitialAdReady = false;
             ad.dispose();
           },
-          // Called when an ad opens an overlay that covers the screen.
-          onAdOpened: (Ad ad) => print('Ad opened.'),
-          // Called when an ad removes an overlay that covers the screen.
-          onAdClosed: (Ad ad) => print('Ad closed.'),
-          // Called when an impression occurs on the ad.
-          onAdImpression: (Ad ad) => print('Ad impression.'),
+          onAdClosed: (_) {
+            _moveToHome();
+          },
         ),
       );
 
-      _bannerAd.load();
+      _interstitialAd.load();
     });
-  }
+
+   */
+
 
   @override
   void initState() {
@@ -327,7 +321,7 @@ class _ISSPageState extends State<ISSPage> {
   @override
   void dispose() {
     cancelSubscription();
-    _bannerAd.dispose();
+    //_bannerAd.dispose();
     super.dispose();
   }
 

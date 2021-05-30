@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:universum_app/pages/search.dart';
 
-List<String> titles = ["APOD", "ISS Tracker", "Mars Rover Photos", "Upcoming Launches"];
+List<String> titles = ["Picture of the Day", "ISS Tracker", "Mars Rover Photos", "Upcoming Launches"];
 List<String> images = ["assets/OrionNebula.jpg", "assets/ISS.jpg", "assets/Curiosity.jpg", "assets/RocketLaunch.jpg"];
 List<String> links = ['/apod', '/issLoc', '/roverSelect', '/upcomingLaunches'];
 
@@ -94,6 +94,10 @@ class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClient
                             child: Text(titles[index], style: TextStyle(fontSize: 30, color: Colors.white), textAlign: TextAlign.center,)),),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 0.5,
+                          ),
                           image: DecorationImage(
                             fit: BoxFit.fitHeight,
                             image: AssetImage(images[index]),

@@ -7,6 +7,8 @@ import 'dart:io' show File, Platform;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universum_app/pages/upcomingLaunches.dart';
 
 class LocalNotifyManager {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
@@ -63,6 +65,65 @@ class LocalNotifyManager {
         });
   }
 
+
+  Future<void> showNotification() async {
+    print("In showNotification");
+    var androidChannelSpecifics = AndroidNotificationDetails(
+      'CHANNEL 1',
+      'Launch Notifications',
+      "Launch Reminders",
+      importance: Importance.max,
+      priority: Priority.max,
+      playSound: true,
+      styleInformation: BigTextStyleInformation(''),
+    );
+
+    var iosChannelSpecifics = IOSNotificationDetails();
+    var platformChannelSpecifics =
+    NotificationDetails(
+        android: androidChannelSpecifics, iOS: iosChannelSpecifics);
+
+    //_getLaunches();
+      await flutterLocalNotificationsPlugin.show(
+        1,
+        'LAUNCH REMINDER!',
+        'The Launch will be happening soon', //null
+        platformChannelSpecifics,
+        payload: 'New Payload',
+      );
+    }
+  List<LaunchDetails> launches = []; int statusCode;
+
+  _getLaunches() async {
+    LaunchDetails launch;
+    DateTime date;
+    String url = "https://ll.thespacedevs.com/2.0.0/launch/upcoming/";
+    var response = await http.get(Uri.parse(url));
+    var jsonData = jsonDecode(response.body);
+
+    statusCode = response.statusCode;
+    //print(response.statusCode);
+    if(statusCode == 200) {
+      String rocketName, rocketFamily, missionName, missionDescription, padName,
+          padLocation, padURL, type, status, imageURL;
+      for (var results in jsonData['results']) {
+        date = DateTime.parse(results['net']).toLocal();
+        missionName =
+        results['mission'] == null ? "" : results['mission']['name'] != null
+            ? results['mission']['name']
+            : "";
+        launch = LaunchDetails(
+          launchName: results['name'],
+          missionName: missionName,
+          dateObject: date,
+        );
+
+        launches.add(launch);
+      }
+      launches.sort((a,b) => a.dateObject.compareTo(b.dateObject));
+    }
+  }
+
   _downloadAndSaveFile(String url, String fileName) async {
     var directory = await getApplicationDocumentsDirectory();
     var filePath = '${directory.path}/$fileName';
@@ -84,7 +145,7 @@ class LocalNotifyManager {
       );
       var bigPictureStyleInformation = BigPictureStyleInformation(
         FilePathAndroidBitmap(attachmentPicturePath),
-        contentTitle: '<b>$contentTitle</b>',
+        contentTitle: '$contentTitle',
         htmlFormatContentTitle: true,
         summaryText: contentDescription,
         htmlFormatSummaryText: true,
@@ -96,7 +157,7 @@ class LocalNotifyManager {
         "NASA Astronomical Picture of the Day",
         importance: Importance.max,
         priority: Priority.max,
-        onlyAlertOnce: true,
+        onlyAlertOnce: false,
         largeIcon: FilePathAndroidBitmap(picturePath),
         styleInformation: bigPictureStyleInformation,
       );
@@ -132,6 +193,7 @@ class LocalNotifyManager {
       contentTitle = jsonData['title'];
       contentDescription = jsonData['explanation'];
     }
+    print(mediaType);
 
   }
 

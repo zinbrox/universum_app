@@ -1,5 +1,8 @@
+import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universum_app/helpers/notificationsPlugin.dart';
 import 'package:universum_app/styles/color_styles.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -10,6 +13,7 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
 
   List<String> fonts = ["Default", 'Retro NASA', 'Star Wars', 'Star Trek', 'Alien', 'Back to the Future'];
+  bool notificationSwitch=false;
 
   _changeFont() async {
     await showModalBottomSheet(
@@ -34,6 +38,19 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 
+  getNotificationSwitch() async {
+    final prefs = await SharedPreferences.getInstance();
+    notificationSwitch=prefs.getBool('APODNotification')?? false;
+    setState(() {
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getNotificationSwitch();
+  }
+
   @override
   Widget build(BuildContext context) {
     final _themeChanger = Provider.of<DarkThemeProvider>(context);
@@ -51,6 +68,26 @@ class _SettingsPageState extends State<SettingsPage> {
                 ListTile(
                   title: Text("Daily Notification"),
                   subtitle: Text("We'll send you the Picture of the Day"),
+                  trailing: Switch(
+                    value: notificationSwitch,
+                    onChanged: (value) async {
+                      setState((){
+                        notificationSwitch=value;
+                      });
+                      final prefs = await SharedPreferences.getInstance();
+                      prefs.setBool('APODNotification', notificationSwitch);
+                      if(notificationSwitch) {
+                        print("Notifications Started");
+                        AndroidAlarmManager.periodic(
+                            const Duration(days: 1), 0,
+                            callAPODNotification);
+                      }
+                        else {
+                          print("Notifications Cancelled");
+                          AndroidAlarmManager.cancel(0);
+                      }
+                    },
+                  ),
                 ),
                 ListTile(
                   title: Text("Change Font"),
@@ -93,4 +130,8 @@ class _SettingsPageState extends State<SettingsPage> {
       */
     );
   }
+}
+
+callAPODNotification(){
+  localNotifyManager.repeatNotification();
 }

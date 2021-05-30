@@ -2,6 +2,7 @@ import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universum_app/pages/explorePage.dart';
 import 'package:universum_app/pages/home.dart';
 import 'package:universum_app/pages/apod.dart';
@@ -18,6 +19,7 @@ main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AndroidAlarmManager.initialize();
   MobileAds.instance.initialize();
+  SharedPreferences sharedPref = await SharedPreferences.getInstance();
   runApp(MyApp());
 }
 
