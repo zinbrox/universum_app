@@ -4,16 +4,27 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:universum_app/helpers/ad_helper.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:ui' as ui;
 
+import 'package:universum_app/pages/homePage.dart';
+
 class MarkerPoints {
   double latitude, longitude;
   MarkerPoints({this.latitude, this.longitude});
+}
+
+class Reports {
+  String title, url, newsSite, summary;
+  DateTime date;
+  Reports({this.title, this.url, this.newsSite, this.summary, this.date});
+
 }
 
 class ISSPage extends StatefulWidget {
@@ -46,6 +57,9 @@ class _ISSPageState extends State<ISSPage> {
   var streamSubscription;
 
   var addressName = "", addressLine = "";
+
+  int statusCodeReports;
+  List<Reports> reports = [];
 
   Future<Uint8List> getBytesFromAsset(String path, int width) async {
     ByteData data = await rootBundle.load(path);
@@ -224,7 +238,6 @@ class _ISSPageState extends State<ISSPage> {
         visible: true,
         //latlng is List<LatLng>
         points: latlng,
-        color: Colors.orange,
         width: 3,
       ));
 
@@ -261,7 +274,7 @@ class _ISSPageState extends State<ISSPage> {
         context: context,
         builder: (context) {
           return Container(
-            height: 300,
+            height: MediaQuery.of(context).size.height*0.6,
             child: Scrollbar(
               isAlwaysShown: true,
               child: ListView.builder(
@@ -276,6 +289,43 @@ class _ISSPageState extends State<ISSPage> {
           );
         });
 
+  }
+
+  Future<void> getReports() async {
+    print("In getReports");
+    Reports report;
+    String url = "https://api.spaceflightnewsapi.net/v3/reports";
+    var response = await http.get(Uri.parse(url));
+    var jsonData = jsonDecode(response.body);
+
+    statusCodeReports = response.statusCode;
+    if(statusCodeReports==200) {
+      if(reports.isNotEmpty)
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ISSReports(reports: reports)));
+      else {
+        for (var result in jsonData) {
+          report = Reports(
+            title: result['title'],
+            url: result['url'],
+            summary: result['summary'],
+            newsSite: result['newsSite'],
+            date: DateTime.parse(result['publishedAt']),
+          );
+          reports.add(report);
+        }
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ISSReports(reports: reports)));
+      }
+    }
+    else
+      Fluttertoast.showToast(
+          msg: "Error. Status Code: $statusCodeReports",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.white,
+          textColor: Colors.black,
+          fontSize: 16.0
+      );
   }
   /*
   void initialiseBanner() {
@@ -335,7 +385,7 @@ class _ISSPageState extends State<ISSPage> {
       Column(
         children: [
           Container(
-            height: MediaQuery.of(context).size.height*0.7,
+            height: MediaQuery.of(context).size.height*0.65,
             child: GoogleMap(
                     onMapCreated: _onMapCreated,
                     initialCameraPosition: CameraPosition(
@@ -351,15 +401,55 @@ class _ISSPageState extends State<ISSPage> {
           SizedBox(height: 10,),
           Expanded(
             child: Center(
-              child: Column(
+              child: Row(
                 children: [
-                  Text("Current Location: " + addressLine),
-                  Text("Altitude: " + altitude.toStringAsFixed(2) + " km"),
-                  Text("Velocity: " + velocity.toStringAsFixed(2) + " km/s"),
-                  Text("Visibility: $visibility"),
-                  ElevatedButton(onPressed: () async {
-                    getHumansInSpace();
-                  }, child: Text("Who are currently on the ISS?")),
+                  Container(
+                    width: MediaQuery.of(context).size.width*0.5,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text("Current Location: " + addressLine, textAlign: TextAlign.center, style: TextStyle(fontSize: 18),),
+                        Text("Altitude: " + altitude.toStringAsFixed(2) + " km"),
+                        Text("Velocity: " + velocity.toStringAsFixed(2) + " km/s"),
+                        Text("Visibility: $visibility"),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text("Latitude: " + latitude.toStringAsFixed(4)),
+                      Text("Longitude: " + longitude.toStringAsFixed(4)),
+                      Container(
+                        //width: MediaQuery.of(context).size.width*0.65,
+                        child: ElevatedButton(onPressed: () async {
+                          getHumansInSpace();
+                        }, child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Icon(Icons.supervisor_account),
+                            SizedBox(width: 10,),
+                            Text("Current ISS Crew"),
+                          ],
+                        )),
+                      ),
+                      Container(
+                        //width: MediaQuery.of(context).size.width*0.65,
+                        child: ElevatedButton(
+                          onPressed: (){
+                            getReports();
+                          },
+                          child: Row(
+                            children: [
+                              Icon(Icons.library_books),
+                              SizedBox(width: 10,),
+                              Text("ISS Daily Reports"),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   /*
                   _isBannerAdReady ?
                   Container(
@@ -380,3 +470,62 @@ class _ISSPageState extends State<ISSPage> {
     );
   }
 }
+
+class ISSReports extends StatelessWidget {
+  List<Reports> reports;
+  ISSReports({Key key, @required this.reports}) : super(key: key);
+  final DateFormat dateFormatter = DateFormat('dd-MM-yyyy');
+  final DateFormat timeFormatter = DateFormat('HH:MM:SS');
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("ISS Reports"),
+      ),
+      body: Center(
+        child: ListView.separated(
+            itemCount: reports.length,
+            separatorBuilder: (context, index) => SizedBox(height: 10),
+            itemBuilder: (context, index){
+              return Container(
+                child: Card(
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            width: MediaQuery.of(context).size.width*0.5,
+                              child: Text(reports[index].title, style: TextStyle(fontSize: 18),)),
+                          Column(
+                            children: [
+                              Text(dateFormatter.format(reports[index].date), textAlign: TextAlign.right, style: TextStyle(fontSize: 18),),
+                              Text(timeFormatter.format(reports[index].date), textAlign: TextAlign.right, style: TextStyle(fontSize: 18),)
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10,),
+                      Text(reports[index].summary, textAlign: TextAlign.center, style: TextStyle(fontSize: 15),),
+                      SizedBox(height: 10,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("News Site: " + reports[index].newsSite),
+                          InkWell(
+                            onTap: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: reports[index].url, title: "Report Viewer",)));
+                            },
+                              child: Text("Read Full Report", style: TextStyle(color: Colors.blue),)),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              );
+            }),
+      ),
+    );
+  }
+}
+

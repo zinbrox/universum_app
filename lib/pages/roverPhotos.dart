@@ -312,7 +312,12 @@ class _roverPhotosState extends State<roverPhotos> {
               })
         ],
       ),
-      body: _loading? CircularProgressIndicator() : statusCode==429? Center(child: Text("Too many requests! Try again in some time"),) :
+      body: _loading? Center(child: Column(
+        children: [
+          Image(image: AssetImage("assets/Rover.gif")),
+          Text("Loading Rover Images.."),
+        ],
+      ),) : statusCode==429? Center(child: Text("Too many requests! Try again in some time"),) :
           roverCameraNames.length==0 ? Center(child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

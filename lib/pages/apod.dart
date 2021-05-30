@@ -162,6 +162,7 @@ class _APODState extends State<APOD> {
                       );
 
                      */
+                if(mediaType=="image")
                 Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: imageURL, title: contentTitle, index: -1,)));
               },
               child: ClipRRect(
@@ -218,7 +219,8 @@ class _APODState extends State<APOD> {
                     Center(child: Text(contentTitle, style: TextStyle(fontSize: 20),)),
                     SizedBox(height: 10,),
                     Text(contentDescription, textAlign: TextAlign.center, style: TextStyle(fontSize: 15),),
-                    Text(contentDate),
+                    SizedBox(height: 10,),
+                    Text(contentDate, textAlign: TextAlign.center,),
                     contentCopyRight==null ? Container() : Center(child: Text(contentCopyRight)),
                   ],
                 ),
@@ -257,7 +259,7 @@ class PictureView extends StatelessWidget {
             child: Hero(
               tag: "tag$index",
               child: PhotoView(
-                imageProvider: NetworkImage(imageURL),
+                imageProvider: CachedNetworkImageProvider(imageURL),
               ),
             )
         ),

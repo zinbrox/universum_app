@@ -4,6 +4,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:universum_app/styles/color_styles.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class Article {
@@ -104,6 +106,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<
   }
   @override
   Widget build(BuildContext context) {
+    final _themeChanger = Provider.of<DarkThemeProvider>(context);
+    bool isDark = _themeChanger.darkTheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("HomePage"),
@@ -134,7 +139,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<
               separatorBuilder: (context, index) => SizedBox(height: 10,),
               itemBuilder: (context, index){
               return InkWell(
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: articles[index].newsURL,))),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: articles[index].newsURL, title: "Article View",))),
                 child: Container(child: Card(
                   elevation: 5,
                   child: Column(
@@ -142,9 +147,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<
                       Image(image: CachedNetworkImageProvider(articles[index].imageURL)),
                       Text(articles[index].title, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,),
                       SizedBox(height: 10,),
-                      Text(articles[index].summary, style: TextStyle(fontSize: 15), textAlign: TextAlign.center,),
+                      Text(articles[index].summary, style: TextStyle(fontSize: 15, color: isDark? Colors.white70 : Colors.black), textAlign: TextAlign.center,),
                       SizedBox(height: 5,),
-                      Text("Souce: " + articles[index].newsSite),
+                      Text("Source: " + articles[index].newsSite),
                       Text(dateFormatter.format(articles[index].date)),
                     ],
                   ),
@@ -175,20 +180,20 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<
               ),),
             );
           }) :
-          Center(child: CircularProgressIndicator(),),
+          Center(child: Image(image: AssetImage("assets/RocketLoading.gif"))),
     );
   }
 }
 
 class WebViewer extends StatelessWidget {
-  String url;
-  WebViewer({Key key, @required this.url}) : super(key: key);
+  String url, title;
+  WebViewer({Key key, @required this.url, @required this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Article View"),
+        title: Text(title),
       ),
       body: WebView(
         initialUrl: url,

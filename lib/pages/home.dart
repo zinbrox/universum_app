@@ -38,6 +38,8 @@ class _HomeState extends State<Home> {
   Future onNotificationClick(String payload) {
     print("Pressed Notification");
     print("Payload: $payload");
+    if(payload=="APOD")
+      Navigator.pushNamed(context, '/apod');
   }
 
   @override

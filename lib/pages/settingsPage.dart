@@ -112,7 +112,8 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
           ),
-          Text("zinbrox", style: TextStyle(decoration: TextDecoration.overline),)
+          Text("zinbrox", style: TextStyle(decoration: TextDecoration.overline, fontSize: 15),),
+          SizedBox(height: 10,)
         ],
       ),
       /*

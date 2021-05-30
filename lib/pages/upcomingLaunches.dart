@@ -9,10 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universum_app/helpers/ad_helper.dart';
 import 'package:universum_app/helpers/notificationsPlugin.dart';
 import 'package:universum_app/helpers/sharedPreferencesClass.dart';
+import 'package:universum_app/styles/color_styles.dart';
 
 
 class LaunchDetails {
@@ -186,11 +188,19 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
 
   @override
   Widget build(BuildContext context) {
+    final _themeChanger = Provider.of<DarkThemeProvider>(context);
+    bool isDark = _themeChanger.darkTheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Upcoming Launches"),
       ),
-      body: _loading? Center(child: CircularProgressIndicator(),) : statusCode==429? Center(child: Text("Too Many Requests! Try again in some time")) :
+      body: _loading? Center(child: Column(
+        children: [
+          Image(image: AssetImage("assets/RocketLoading.gif")),
+          Text("Loading Upcoming Launches.."),
+        ],
+      )) : statusCode==429? Center(child: Text("Too Many Requests! Try again in some time")) :
           Column(
             children: [
               Expanded(
@@ -312,8 +322,9 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
 
                               ],
                             ),
-
-                            Text(launches[index].missionDescription),
+                            SizedBox(height: 5,),
+                            Text(launches[index].missionDescription, style: TextStyle(color: isDark? Colors.white70 : Colors.black), textAlign: TextAlign.center,),
+                            SizedBox(height: 5),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -330,13 +341,14 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
-                                      Text("Pad: " + launches[index].padName),
-                                      Text("Location: " + launches[index].padLocation, textAlign: TextAlign.center,),
+                                      Text("Pad: " + launches[index].padName, textAlign: TextAlign.right,),
+                                      Text("Location: " + launches[index].padLocation, textAlign: TextAlign.right,),
                                     ],
                                   ),
                                 ),
                               ],
                             ),
+                            SizedBox(height: 5,),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [

@@ -183,7 +183,7 @@ class LocalNotifyManager {
         contentTitle,
         contentDescription,
         platformChannelSpecifics,
-        payload: 'Test Payload',
+        payload: 'APOD',
 
       );
     }
