@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universum_app/helpers/sharedPreferencesClass.dart';
 import 'package:universum_app/pages/upcomingLaunches.dart';
 
 class LocalNotifyManager {
@@ -84,13 +85,23 @@ class LocalNotifyManager {
         android: androidChannelSpecifics, iOS: iosChannelSpecifics);
 
     //_getLaunches();
+    List<String> names = await SharedPrefUtils.readPrefStr('launchNames');
+    print(names);
+    String name;
+    if(names.isEmpty)
+      name = "Launch happening soon";
+    else
+      name = "${names[0]} will be launching soon";
       await flutterLocalNotificationsPlugin.show(
         1,
         'LAUNCH REMINDER!',
-        'The Launch will be happening soon', //null
+        '$name', //null
         platformChannelSpecifics,
         payload: 'New Payload',
       );
+      names.remove(names[0]);
+      SharedPrefUtils.saveStr('launchNames', names);
+      print(SharedPrefUtils.readPrefStr('launchNames'));
     }
   List<LaunchDetails> launches = []; int statusCode;
 

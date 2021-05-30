@@ -96,7 +96,7 @@ class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClient
                           borderRadius: BorderRadius.circular(15),
                           border: Border.all(
                             color: Colors.white,
-                            width: 0.5,
+                            width: 1,
                           ),
                           image: DecorationImage(
                             fit: BoxFit.fitHeight,
