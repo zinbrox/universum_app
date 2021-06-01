@@ -80,7 +80,11 @@ class _SettingsPageState extends State<SettingsPage> {
                         print("Notifications Started");
                         AndroidAlarmManager.periodic(
                             const Duration(days: 1), 0,
-                            callAPODNotification);
+                            callAPODNotification,
+                          exact: true,
+                          startAt: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 12, 0),
+                          rescheduleOnReboot: true,
+                        );
                       }
                         else {
                           print("Notifications Cancelled");

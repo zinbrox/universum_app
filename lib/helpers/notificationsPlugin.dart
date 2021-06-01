@@ -85,7 +85,8 @@ class LocalNotifyManager {
         android: androidChannelSpecifics, iOS: iosChannelSpecifics);
 
     //_getLaunches();
-    List<String> names = await SharedPrefUtils.readPrefStr('launchNames');
+    names.clear();
+    names = await SharedPrefUtils.readPrefStr('launchNames');
     print(names);
     String name;
     if(names.isEmpty)
@@ -101,7 +102,9 @@ class LocalNotifyManager {
       );
       names.remove(names[0]);
       SharedPrefUtils.saveStr('launchNames', names);
-      print(SharedPrefUtils.readPrefStr('launchNames'));
+      names.clear();
+      names = await SharedPrefUtils.readPrefStr('launchNames');
+      print(await SharedPrefUtils.readPrefStr('launchNames'));
     }
   List<LaunchDetails> launches = []; int statusCode;
 

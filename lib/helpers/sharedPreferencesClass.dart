@@ -12,3 +12,4 @@ class SharedPrefUtils {
   }
 
 }
+List<String> names = [];

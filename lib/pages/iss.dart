@@ -410,7 +410,7 @@ class _ISSPageState extends State<ISSPage> {
                       children: [
                         Text("Current Location: " + addressLine, textAlign: TextAlign.center, style: TextStyle(fontSize: 18),),
                         Text("Altitude: " + altitude.toStringAsFixed(2) + " km"),
-                        Text("Velocity: " + velocity.toStringAsFixed(2) + " km/s"),
+                        Text("Velocity: " + velocity.toStringAsFixed(2) + " km/h"),
                         Text("Visibility: $visibility"),
                       ],
                     ),
@@ -422,6 +422,7 @@ class _ISSPageState extends State<ISSPage> {
                       Text("Longitude: " + longitude.toStringAsFixed(4)),
                       Container(
                         //width: MediaQuery.of(context).size.width*0.65,
+                        height: MediaQuery.of(context).size.width*0.075,
                         child: ElevatedButton(onPressed: () async {
                           getHumansInSpace();
                         }, child: Row(
@@ -435,6 +436,7 @@ class _ISSPageState extends State<ISSPage> {
                       ),
                       Container(
                         //width: MediaQuery.of(context).size.width*0.65,
+                        height: MediaQuery.of(context).size.width*0.075,
                         child: ElevatedButton(
                           onPressed: (){
                             getReports();
@@ -444,6 +446,22 @@ class _ISSPageState extends State<ISSPage> {
                               Icon(Icons.library_books),
                               SizedBox(width: 10,),
                               Text("ISS Daily Reports"),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        //width: MediaQuery.of(context).size.width*0.65,
+                        height: MediaQuery.of(context).size.width*0.075,
+                        child: ElevatedButton(
+                          onPressed: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: "https://ustream.tv/channel/17074538", title: "ISS Live Stream",)));
+                          },
+                          child: Row(
+                            children: [
+                              Icon(Icons.open_in_browser),
+                              SizedBox(width: 10,),
+                              Text("ISS Live Stream"),
                             ],
                           ),
                         ),

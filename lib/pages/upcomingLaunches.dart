@@ -44,7 +44,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
   bool _isBannerAdReady = false;
 
   List<LaunchDetails> launches = [];
-  List<String> names;
+  //List<String> names;
 
 
   bool _loading = true;
@@ -66,7 +66,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
     statusCode = response.statusCode;
     //print(response.statusCode);
     if(statusCode == 200) {
-      names = await SharedPrefUtils.readPrefStr('launchNames');
+      //names = await SharedPrefUtils.readPrefStr('launchNames');
 
       String rocketName, rocketFamily, missionName, missionDescription, padName,
           padLocation, padURL, type, status, imageURL;
@@ -220,62 +220,60 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                   alignment: Alignment.topRight,
                                   child: Container(
                                       color: Colors.black12,
-                                      child: IconButton(icon: launches[index].notification? Icon(Icons.notifications_active, color: Colors.white,) : Icon(Icons.notifications_off, color: Colors.white,),
+                                      child: IconButton(icon: names.contains(launches[index].launchName)? Icon(Icons.notifications_active, color: Colors.white,) : Icon(Icons.notifications_off, color: Colors.white,),
                                         onPressed: () async {
+                                        names.clear();
+                                          names = await SharedPrefUtils.readPrefStr('launchNames');
                                         if(launches[index].dateObject.isAfter(DateTime.now())) {
                                           List<LaunchDetails> temp = [];
-                                          if (launches[index].notification) {
-                                            names = await SharedPrefUtils.readPrefStr(
-                                                'launchNames');
-                                            names.remove(
-                                                launches[index].launchName);
+                                          if (names.contains(launches[index].launchName)) {
+                                            names.remove(launches[index].launchName);
                                             setState(() {
-                                              launches[index].notification =
-                                              false;
+                                              launches[index].notification = false;
                                             });
+
                                             for (var i in names)
                                               for (var j in launches)
                                                 if (i == j.launchName)
                                                   temp.add(j);
-                                            temp.sort((a, b) =>
-                                                a.dateObject.compareTo(
-                                                    b.dateObject));
+                                            temp.sort((a, b) => a.dateObject.compareTo(b.dateObject));
                                             names.clear();
                                             for (var i in temp)
                                               names.add(i.launchName);
-                                            SharedPrefUtils.saveStr(
-                                                'launchNames', names);
+                                            await SharedPrefUtils.saveStr('launchNames', names);
+                                            names.clear();
+                                            names = await SharedPrefUtils.readPrefStr('launchNames');
                                             print("Removed");
+                                            print(names);
                                           }
                                           else {
+                                            /*
                                             setState(() {
                                               launches[index].notification =
                                               true;
                                             });
-                                            names = await SharedPrefUtils.readPrefStr(
-                                                'launchNames');
+
+                                             */
                                             for (var i in names)
                                               for (var j in launches)
                                                 if (i == j.launchName)
                                                   temp.add(j);
                                             temp.add(launches[index]);
-                                            temp.sort((a, b) =>
-                                                a.dateObject.compareTo(
-                                                    b.dateObject));
+                                            temp.sort((a, b) => a.dateObject.compareTo(b.dateObject));
                                             names.clear();
                                             for (var i in temp)
                                               names.add(i.launchName);
                                             print(names);
-                                            await SharedPrefUtils.saveStr(
-                                                'launchNames', names);
+                                            await SharedPrefUtils.saveStr('launchNames', names);
                                             print(await SharedPrefUtils.readPrefStr('launchNames'));
+                                            names.clear();
+                                            names = await SharedPrefUtils.readPrefStr('launchNames');
+                                            setState(() {
+                                            });
 
-                                            DateTime date = DateTime.now().add(
-                                                Duration(seconds: 10));
+                                            DateTime date = DateTime.now().add(Duration(seconds: 10));
                                             print("Notification in ");
-                                            AndroidAlarmManager.oneShotAt(date,
-                                                Random().nextInt(pow(2, 31)),
-                                                showNotificationFunction);
+                                            AndroidAlarmManager.oneShotAt(date, Random().nextInt(pow(2, 31)), showNotificationFunction);
                                           }
                                           /*
                                           final prefs = await SharedPreferences.getInstance();
