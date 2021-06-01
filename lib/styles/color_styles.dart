@@ -30,15 +30,44 @@ class DarkThemeProvider with ChangeNotifier{
     notifyListeners();
   }
 }
+class FontPreference {
+  static const THEME_STATUS = "fontName";
+
+  setFont(String value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(THEME_STATUS, value);
+  }
+
+  Future<String> getTheme() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(THEME_STATUS) ?? "default";
+  }
+
+}
+
+class FontProvider with ChangeNotifier{
+  FontPreference fontPreference =  FontPreference();
+  String _fontName = "default";
+
+  String get fontName => _fontName;
+
+  set fontName(String value){
+    _fontName = value;
+    fontPreference.setFont(value);
+    notifyListeners();
+  }
+}
 
 class Styles {
-  static ThemeData themeData(bool isDarkTheme, BuildContext context) {
+  static ThemeData themeData(bool isDarkTheme, String fontName, BuildContext context) {
     return ThemeData(
       /*
       textTheme: GoogleFonts.oswaldTextTheme(
         Theme.of(context).textTheme),
        */
-      fontFamily: GoogleFonts.rubik().fontFamily,
+      //fontFamily: GoogleFonts.rubik().fontFamily,
+      fontFamily: fontName=="default"? GoogleFonts.rubik().fontFamily : fontName=="Nasalization"? "Nasalization" : fontName=="Star Wars"? "StarWars"
+      : fontName=="Star Trek"? "StarTrek" : fontName=="Alien"? "Alien" : fontName=="Back to the Future"? "BTTF": GoogleFonts.montserrat().fontFamily,
 
 
 

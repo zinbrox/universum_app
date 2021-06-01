@@ -10,7 +10,9 @@ class SettingsPage extends StatefulWidget {
   _SettingsPageState createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClientMixin<SettingsPage>{
+  @override
+  bool get wantKeepAlive => true;
 
   List<String> fonts = ["Default", 'Retro NASA', 'Star Wars', 'Star Trek', 'Alien', 'Back to the Future'];
   bool notificationSwitch=false;
@@ -55,6 +57,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     final _themeChanger = Provider.of<DarkThemeProvider>(context);
     bool isSwitched = _themeChanger.darkTheme;
+    final _fontChanger = Provider.of<FontProvider>(context);
+    String fontName = _fontChanger.fontName;
+    String dropdownValue = fontName;
 
     return Scaffold(
       appBar: AppBar(
@@ -95,11 +100,28 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 ListTile(
                   title: Text("Change Font"),
+                  /*
                   trailing: Icon(Icons.navigate_next),
                   onTap: () {
                     _changeFont();
                   },
-                ),
+                   */
+                  trailing: DropdownButton<String>(
+                    value: dropdownValue,
+                    onChanged: (String newValue){
+                      setState(() {
+                        dropdownValue = newValue;
+                        _fontChanger.fontName=newValue;
+                      });
+                    },
+                    items: <String>['default', 'Nasalization', 'Star Wars', 'Star Trek', 'Alien', 'Back to the Future'].map<DropdownMenuItem<String>>((String value){
+                      return DropdownMenuItem<String>(value: value, child: Text(value),);
+                    }).toList(),
+                    ),
+                  ),
+
+
+                //Text(dropdownValue),
                 ListTile(
                   title: Text("Theme"),
                   subtitle: Text("Light/ Dark mode"),
