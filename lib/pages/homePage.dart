@@ -194,6 +194,16 @@ class WebViewer extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
+        actions: [
+          PopupMenuButton(
+              itemBuilder: (context) => [
+                PopupMenuItem(value: 1, child: Text("Share"),)
+              ],
+            onSelected: (value){
+
+            },
+          )
+        ],
       ),
       body: WebView(
         initialUrl: url,

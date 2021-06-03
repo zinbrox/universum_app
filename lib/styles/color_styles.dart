@@ -66,24 +66,25 @@ class Styles {
         Theme.of(context).textTheme),
        */
       //fontFamily: GoogleFonts.rubik().fontFamily,
-      fontFamily: fontName=="default"? GoogleFonts.rubik().fontFamily : fontName=="Nasalization"? "Nasalization" : fontName=="Star Wars"? "StarWars"
+      fontFamily: fontName=="default"? GoogleFonts.rubik().fontFamily : fontName=="Retro NASA"? "Nasalization" : fontName=="Star Wars"? "StarWars"
       : fontName=="Star Trek"? "StarTrek" : fontName=="Alien"? "Alien" : fontName=="Back to the Future"? "BTTF": GoogleFonts.montserrat().fontFamily,
 
 
 
 
-      primarySwatch: Colors.blue,
+      primarySwatch: Colors.orange,
       primaryColor: isDarkTheme ? Colors.black : Colors.white,
 
       backgroundColor: isDarkTheme ? Colors.black : Color(0xffF1F5FB),
 
-      indicatorColor: isDarkTheme ? Color(0xff0E1D36) : Color(0xffCBDCF8),
+      indicatorColor: Colors.orange,
+      //indicatorColor: isDarkTheme ? Color(0xff0E1D36) : Color(0xffCBDCF8),
       buttonColor: isDarkTheme ? Color(0xff3B3B3B) : Color(0xffF1F5FB),
-
       hintColor: isDarkTheme ? Colors.white : Colors.black,
 
       highlightColor: isDarkTheme ? Color(0xff372901) : Color(0xffFCE192),
       hoverColor: isDarkTheme ? Color(0xff3A3A3B) : Color(0xff4285F4),
+
 
       focusColor: isDarkTheme ? Color(0xff0B2512) : Colors.purple,
       disabledColor: Colors.grey,

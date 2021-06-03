@@ -9,11 +9,13 @@ import 'package:geocoder/geocoder.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:universum_app/helpers/ad_helper.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:ui' as ui;
 
 import 'package:universum_app/pages/homePage.dart';
+import 'package:universum_app/styles/color_styles.dart';
 
 class MarkerPoints {
   double latitude, longitude;
@@ -408,7 +410,7 @@ class _ISSPageState extends State<ISSPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Text("Current Location: " + addressLine, textAlign: TextAlign.center, style: TextStyle(fontSize: 18),),
+                        Text("Current Location: " + addressLine, textAlign: TextAlign.center, style: TextStyle(fontSize: 18), maxLines: 4,),
                         Text("Altitude: " + altitude.toStringAsFixed(2) + " km"),
                         Text("Velocity: " + velocity.toStringAsFixed(2) + " km/h"),
                         Text("Visibility: $visibility"),
@@ -496,6 +498,9 @@ class ISSReports extends StatelessWidget {
   final DateFormat timeFormatter = DateFormat('HH:MM:SS');
   @override
   Widget build(BuildContext context) {
+    final _themeChanger = Provider.of<DarkThemeProvider>(context);
+    bool isDark = _themeChanger.darkTheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("ISS Reports"),
@@ -524,7 +529,7 @@ class ISSReports extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: 10,),
-                      Text(reports[index].summary, textAlign: TextAlign.center, style: TextStyle(fontSize: 15),),
+                      Text(reports[index].summary, textAlign: TextAlign.center, style: TextStyle(fontSize: 18, color: isDark? Colors.white70 : Colors.black),),
                       SizedBox(height: 10,),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

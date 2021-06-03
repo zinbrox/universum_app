@@ -6,7 +6,9 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:provider/provider.dart';
 import 'package:universum_app/helpers/ad_helper.dart';
+import 'package:universum_app/styles/color_styles.dart';
 
 class Items {
   String imageURL; // image data
@@ -114,6 +116,9 @@ class _NASASearchState extends State<NASASearch> {
   }
   @override
   Widget build(BuildContext context) {
+    final _themeChanger = Provider.of<DarkThemeProvider>(context);
+    bool isDark = _themeChanger.darkTheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Results for \"${widget.keyword}\""),
@@ -137,7 +142,7 @@ class _NASASearchState extends State<NASASearch> {
                             Image(image: CachedNetworkImageProvider(searchList[index].imageURL),),
                             Text(searchList[index].title, style: TextStyle(fontSize: 20),),
                             SizedBox(height: 10,),
-                            Text(searchList[index].description, maxLines: 4, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15), textAlign: TextAlign.center,),
+                            Text(searchList[index].description, maxLines: 4, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, color: isDark? Colors.white70 : Colors.black), textAlign: TextAlign.center,),
                             SizedBox(height: 5,),
                             Text(dateFormatter.format(searchList[index].date)),
                             Text("Center: " + searchList[index].center),
@@ -176,6 +181,9 @@ class ArticleView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _themeChanger = Provider.of<DarkThemeProvider>(context);
+    bool isDark = _themeChanger.darkTheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Article View"),
@@ -184,30 +192,30 @@ class ArticleView extends StatelessWidget {
         child: Center(
           child: Column(
             children: <Widget>[
-              InkWell(
-                onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: imageURL, title: item.title,)));
-                },
-                child: Hero(
-                  tag: item.title,
-                    child: Image(image: NetworkImage(imageURL),),
-              ),
+              FittedBox(
+                fit: BoxFit.fitHeight,
+                child: Container(
+                  height: MediaQuery.of(context).size.height*0.5,
+                  child: InkWell(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: imageURL, title: item.title,)));
+                    },
+                    child: Hero(
+                      tag: item.title,
+                        child: Image(image: NetworkImage(imageURL),),
+                  ),
+                  ),
+                ),
               ),
               Expanded(
                 child: ListView(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          width: MediaQuery.of(context).size.width*0.5,
-                            child: Text(item.title, style: TextStyle(fontSize: 20),)),
-                        Expanded(child: Text("Date: " + dateFormatter.format(item.date), style: TextStyle(fontSize: 20), textAlign: TextAlign.right,)),
-                      ],
-                    ),
-                    Text("Center: " + item.center, style: TextStyle(fontSize: 15),),
+                    Text(item.title, textAlign: TextAlign.center, style: TextStyle(fontSize: 20),),
                     SizedBox(height: 10,),
-                    Text(item.description, style: TextStyle(fontSize: 18), textAlign: TextAlign.center,),
+                    Text(item.description, style: TextStyle(fontSize: 18, color: isDark? Colors.white70 : Colors.black), textAlign: TextAlign.center,),
+                    SizedBox(height: 10,),
+                    Text(dateFormatter.format(item.date), textAlign: TextAlign.center,),
+                    Text("Center: " + item.center, textAlign: TextAlign.center,),
                     Text("Keywords: " + item.keywords.toString(), textAlign: TextAlign.center,),
                   ],
                 ),

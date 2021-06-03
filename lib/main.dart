@@ -21,8 +21,8 @@ main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AndroidAlarmManager.initialize();
   MobileAds.instance.initialize();
-  names = await SharedPrefUtils.readPrefStr('launchNames');
-  print(names);
+  //names = await SharedPrefUtils.readPrefStr('launchNames');
+  //print(names);
   runApp(MyApp());
 }
 
@@ -36,10 +36,12 @@ class _MyAppState extends State<MyApp> {
 
   DarkThemeProvider themeChangeProvider =  new DarkThemeProvider();
   FontProvider fontProvider = new FontProvider();
+  LaunchNamesProvider launchName = new LaunchNamesProvider();
 
   void getCurrentAppTheme() async {
     themeChangeProvider.darkTheme = await themeChangeProvider.darkThemePreference.getTheme();
     fontProvider.fontName = await fontProvider.fontPreference.getTheme();
+    launchName.launchName = await launchName.launchNamePreference.getNames();
   }
 
   @override
@@ -53,9 +55,10 @@ class _MyAppState extends State<MyApp> {
       providers: [
         ChangeNotifierProvider<DarkThemeProvider>(create: (_) => themeChangeProvider),
         ChangeNotifierProvider<FontProvider>(create: (_) => fontProvider),
+        ChangeNotifierProvider<LaunchNamesProvider>(create: (_) => launchName)
       ],
-      child: Consumer2<FontProvider, DarkThemeProvider>(
-        builder: (BuildContext, darkTheme, fontName, child){
+      child: Consumer3<FontProvider, DarkThemeProvider, LaunchNamesProvider>(
+        builder: (BuildContext, darkTheme, fontName, launchName, child){
           return MaterialApp(
             title: "OrbitFeed",
             debugShowCheckedModeBanner: false,

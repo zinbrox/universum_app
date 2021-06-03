@@ -85,8 +85,8 @@ class LocalNotifyManager {
         android: androidChannelSpecifics, iOS: iosChannelSpecifics);
 
     //_getLaunches();
-    names.clear();
-    names = await SharedPrefUtils.readPrefStr('launchNames');
+    //names.clear();
+    List<String> names = await SharedPrefUtils.readPrefStr('launchNames');
     print(names);
     String name;
     if(names.isEmpty)
@@ -198,7 +198,7 @@ class LocalNotifyManager {
   Future<void> getAPOD() async {
     print("in getAPOD");
     String url;
-    url = "https://api.nasa.gov/planetary/apod?api_key=4bzcuj3O9pBfQzaCONWqeIlD3RbbyaXgjnp9yvxa";
+    url = "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY";
     var response = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(response.body);
     mediaType = jsonData['media_type'];

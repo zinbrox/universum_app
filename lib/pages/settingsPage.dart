@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universum_app/helpers/notificationsPlugin.dart';
+import 'package:universum_app/helpers/sharedPreferencesClass.dart';
 import 'package:universum_app/styles/color_styles.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -60,6 +61,8 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
     final _fontChanger = Provider.of<FontProvider>(context);
     String fontName = _fontChanger.fontName;
     String dropdownValue = fontName;
+    final _launchNamesChanger = Provider.of<LaunchNamesProvider>(context);
+    List<String> launchNames = _launchNamesChanger.launchName;
 
     return Scaffold(
       appBar: AppBar(
@@ -84,7 +87,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                       if(notificationSwitch) {
                         print("Notifications Started");
                         AndroidAlarmManager.periodic(
-                            const Duration(days: 1), 0,
+                            const Duration(hours: 1), 0,
                             callAPODNotification,
                           exact: true,
                           startAt: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 12, 0),
@@ -99,7 +102,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                   ),
                 ),
                 ListTile(
-                  title: Text("Change Font"),
+                  title: Text("Font"),
                   /*
                   trailing: Icon(Icons.navigate_next),
                   onTap: () {
@@ -114,7 +117,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                         _fontChanger.fontName=newValue;
                       });
                     },
-                    items: <String>['default', 'Nasalization', 'Star Wars', 'Star Trek', 'Alien', 'Back to the Future'].map<DropdownMenuItem<String>>((String value){
+                    items: <String>['default', 'Retro NASA', 'Alien'].map<DropdownMenuItem<String>>((String value){
                       return DropdownMenuItem<String>(value: value, child: Text(value),);
                     }).toList(),
                     ),
@@ -122,6 +125,17 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
 
 
                 //Text(dropdownValue),
+                /*
+                ListTile(
+                  title: Text(launchNames.toString()),
+                  onTap: (){
+                    print("Removed");
+                    launchNames.clear();
+                  },
+                ),
+
+                 */
+                //Text(launchNames.toString()),
                 ListTile(
                   title: Text("Theme"),
                   subtitle: Text("Light/ Dark mode"),

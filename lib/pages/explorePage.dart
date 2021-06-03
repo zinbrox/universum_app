@@ -69,7 +69,7 @@ class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClient
                       Navigator.push(context, MaterialPageRoute(builder: (context) => NASASearch(keyword: _searchText.text)));
                     },
                   ),
-                  hintText: "Search"
+                  hintText: "Search NASA's Library"
               ),
             ),
           ),
@@ -94,10 +94,12 @@ class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClient
                             child: Text(titles[index], style: TextStyle(fontSize: 30, color: Colors.white), textAlign: TextAlign.center,)),),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
+                          /*
                           border: Border.all(
                             color: Colors.white,
                             width: 1,
                           ),
+                           */
                           image: DecorationImage(
                             fit: BoxFit.fitHeight,
                             image: AssetImage(images[index]),

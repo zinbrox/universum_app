@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:photo_view/photo_view.dart';
+import 'package:provider/provider.dart';
 import 'dart:async';
 
 import 'package:shimmer/shimmer.dart';
 import 'package:universum_app/helpers/ad_helper.dart';
+import 'package:universum_app/styles/color_styles.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class APOD extends StatefulWidget {
@@ -94,6 +96,9 @@ class _APODState extends State<APOD> {
   }
   @override
   Widget build(BuildContext context) {
+    final _themeChanger = Provider.of<DarkThemeProvider>(context);
+    bool isDark = _themeChanger.darkTheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Astronomical Picture of the Day"),
@@ -102,7 +107,7 @@ class _APODState extends State<APOD> {
       body: _loading ?
       // Shimmer Loading Effect
       Shimmer.fromColors(
-        baseColor: Colors.white,
+        baseColor: Colors.white10,
         highlightColor: Colors.white70,
         enabled: _loading,
         child: Column(
@@ -152,39 +157,45 @@ class _APODState extends State<APOD> {
         child: Column(
           children: [
             mediaType=="image" ?
-            InkWell(
-              onTap: (){
-                /*
-                    Navigator.of(context).push(
-                      PageRouteBuilder(
-                        opaque: true, // set to false
-                        pageBuilder: (_, __, ___) => PictureView(imageURL: imageURL, title: imageTitle,)),
-                      );
+            FittedBox(
+              fit: BoxFit.fitHeight,
+              child: Container(
+                height: MediaQuery.of(context).size.height*0.5,
+                child: InkWell(
+                  onTap: (){
+                    /*
+                        Navigator.of(context).push(
+                          PageRouteBuilder(
+                            opaque: true, // set to false
+                            pageBuilder: (_, __, ___) => PictureView(imageURL: imageURL, title: imageTitle,)),
+                          );
 
-                     */
-                if(mediaType=="image")
-                Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: imageURL, title: contentTitle, index: -1,)));
-              },
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15.0),
-                child: Hero(
-                  tag: "tag${-1}",
-                  child: Image(image: CachedNetworkImageProvider(imageURL),),
+                         */
+                    if(mediaType=="image")
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: imageURL, title: contentTitle, index: -1,)));
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15.0),
+                    child: Hero(
+                      tag: "tag${-1}",
+                      child: Image(image: CachedNetworkImageProvider(imageURL),),
 
-                  /*FadeInImage.assetNetwork(
-                      placeholder: 'assets/LoadingGif.gif',
-                      imageErrorBuilder: (BuildContext context,
-                          Object exception,
-                          StackTrace stackTrace) {
-                        return Column(
-                          children: [
-                            Text("Couldn't Load Image"),
-                          ],
-                        );
-                      },
-                      image: imageURL),
+                      /*FadeInImage.assetNetwork(
+                          placeholder: 'assets/LoadingGif.gif',
+                          imageErrorBuilder: (BuildContext context,
+                              Object exception,
+                              StackTrace stackTrace) {
+                            return Column(
+                              children: [
+                                Text("Couldn't Load Image"),
+                              ],
+                            );
+                          },
+                          image: imageURL),
 
-                   */
+                       */
+                    ),
+                  ),
                 ),
               ),
             )
@@ -213,10 +224,11 @@ class _APODState extends State<APOD> {
             ),
             SizedBox(height: 5,),
             Expanded(
-              child: Center(
+              child: SizedBox(
+                height: 200,
                 child: ListView(
                   children: [
-                    Center(child: Text(contentTitle, style: TextStyle(fontSize: 20),)),
+                    Center(child: Text(contentTitle, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,)),
                     SizedBox(height: 10,),
                     Text(contentDescription, textAlign: TextAlign.center, style: TextStyle(fontSize: 15),),
                     SizedBox(height: 10,),
@@ -253,6 +265,17 @@ class PictureView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
+        actions: [
+          PopupMenuButton(
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                    value: 1,child: Text("Download")),
+              ],
+            onSelected: (value){
+
+            },
+          )
+        ],
       ),
       body: Center(
         child: Container(

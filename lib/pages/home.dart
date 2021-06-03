@@ -50,6 +50,7 @@ class _HomeState extends State<Home> {
         showUnselectedLabels: false,
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
+        selectedItemColor: Colors.orange,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home Page"),
           BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Search Page"),
