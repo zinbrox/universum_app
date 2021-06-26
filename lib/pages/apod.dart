@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -28,8 +29,9 @@ class _APODState extends State<APOD> {
 
   bool _loading=true;
   String mediaType;
-  String imageURL, contentTitle, contentDescription, contentCopyRight, contentDate;
+  String imageURL, smallImageURL, contentTitle, contentDescription, contentCopyRight, contentDate;
   String videoURL;
+  int statusCode;
 
 
 
@@ -40,19 +42,29 @@ class _APODState extends State<APOD> {
     url = "https://api.nasa.gov/planetary/apod?api_key=4bzcuj3O9pBfQzaCONWqeIlD3RbbyaXgjnp9yvxa";
     var response = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(response.body);
-    mediaType = jsonData['media_type'];
-    if(mediaType=="image") {
-      imageURL = jsonData['hdurl'];
-      await precacheImage(CachedNetworkImageProvider(imageURL), context);
+    statusCode = response.statusCode;
+    if(statusCode == 429) {
+      url = "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY";
+      response = await http.get(Uri.parse(url));
+      jsonData = jsonDecode(response.body);
+      statusCode = response.statusCode;
     }
-    else {
-      videoURL = jsonData['url'];
-    }
+    if(statusCode == 200) {
+      mediaType = jsonData['media_type'];
+      if (mediaType == "image") {
+        imageURL = jsonData['hdurl'];
+        smallImageURL = jsonData['url'];
+        precacheImage(CachedNetworkImageProvider(imageURL), context);
+      }
+      else {
+        videoURL = jsonData['url'];
+      }
 
-    contentTitle = jsonData['title'];
-    contentDescription = jsonData['explanation'];
-    contentCopyRight = jsonData['copyright'];
-    contentDate = jsonData['date'];
+      contentTitle = jsonData['title'];
+      contentDescription = jsonData['explanation'];
+      contentCopyRight = jsonData['copyright'];
+      contentDate = jsonData['date'];
+    }
 
 
     setState(() {
@@ -107,8 +119,8 @@ class _APODState extends State<APOD> {
       body: _loading ?
       // Shimmer Loading Effect
       Shimmer.fromColors(
-        baseColor: Colors.white10,
-        highlightColor: Colors.white70,
+        baseColor: isDark? Colors.grey[350] : Colors.grey[300],
+        highlightColor: isDark? Colors.white : Colors.grey[500],
         enabled: _loading,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -117,7 +129,7 @@ class _APODState extends State<APOD> {
               height: MediaQuery.of(context).size.height*0.4,
               width: MediaQuery.of(context).size.width*0.9,
               decoration: BoxDecoration(
-                color: Colors.white10,
+                color: isDark? Colors.white10 : Colors.grey,
                 borderRadius: BorderRadius.circular(15),
               ),
             ),
@@ -126,7 +138,7 @@ class _APODState extends State<APOD> {
               height: MediaQuery.of(context).size.height*0.025,
               width: MediaQuery.of(context).size.width*0.7,
               decoration: BoxDecoration(
-                color: Colors.white10,
+                color: isDark? Colors.white10 : Colors.grey,
               ),
             ),
             SizedBox(height: 10,),
@@ -139,7 +151,7 @@ class _APODState extends State<APOD> {
                     height: MediaQuery.of(context).size.height*0.015,
                     width: MediaQuery.of(context).size.width*0.9,
                     decoration: BoxDecoration(
-                      color: Colors.white10,
+                      color: isDark? Colors.white10 : Colors.grey,
                     ),
                   );
                 },
@@ -148,7 +160,7 @@ class _APODState extends State<APOD> {
           ],
         ),
       )
-          :
+          : statusCode==429? Center(child: Text("Too Many Requests! Try again in some time")) : statusCode!=200? Center(child: Text("Error Code: $statusCode")) :
 
       Center(child: Card(
         shape: RoundedRectangleBorder(
@@ -178,9 +190,61 @@ class _APODState extends State<APOD> {
                     borderRadius: BorderRadius.circular(15.0),
                     child: Hero(
                       tag: "tag${-1}",
-                      child: Image(image: CachedNetworkImageProvider(imageURL),),
+                      //child: Image(image: CachedNetworkImageProvider(imageURL),),
 
-                      /*FadeInImage.assetNetwork(
+                      child: Stack(
+                        children: [
+                          /*
+                          CachedNetworkImage(
+                            imageUrl: imageURL,
+                            placeholder: (context, imageURL) => Container(
+                              decoration: new BoxDecoration(
+                                image: DecorationImage(image: NetworkImage(smallImageURL),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                                child: Container(
+                                  decoration: new BoxDecoration(color: Colors.white.withOpacity(0.0)),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                           */
+                          Container(
+                            height: MediaQuery.of(context).size.height*0.5,
+                            width: MediaQuery.of(context).size.width,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: NetworkImage(smallImageURL),
+                                fit: BoxFit.fitHeight,
+                              ),
+                            ),
+                            child: ClipRRect( // make sure we apply clip it properly
+                              child: BackdropFilter(
+                                filter: new ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  decoration: new BoxDecoration(color: Colors.white.withOpacity(0.0)),
+                                  child: Text(
+                                    "CHOCOLATE",
+                                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          Align(
+                            child: Icon(Icons.touch_app),
+                            alignment: Alignment.bottomRight,
+                          ),
+                        ],
+                      ),
+                      /*
+                      FadeInImage.assetNetwork(
                           placeholder: 'assets/LoadingGif.gif',
                           imageErrorBuilder: (BuildContext context,
                               Object exception,
@@ -192,8 +256,9 @@ class _APODState extends State<APOD> {
                             );
                           },
                           image: imageURL),
+                      */
 
-                       */
+
                     ),
                   ),
                 ),

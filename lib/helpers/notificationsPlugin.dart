@@ -1,5 +1,6 @@
 import 'dart:convert';
-
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -66,6 +67,46 @@ class LocalNotifyManager {
         });
   }
 
+  returnPendingNotifications() async {
+    final List<PendingNotificationRequest> pendingNotificationRequests =
+        await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+    return pendingNotificationRequests;
+  }
+
+  Future<void> scheduleNotification(String launchName, int newID) async {
+    print("In scheduleNotification");
+
+    tz.initializeTimeZones();
+    var androidChannelSpecifics = AndroidNotificationDetails(
+      'CHANNEL 1',
+      'Launch Notifications',
+      "Launch Reminders",
+      importance: Importance.max,
+      priority: Priority.max,
+      playSound: true,
+      styleInformation: BigTextStyleInformation(''),
+    );
+
+    var iosChannelSpecifics = IOSNotificationDetails();
+    var platformChannelSpecifics =
+    NotificationDetails(
+        android: androidChannelSpecifics, iOS: iosChannelSpecifics);
+
+    var scheduleNotificationDateTime = DateTime.now().add(Duration(seconds: 10));
+
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      newID,
+      'LAUNCH REMINDER',
+      '$launchName is launching soon',
+      tz.TZDateTime.now(tz.local).add(const Duration(seconds: 15)),
+      platformChannelSpecifics,
+      androidAllowWhileIdle: true,
+      payload: 'Test Payload',
+    );
+
+
+  }
+
 
   Future<void> showNotification() async {
     print("In showNotification");
@@ -86,7 +127,10 @@ class LocalNotifyManager {
 
     //_getLaunches();
     //names.clear();
-    List<String> names = await SharedPrefUtils.readPrefStr('launchNames');
+
+
+    //List<String> names = await SharedPrefUtils.readPrefStr('launchNames');
+    List<String> names = await getTestFunction();
     print(names);
     String name;
     if(names.isEmpty)
@@ -101,10 +145,12 @@ class LocalNotifyManager {
         payload: 'New Payload',
       );
       names.remove(names[0]);
-      SharedPrefUtils.saveStr('launchNames', names);
-      names.clear();
-      names = await SharedPrefUtils.readPrefStr('launchNames');
-      print(await SharedPrefUtils.readPrefStr('launchNames'));
+      //SharedPrefUtils.saveStr('launchNames', names);
+      updateTestFunction(names);
+      //names.clear();
+      //names = await SharedPrefUtils.readPrefStr('launchNames');
+      //print(await SharedPrefUtils.readPrefStr('launchNames'));
+    print(await getTestFunction());
     }
   List<LaunchDetails> launches = []; int statusCode;
 
@@ -203,12 +249,16 @@ class LocalNotifyManager {
     var jsonData = jsonDecode(response.body);
     mediaType = jsonData['media_type'];
     if(mediaType=="image") {
-      imageURL = jsonData['hdurl'];
+      imageURL = jsonData['url'];
       contentTitle = jsonData['title'];
       contentDescription = jsonData['explanation'];
     }
     print(mediaType);
 
+  }
+
+  Future<void> cancelNotificationID(int id) async {
+    await flutterLocalNotificationsPlugin.cancel(id);
   }
 
 

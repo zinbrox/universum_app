@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -422,51 +423,57 @@ class _ISSPageState extends State<ISSPage> {
                     children: [
                       Text("Latitude: " + latitude.toStringAsFixed(4)),
                       Text("Longitude: " + longitude.toStringAsFixed(4)),
-                      Container(
-                        //width: MediaQuery.of(context).size.width*0.65,
-                        height: MediaQuery.of(context).size.width*0.075,
-                        child: ElevatedButton(onPressed: () async {
-                          getHumansInSpace();
-                        }, child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Icon(Icons.supervisor_account),
-                            SizedBox(width: 10,),
-                            Text("Current ISS Crew"),
-                          ],
-                        )),
-                      ),
-                      Container(
-                        //width: MediaQuery.of(context).size.width*0.65,
-                        height: MediaQuery.of(context).size.width*0.075,
-                        child: ElevatedButton(
-                          onPressed: (){
-                            getReports();
-                          },
-                          child: Row(
-                            children: [
-                              Icon(Icons.library_books),
-                              SizedBox(width: 10,),
-                              Text("ISS Daily Reports"),
-                            ],
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            //width: MediaQuery.of(context).size.width*0.65,
+                            height: MediaQuery.of(context).size.width*0.075,
+                            child: OutlinedButton(onPressed: () async {
+                              getHumansInSpace();
+                            }, child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Icon(Icons.supervisor_account),
+                                SizedBox(width: 10,),
+                                Text("Current ISS Crew"),
+                              ],
+                            )),
                           ),
-                        ),
-                      ),
-                      Container(
-                        //width: MediaQuery.of(context).size.width*0.65,
-                        height: MediaQuery.of(context).size.width*0.075,
-                        child: ElevatedButton(
-                          onPressed: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: "https://ustream.tv/channel/17074538", title: "ISS Live Stream",)));
-                          },
-                          child: Row(
-                            children: [
-                              Icon(Icons.open_in_browser),
-                              SizedBox(width: 10,),
-                              Text("ISS Live Stream"),
-                            ],
+                          Container(
+                            //width: MediaQuery.of(context).size.width*0.65,
+                            height: MediaQuery.of(context).size.width*0.075,
+                            child: OutlinedButton(
+                              onPressed: (){
+                                getReports();
+                              },
+                              child: Row(
+                                children: [
+                                  Icon(Icons.library_books),
+                                  SizedBox(width: 10,),
+                                  Text("ISS Daily Reports"),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
+                          Container(
+                            //width: MediaQuery.of(context).size.width*0.65,
+                            height: MediaQuery.of(context).size.width*0.075,
+                            child: OutlinedButton(
+                              onPressed: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: "https://ustream.tv/channel/17074538", title: "ISS Live Stream",)));
+                              },
+                              child: Row(
+                                children: [
+                                  Icon(Icons.open_in_browser),
+                                  SizedBox(width: 10,),
+                                  Text("ISS Live Stream"),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

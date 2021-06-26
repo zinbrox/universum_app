@@ -6,6 +6,7 @@ import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -191,8 +192,8 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
     final _themeChanger = Provider.of<DarkThemeProvider>(context);
     bool isDark = _themeChanger.darkTheme;
 
-    final _launchNamesChanger = Provider.of<LaunchNamesProvider>(context);
-    List<String> launchNames = _launchNamesChanger.launchName;
+    //final _launchNamesChanger = Provider.of<LaunchNamesProvider>(context);
+    //List<String> launchNames = _launchNamesChanger.launchName;
 
     return Scaffold(
       appBar: AppBar(
@@ -223,15 +224,66 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                   alignment: Alignment.topRight,
                                   child: Container(
                                       color: Colors.black12,
-                                      child: IconButton(icon: launchNames.contains(launches[index].launchName)? Icon(Icons.notifications_active, color: Colors.white,) : Icon(Icons.notifications_off, color: Colors.white,),
+                                      child: IconButton(icon: Icon(Icons.notifications_off, color: Colors.white,),
                                         onPressed: () async {
+                                        print("Started Notification Wait");
+
+                                        var pending = await localNotifyManager.returnPendingNotifications();
+                                        List pendingNotifications = [];
+                                        for(var i in pending)
+                                          pendingNotifications.add(i);
+                                        //print(pendingNotifications);
+                                        int check=0;
+                                        if(launches[index].dateObject.isAfter(DateTime.now())) {
+                                          for(var i in pendingNotifications) {
+                                            if(i.body.contains(launches[index].launchName)) {
+                                              print("Already there. Cancelling Notification");
+                                              await localNotifyManager.cancelNotificationID(i.id);
+                                              check=1;
+                                              break;
+                                            }
+                                          }
+                                          if(check!=1) {
+                                            List<int> notificationIDs = [];
+                                            List<bool> notificationIDTemp = [];
+                                            int newID;
+                                            for (var i in pendingNotifications)
+                                              notificationIDs.add(i.id);
+                                            for(int i=1;i<30;++i) {
+                                              if (notificationIDs.contains(i))
+                                                notificationIDTemp.add(false);
+                                              else
+                                                notificationIDTemp.add(true);
+                                            }
+                                            print(notificationIDTemp);
+                                            for(int i=1;i<30;++i)
+                                              if(notificationIDTemp[i-1]) {
+                                                newID = i;
+                                                break;
+                                              }
+                                            print("NewID = $newID");
+                                            localNotifyManager.scheduleNotification(launches[index].launchName, newID);
+
+
+                                          }
+
+                                        }
+                                        else {
+                                          print("Launch Over");
+                                        }
+
+
+                                        /*
                                         if(launches[index].dateObject.isAfter(DateTime.now())) {
                                           List<LaunchDetails> temp = [];
+                                          List<String> launchNames = await getTestFunction();
+                                          print(launchNames);
                                           if (launchNames.contains(launches[index].launchName)) {
                                             launchNames.remove(launches[index].launchName);
                                             setState(() {
                                               //launches[index].notification = false;
                                             });
+                                            print(launchNames);
 
                                             for (var i in launchNames)
                                               for (var j in launches)
@@ -241,11 +293,15 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                             launchNames.clear();
                                             for (var i in temp)
                                               launchNames.add(i.launchName);
+                                            //_launchNamesChanger.launchName = launchNames;
+                                            updateTestFunction(launchNames);
+
                                             //await SharedPrefUtils.saveStr('launchNames', names);
                                             //names.clear();
                                             //names = await SharedPrefUtils.readPrefStr('launchNames');
                                             print("Removed");
-                                            print(launchNames);
+                                            //print(_launchNamesChanger.launchName);
+                                            print(await getTestFunction());
                                           }
                                           else {
                                             /*
@@ -265,6 +321,10 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                             for (var i in temp)
                                               launchNames.add(i.launchName);
                                             print(launchNames);
+                                            //_launchNamesChanger.launchName = launchNames;
+                                            updateTestFunction(launchNames);
+                                            print(await getTestFunction());
+                                            //print(_launchNamesChanger.launchName);
                                             //await SharedPrefUtils.saveStr('launchNames', names);
                                             //print(await SharedPrefUtils.readPrefStr('launchNames'));
                                             //names.clear();
@@ -299,6 +359,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                         else {
                                           print("Already Over");
                                         }
+                                        */
                                       },
                                       )),
                                 ),
@@ -309,7 +370,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                               children: [
                                 Container(
                                   width: MediaQuery.of(context).size.width*0.5,
-                                    child: Text(launches[index].missionName, style: TextStyle(fontSize: 25), maxLines: 2,)),
+                                    child: Text(launches[index].missionName, style: TextStyle(fontSize: 25), maxLines: 3,)),
                                 Expanded(
                                   child: Column(
                                     children: [
@@ -428,6 +489,14 @@ showName() async {
 }
 showNotificationFunction() async {
   print("In calling function");
-  //print(await SharedPrefUtils.readPrefStr('launchNames'));
+  print(await SharedPrefUtils.readPrefStr('launchNames'));
   localNotifyManager.showNotification();
+}
+
+Future<List<String>> getTestFunction() async {
+  return await SharedPrefUtils.readPrefStr('launchNames');
+}
+
+Future<List<String>> updateTestFunction(List<String> launchNames) async {
+  await SharedPrefUtils.saveStr('launchNames', launchNames);
 }

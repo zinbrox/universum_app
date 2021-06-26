@@ -17,6 +17,8 @@ class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClient
   final TextEditingController _searchText = new TextEditingController();
   bool _loading=true;
 
+  bool _searchBarPressed = false;
+
   @override
   void initState() {
     super.initState();
@@ -52,6 +54,11 @@ class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClient
             margin: EdgeInsets.symmetric(horizontal: 5),
             child: TextField(
               controller: _searchText,
+              onTap: () {
+                setState(() {
+                  _searchBarPressed=!_searchBarPressed;
+                });
+              },
               onSubmitted: (String text){
                 FocusScope.of(context).unfocus();
                 Navigator.push(context, MaterialPageRoute(builder: (context) => NASASearch(keyword: text)));
@@ -61,7 +68,16 @@ class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClient
                   border: new OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
-                  prefixIcon: Icon(Icons.search),
+                  prefixIcon: IconButton(
+                      icon: _searchBarPressed ? Icon(Icons.arrow_back) : Icon(Icons.search),
+                    onPressed: () {
+                        setState(() {
+                          _searchBarPressed=!_searchBarPressed;
+                          if(!_searchBarPressed)
+                            FocusScope.of(context).unfocus();
+                        });
+                    },
+                  ),
                   suffixIcon: IconButton(
                     icon: Icon(Icons.navigate_next),
                     onPressed: () {

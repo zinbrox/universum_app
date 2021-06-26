@@ -14,6 +14,7 @@ List<String> roverNames = ['Curiosity', 'Perseverance', 'Opportunity', 'Spirit']
 List<String> roverImages = ['assets/Curiosity.jpg', 'assets/Perseverance.jpg', 'assets/Opportunity.jpg', 'assets/Spirit.jpg'];
 List<String> activeDays = ['06/08/2012 - Current', '18/02/2021 - Current', '26/01/2004 - 09/06/2018', '05/01/2004 - 21/03/2010'];
 
+
 class roverSelect extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -95,6 +96,7 @@ class roverPhotos extends StatefulWidget {
 
 class _roverPhotosState extends State<roverPhotos> {
 
+  // For Ads
   BannerAd _bannerAd;
   bool _isBannerAdReady = false;
 
@@ -120,6 +122,8 @@ class _roverPhotosState extends State<roverPhotos> {
   var formatter = new DateFormat('yyyy-MM-dd');
 
   int statusCode;
+
+  int picsLoaded=0;
 
   Future<void> getPhotos(String rover) async {
     print("In getPhotos");
@@ -193,9 +197,12 @@ class _roverPhotosState extends State<roverPhotos> {
             if (photosList[i].cameraFullName == roverCameraNames[j])
               finalList[j].add(photosList[i]);
 
-        await Future.wait(
+        /*
+            await Future.wait(
           photosList.map((item) => cacheImage(context, item.imgURL)).toList(),
         );
+
+         */
 
         setState(() {
           _loading = false;
@@ -208,8 +215,13 @@ class _roverPhotosState extends State<roverPhotos> {
     });
   }
 
-  Future cacheImage(BuildContext context, String imageURL) => precacheImage(
-      CachedNetworkImageProvider(imageURL), context);
+  Future cacheImage(BuildContext context, String imageURL) {
+    setState(() {
+      picsLoaded++;
+    });
+    return precacheImage(
+        CachedNetworkImageProvider(imageURL), context);
+  }
 
   /*
   void filterList(String roverCameraName) {
@@ -315,7 +327,7 @@ class _roverPhotosState extends State<roverPhotos> {
       body: _loading? Center(child: Column(
         children: [
           Image(image: AssetImage("assets/Rover.gif")),
-          Text("Loading Rover Images.."),
+          picsLoaded!=0 ? Text("Loading $picsLoaded Rover Images..") : Text("Loading Rover Images.."),
         ],
       ),) : statusCode==429? Center(child: Text("Too many requests! Try again in some time"),) :
           roverCameraNames.length==0 ? Center(child: Column(
@@ -394,7 +406,7 @@ class _roverPhotosState extends State<roverPhotos> {
   }
 
    */
-   
+
 
   Widget _returnList(int pos) {
     //print("In _returnList");
@@ -417,7 +429,11 @@ class _roverPhotosState extends State<roverPhotos> {
                     borderRadius: BorderRadius.circular(10),
                     child: Hero(
                       tag: "tag${pos+1}$i",
-                      child: Image(image: NetworkImage(filteredPhotosList[i].imgURL)),
+                      child: CachedNetworkImage(
+                        imageUrl: filteredPhotosList[i].imgURL,
+                        progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(value: downloadProgress.progress),
+                      ),
+                      //Image(image: NetworkImage(filteredPhotosList[i].imgURL)),
 
                     ),
                   ),

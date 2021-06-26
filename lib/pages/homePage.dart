@@ -59,9 +59,12 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<
         articles.add(article);
       }
     }
+    /*
     await Future.wait(
       articles.map((item) => cacheImage(context, item.imageURL)).toList(),
     );
+
+     */
     setState(() {
       _articlesLoading=false;
     });
@@ -144,7 +147,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<
                   elevation: 5,
                   child: Column(
                     children: [
-                      Image(image: CachedNetworkImageProvider(articles[index].imageURL)),
+                      //Image(image: CachedNetworkImageProvider(articles[index].imageURL)),
+                      CachedNetworkImage(
+                          imageUrl: articles[index].imageURL,
+                        progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(value: downloadProgress.progress),
+                      ),
                       Text(articles[index].title, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,),
                       SizedBox(height: 10,),
                       Text(articles[index].summary, style: TextStyle(fontSize: 15, color: isDark? Colors.white70 : Colors.black), textAlign: TextAlign.center,),
