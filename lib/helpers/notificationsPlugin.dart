@@ -101,13 +101,13 @@ class LocalNotifyManager {
       tz.TZDateTime.now(tz.local).add(const Duration(seconds: 15)),
       platformChannelSpecifics,
       androidAllowWhileIdle: true,
-      payload: 'Test Payload',
+      payload: 'Launch',
     );
 
 
   }
 
-
+  /*
   Future<void> showNotification() async {
     print("In showNotification");
     var androidChannelSpecifics = AndroidNotificationDetails(
@@ -152,37 +152,8 @@ class LocalNotifyManager {
       //print(await SharedPrefUtils.readPrefStr('launchNames'));
     print(await getTestFunction());
     }
-  List<LaunchDetails> launches = []; int statusCode;
 
-  _getLaunches() async {
-    LaunchDetails launch;
-    DateTime date;
-    String url = "https://ll.thespacedevs.com/2.0.0/launch/upcoming/";
-    var response = await http.get(Uri.parse(url));
-    var jsonData = jsonDecode(response.body);
-
-    statusCode = response.statusCode;
-    //print(response.statusCode);
-    if(statusCode == 200) {
-      String rocketName, rocketFamily, missionName, missionDescription, padName,
-          padLocation, padURL, type, status, imageURL;
-      for (var results in jsonData['results']) {
-        date = DateTime.parse(results['net']).toLocal();
-        missionName =
-        results['mission'] == null ? "" : results['mission']['name'] != null
-            ? results['mission']['name']
-            : "";
-        launch = LaunchDetails(
-          launchName: results['name'],
-          missionName: missionName,
-          dateObject: date,
-        );
-
-        launches.add(launch);
-      }
-      launches.sort((a,b) => a.dateObject.compareTo(b.dateObject));
-    }
-  }
+   */
 
   _downloadAndSaveFile(String url, String fileName) async {
     var directory = await getApplicationDocumentsDirectory();

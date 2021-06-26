@@ -7,6 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -45,7 +46,6 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
   bool _isBannerAdReady = false;
 
   List<LaunchDetails> launches = [];
-  //List<String> names;
 
 
   bool _loading = true;
@@ -67,7 +67,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
     statusCode = response.statusCode;
     //print(response.statusCode);
     if(statusCode == 200) {
-      //names = await SharedPrefUtils.readPrefStr('launchNames');
+
 
       String rocketName, rocketFamily, missionName, missionDescription, padName,
           padLocation, padURL, type, status, imageURL;
@@ -107,6 +107,10 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
             ? results['status']['name']
             : "";
         imageURL = results['image'] == null ? null : results['image'];
+        var pending = await localNotifyManager.returnPendingNotifications();
+        List pendingNotifications = [];
+        for(var i in pending)
+          pendingNotifications.add(i);
         launch = LaunchDetails(
           launchName: results['name'],
           date: dateFormatter.format(date),
@@ -122,7 +126,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
           type: type,
           status: status,
           imageURL: imageURL,
-          //notification: names.contains(results['name'])? true : false,
+          notification: pendingNotifications.contains(results['name'])? true : false,
         );
 
         launches.add(launch);
@@ -192,9 +196,6 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
     final _themeChanger = Provider.of<DarkThemeProvider>(context);
     bool isDark = _themeChanger.darkTheme;
 
-    //final _launchNamesChanger = Provider.of<LaunchNamesProvider>(context);
-    //List<String> launchNames = _launchNamesChanger.launchName;
-
     return Scaffold(
       appBar: AppBar(
         title: Text("Upcoming Launches"),
@@ -224,22 +225,34 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                   alignment: Alignment.topRight,
                                   child: Container(
                                       color: Colors.black12,
-                                      child: IconButton(icon: Icon(Icons.notifications_off, color: Colors.white,),
+                                      child: IconButton(icon: launches[index].notification? Icon(Icons.notifications_on, color: Colors.white) : Icon(Icons.notifications_off, color: Colors.white,),
                                         onPressed: () async {
-                                        print("Started Notification Wait");
-
-                                        var pending = await localNotifyManager.returnPendingNotifications();
-                                        List pendingNotifications = [];
-                                        for(var i in pending)
-                                          pendingNotifications.add(i);
-                                        //print(pendingNotifications);
-                                        int check=0;
                                         if(launches[index].dateObject.isAfter(DateTime.now())) {
+                                          print("Started Notification Wait");
+
+                                          var pending = await localNotifyManager.returnPendingNotifications();
+                                          List pendingNotifications = [];
+                                          for(var i in pending)
+                                            pendingNotifications.add(i);
+
+                                          int check=0;
                                           for(var i in pendingNotifications) {
                                             if(i.body.contains(launches[index].launchName)) {
                                               print("Already there. Cancelling Notification");
+                                              Fluttertoast.showToast(
+                                                  msg: "Reminder Notification turned off for ${launches[index].rocketName}",
+                                                  toastLength: Toast.LENGTH_LONG,
+                                                  gravity: ToastGravity.BOTTOM,
+                                                  timeInSecForIosWeb: 1,
+                                                  backgroundColor: Colors.white,
+                                                  textColor: Colors.black,
+                                                  fontSize: 16.0
+                                              );
                                               await localNotifyManager.cancelNotificationID(i.id);
                                               check=1;
+                                              setState(() {
+                                                launches[index].notification=false;
+                                              });
                                               break;
                                             }
                                           }
@@ -262,8 +275,19 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                                 break;
                                               }
                                             print("NewID = $newID");
+                                            Fluttertoast.showToast(
+                                                msg: "You'll be reminded 15min before the launch of ${launches[index].rocketName}",
+                                                toastLength: Toast.LENGTH_LONG,
+                                                gravity: ToastGravity.BOTTOM,
+                                                timeInSecForIosWeb: 1,
+                                                backgroundColor: Colors.white,
+                                                textColor: Colors.black,
+                                                fontSize: 16.0
+                                            );
                                             localNotifyManager.scheduleNotification(launches[index].launchName, newID);
-
+                                            setState(() {
+                                              launches[index].notification=true;
+                                            });
 
                                           }
 
@@ -271,95 +295,6 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                         else {
                                           print("Launch Over");
                                         }
-
-
-                                        /*
-                                        if(launches[index].dateObject.isAfter(DateTime.now())) {
-                                          List<LaunchDetails> temp = [];
-                                          List<String> launchNames = await getTestFunction();
-                                          print(launchNames);
-                                          if (launchNames.contains(launches[index].launchName)) {
-                                            launchNames.remove(launches[index].launchName);
-                                            setState(() {
-                                              //launches[index].notification = false;
-                                            });
-                                            print(launchNames);
-
-                                            for (var i in launchNames)
-                                              for (var j in launches)
-                                                if (i == j.launchName)
-                                                  temp.add(j);
-                                            temp.sort((a, b) => a.dateObject.compareTo(b.dateObject));
-                                            launchNames.clear();
-                                            for (var i in temp)
-                                              launchNames.add(i.launchName);
-                                            //_launchNamesChanger.launchName = launchNames;
-                                            updateTestFunction(launchNames);
-
-                                            //await SharedPrefUtils.saveStr('launchNames', names);
-                                            //names.clear();
-                                            //names = await SharedPrefUtils.readPrefStr('launchNames');
-                                            print("Removed");
-                                            //print(_launchNamesChanger.launchName);
-                                            print(await getTestFunction());
-                                          }
-                                          else {
-                                            /*
-                                            setState(() {
-                                              launches[index].notification =
-                                              true;
-                                            });
-
-                                             */
-                                            for (var i in launchNames)
-                                              for (var j in launches)
-                                                if (i == j.launchName)
-                                                  temp.add(j);
-                                            temp.add(launches[index]);
-                                            temp.sort((a, b) => a.dateObject.compareTo(b.dateObject));
-                                            launchNames.clear();
-                                            for (var i in temp)
-                                              launchNames.add(i.launchName);
-                                            print(launchNames);
-                                            //_launchNamesChanger.launchName = launchNames;
-                                            updateTestFunction(launchNames);
-                                            print(await getTestFunction());
-                                            //print(_launchNamesChanger.launchName);
-                                            //await SharedPrefUtils.saveStr('launchNames', names);
-                                            //print(await SharedPrefUtils.readPrefStr('launchNames'));
-                                            //names.clear();
-                                            //names = await SharedPrefUtils.readPrefStr('launchNames');
-                                            setState(() {
-                                            });
-
-                                            DateTime date = DateTime.now().add(Duration(seconds: 10));
-                                            print("Notification in ");
-                                            AndroidAlarmManager.oneShotAt(date, Random().nextInt(pow(2, 31)), showNotificationFunction);
-                                          }
-                                          /*
-                                          final prefs = await SharedPreferences.getInstance();
-                                          if(launches[index].notification){
-                                            names.remove(launches[index].launchName);
-                                            prefs.setStringList('launchNames', names);
-                                          }
-                                          else {
-                                            names.add(launches[index].launchName);
-                                            prefs.setStringList(
-                                                'launchNames', names);
-                                            print(names);
-                                            DateTime date = DateTime.now().add(
-                                                Duration(seconds: 10));
-                                            print("Notification in ");
-                                            AndroidAlarmManager.oneShotAt(date,
-                                                Random().nextInt(pow(2, 31)),
-                                                showNotificationFunction);
-                                          }
-                                          */
-                                        }
-                                        else {
-                                          print("Already Over");
-                                        }
-                                        */
                                       },
                                       )),
                                 ),
@@ -370,14 +305,13 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                               children: [
                                 Container(
                                   width: MediaQuery.of(context).size.width*0.5,
-                                    child: Text(launches[index].missionName, style: TextStyle(fontSize: 25), maxLines: 3,)),
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      Text("Date: " + launches[index].date, style: TextStyle(fontSize: 20,)),
-                                      Text("Time: " + launches[index].time, style: TextStyle(fontSize: 20),),
-                                    ],
-                                  ),
+                                    child: launches[index].missionName.isEmpty ? Text(launches[index].launchName, style: TextStyle(fontSize: 25), maxLines: 3,)
+                                        : Text(launches[index].missionName, style: TextStyle(fontSize: 25), maxLines: 3,)),
+                                Column(
+                                  children: [
+                                    Text("Date: " + launches[index].date, style: TextStyle(fontSize: 20), textAlign: TextAlign.right,),
+                                    Text("Time: " + launches[index].time, style: TextStyle(fontSize: 20), textAlign: TextAlign.right,),
+                                  ],
                                 ),
 
                               ],
@@ -477,26 +411,5 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
     return launches[index].dateObject.difference(DateTime.now());
   }
 }
-int id;
-String name;
-showName() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  int counter= prefs.getInt('noLaunches') ?? 0;
-  List<String> names = prefs.getStringList('launchNames')?? [];
-  print(counter);
-  print(names);
-  print("Hello");
-}
-showNotificationFunction() async {
-  print("In calling function");
-  print(await SharedPrefUtils.readPrefStr('launchNames'));
-  localNotifyManager.showNotification();
-}
 
-Future<List<String>> getTestFunction() async {
-  return await SharedPrefUtils.readPrefStr('launchNames');
-}
 
-Future<List<String>> updateTestFunction(List<String> launchNames) async {
-  await SharedPrefUtils.saveStr('launchNames', launchNames);
-}
