@@ -13,14 +13,14 @@ class DarkThemePreference {
 
   Future<bool> getTheme() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(THEME_STATUS) ?? false;
+    return prefs.getBool(THEME_STATUS) ?? true;
   }
 
 }
 
 class DarkThemeProvider with ChangeNotifier{
   DarkThemePreference darkThemePreference =  DarkThemePreference();
-  bool _darkTheme = false;
+  bool _darkTheme = true;
 
   bool get darkTheme => _darkTheme;
 
@@ -40,14 +40,14 @@ class FontPreference {
 
   Future<String> getTheme() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString(THEME_STATUS) ?? "default";
+    return prefs.getString(THEME_STATUS) ?? "Default";
   }
 
 }
 
 class FontProvider with ChangeNotifier{
   FontPreference fontPreference =  FontPreference();
-  String _fontName = "default";
+  String _fontName = "Default";
 
   String get fontName => _fontName;
 
@@ -66,7 +66,7 @@ class Styles {
         Theme.of(context).textTheme),
        */
       //fontFamily: GoogleFonts.rubik().fontFamily,
-      fontFamily: fontName=="default"? GoogleFonts.rubik().fontFamily : fontName=="Retro NASA"? "Nasalization" : fontName=="Star Wars"? "StarWars"
+      fontFamily: fontName=="Default"? GoogleFonts.rubik().fontFamily : fontName=="Retro NASA"? "Nasalization" : fontName=="Star Wars"? "StarWars"
       : fontName=="Star Trek"? "StarTrek" : fontName=="Alien"? "Alien" : fontName=="Back to the Future"? "BTTF": GoogleFonts.montserrat().fontFamily,
 
 

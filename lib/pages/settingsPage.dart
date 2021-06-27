@@ -136,7 +136,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                         _fontChanger.fontName=newValue;
                       });
                     },
-                    items: <String>['default', 'Retro NASA', 'Alien'].map<DropdownMenuItem<String>>((String value){
+                    items: <String>['Default', 'Retro NASA', 'Alien'].map<DropdownMenuItem<String>>((String value){
                       return DropdownMenuItem<String>(value: value, child: Text(value),);
                     }).toList(),
                     ),

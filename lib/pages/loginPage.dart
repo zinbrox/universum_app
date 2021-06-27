@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:universum_app/helpers/sign_in.dart';
@@ -20,7 +21,6 @@ class _LoginPageState extends State<LoginPage> {
 
     await Firebase.initializeApp();
 
-    Future.delayed(Duration(seconds: 3), () {
       User user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         Navigator.of(context).pushReplacement(
@@ -35,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           _buttonVisible=true;
         });
-    });
+
 
 
   }
@@ -57,54 +57,102 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image(image: AssetImage("assets/OrbitFeedLogo.png"), height: 300,),
-                  Text("orbitfeed", style: GoogleFonts.getFont("Fredoka One", fontSize: 40)),
+                  Image(image: AssetImage("assets/OrbitFeedLogo.png"), height: 200,),
+                  Text("orbitfeed", style: GoogleFonts.getFont("Fredoka One", fontSize: 30,)),
+                  //Text("OrbitFeed", style: TextStyle(fontSize: 25),),
                 ],
               ),
             ),
+            Text("Please Login", style: TextStyle(fontSize: 25),),
+            Container(height: MediaQuery.of(context).size.height*0.025,),
             AnimatedOpacity(
               opacity: _buttonVisible ? 1 : 0,
               duration: Duration(milliseconds: 400),
               child: DelayedDisplay(
                 fadingDuration: Duration(seconds: 1),
-                child: ElevatedButton(
-                  onPressed: (){
-                    signInWithGoogle().then((result) {
-                      if (result != null) {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return Home();
-                            },
+                child: Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: (){
+                        signInWithGoogle().then((result) {
+                          if (result != null) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return Home();
+                                },
+                              ),
+                            );
+                          }
+                        });
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset("assets/GoogleLogo.png", height: 40.0,),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: Text(
+                              "Sign In With Google",
+                              style: GoogleFonts.getFont("Open Sans",
+                                  color: Colors.black,
+                                  fontSize: 20.0
+                              ),
+                            ),
                           ),
-                        );
-                      }
-                    });
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset("assets/GoogleLogo.png", height: 40.0,),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: Text(
-                          "Sign In With Google",
-                          style: GoogleFonts.getFont("Open Sans",
-                              color: Colors.black,
-                              fontSize: 20.0
-                          ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.white,
-                    padding: const EdgeInsets.all(8.0),
-                    elevation: 10,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                  ),
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.white,
+                        padding: const EdgeInsets.all(8.0),
+                        elevation: 10,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30)),
+                        side: BorderSide(width: 1.0, color: Colors.black),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: (){
+                        signInWithFacebook().then((result) {
+                          if (result != null) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return Home();
+                                },
+                              ),
+                            );
+                          }
+                        });
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset("assets/GoogleLogo.png", height: 40.0,),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: Text(
+                              "Sign In With Facebook",
+                              style: GoogleFonts.getFont("Open Sans",
+                                  color: Colors.white,
+                                  fontSize: 20.0
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        primary: Color(0xFF4267B2),
+                        padding: const EdgeInsets.all(8.0),
+                        elevation: 10,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30)),
+                        side: BorderSide(width: 1.0, color: Colors.black),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
