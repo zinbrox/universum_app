@@ -66,8 +66,8 @@ class Styles {
         Theme.of(context).textTheme),
        */
       //fontFamily: GoogleFonts.rubik().fontFamily,
-      fontFamily: fontName=="Default"? GoogleFonts.rubik().fontFamily : fontName=="Retro NASA"? "Nasalization" : fontName=="Star Wars"? "StarWars"
-      : fontName=="Star Trek"? "StarTrek" : fontName=="Alien"? "Alien" : fontName=="Back to the Future"? "BTTF": GoogleFonts.montserrat().fontFamily,
+      fontFamily: fontName=="Default"? GoogleFonts.rubik().fontFamily : fontName=="Retro NASA"? "Nasalization" : fontName=="Alien"? "Alien"
+          : fontName=="Comfortaa"? GoogleFonts.comfortaa().fontFamily : GoogleFonts.montserrat().fontFamily,
 
 
 

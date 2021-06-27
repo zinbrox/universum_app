@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -27,6 +29,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<HomePage>{
   @override
   bool get wantKeepAlive => true;
+
+  var firebaseUser = FirebaseAuth.instance.currentUser;
 
   bool _articlesLoading=true, _blogsLoading=true;
   String dropdownValue="Articles";
@@ -104,6 +108,12 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<
   @override
   void initState() {
     super.initState();
+    Fluttertoast.showToast(
+        msg: "Welcome Back, " + firebaseUser.displayName,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        fontSize: 16.0);
     getArticles();
     getBlogs();
   }

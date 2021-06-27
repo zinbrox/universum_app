@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -40,34 +40,45 @@ Future<void> signOutGoogle() async{
 
 
 Future<String> signInWithFacebook() async {
-  // Trigger the sign-in flow
-  final LoginResult result = await FacebookAuth.instance.login();
 
-  if (result.status == LoginStatus.success) {
-    // you are logged
-    final AccessToken accessToken = result.accessToken;
+  final fb = FacebookLogin();
+  final res = await fb.logIn(permissions: [
+    FacebookPermission.publicProfile,
+    FacebookPermission.email,
+  ]);
+  // Check result status
+  switch (res.status) {
+    case FacebookLoginStatus.success:
+    // Logged in
+
+    // Send access token to server for validation and auth
+      final FacebookAccessToken accessToken = res.accessToken;
+      final facebookAuthCredential = FacebookAuthProvider.credential(accessToken.token);
+      // Once signed in, return the UserCredential
+      final UserCredential authResult = await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
+      final User user = authResult.user;
+      if(user!=null){
+        assert(!user.isAnonymous);
+        assert(await user.getIdToken() != null);
+
+        final User currentUser = _auth.currentUser;
+        assert(user.uid == currentUser.uid);
+
+        print("signInWithFacebook succeeded: $user");
+        return "$user";
+      }
+      return null;
+
+      break;
+    case FacebookLoginStatus.cancel:
+    // User cancel log in
+      break;
+    case FacebookLoginStatus.error:
+    // Log in failed
+      print('Error while log in: ${res.error}');
+      break;
   }
-  final AccessToken accessToken = await FacebookAuth.instance.accessToken;
-  if (accessToken != null) {
-    // Create a credential from the access token
-    final facebookAuthCredential = FacebookAuthProvider.credential(accessToken.token);
-    // Once signed in, return the UserCredential
-    final UserCredential authResult = await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
-    final User user = authResult.user;
-    if(user!=null){
-      assert(!user.isAnonymous);
-      assert(await user.getIdToken() != null);
-
-      final User currentUser = _auth.currentUser;
-      assert(user.uid == currentUser.uid);
-
-      print("signInWithFacebook succeeded: $user");
-      return "$user";
-    }
-    return null;
-  }
-  else
-    return null;
+  return null;
 
 }
 

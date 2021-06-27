@@ -17,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _buttonVisible=false;
 
-  Future<void> googleCall() async {
+  Future<void> authCall() async {
 
     await Firebase.initializeApp();
 
@@ -36,6 +36,10 @@ class _LoginPageState extends State<LoginPage> {
           _buttonVisible=true;
         });
 
+    setState(() {
+      _buttonVisible=true;
+    });
+
 
 
   }
@@ -43,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    googleCall();
+    authCall();
   }
 
   @override
@@ -57,8 +61,8 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image(image: AssetImage("assets/OrbitFeedLogo.png"), height: 200,),
-                  Text("orbitfeed", style: GoogleFonts.getFont("Fredoka One", fontSize: 30,)),
+                  Image(image: AssetImage("assets/OrbitFeedLogo.png"), height: 150,),
+                  Text("orbitfeed", style: GoogleFonts.getFont("Comfortaa", fontSize: 30,)),
                   //Text("OrbitFeed", style: TextStyle(fontSize: 25),),
                 ],
               ),
@@ -86,22 +90,25 @@ class _LoginPageState extends State<LoginPage> {
                           }
                         });
                       },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset("assets/GoogleLogo.png", height: 40.0,),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: Text(
-                              "Sign In With Google",
-                              style: GoogleFonts.getFont("Open Sans",
-                                  color: Colors.black,
-                                  fontSize: 20.0
+                      child: Container(
+                        width: MediaQuery.of(context).size.width*0.65,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Image.asset("assets/GoogleLogo.png", height: 40.0,),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10),
+                              child: Text(
+                                "Sign In With Google",
+                                style: GoogleFonts.getFont("Open Sans",
+                                    color: Colors.black,
+                                    fontSize: 20.0
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       style: ElevatedButton.styleFrom(
                         primary: Colors.white,
@@ -112,6 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                         side: BorderSide(width: 1.0, color: Colors.black),
                       ),
                     ),
+                    Container(height: 10,),
                     ElevatedButton(
                       onPressed: (){
                         signInWithFacebook().then((result) {
@@ -126,25 +134,28 @@ class _LoginPageState extends State<LoginPage> {
                           }
                         });
                       },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset("assets/GoogleLogo.png", height: 40.0,),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: Text(
-                              "Sign In With Facebook",
-                              style: GoogleFonts.getFont("Open Sans",
-                                  color: Colors.white,
-                                  fontSize: 20.0
+                      child: Container(
+                        width: MediaQuery.of(context).size.width*0.65,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Image.asset("assets/FacebookLogo.png", height: 40.0,),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10),
+                              child: Text(
+                                "Sign In With Facebook",
+                                style: GoogleFonts.getFont("Open Sans",
+                                    color: Colors.white,
+                                    fontSize: 20.0
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        primary: Color(0xFF4267B2),
+                        primary: Color(0xFF3c5a99),
                         padding: const EdgeInsets.all(8.0),
                         elevation: 10,
                         shape: RoundedRectangleBorder(
