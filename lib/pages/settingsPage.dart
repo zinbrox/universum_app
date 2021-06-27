@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universum_app/helpers/notificationsPlugin.dart';
@@ -78,6 +81,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                   title: Text("Daily Notification"),
                   subtitle: Text("We'll send you the Picture of the Day"),
                   trailing: Switch(
+                    activeColor: Colors.orange,
                     value: notificationSwitch,
                     onChanged: (value) async {
                       setState((){
@@ -159,6 +163,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                   title: Text("Theme"),
                   subtitle: Text("Light/ Dark mode"),
                   trailing: Switch(
+                    activeColor: Colors.orange,
                     value: isSwitched,
                     onChanged: (value){
                       setState(() {
@@ -167,6 +172,22 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                       });
                     },
                   ),
+                ),
+                ListTile(
+                  title: Text("Clear Cache"),
+                  subtitle: Text("ASSSSET IMAGESSSS"),
+                  trailing: Icon(Icons.navigate_next),
+                  onTap: () async {
+                    var appDir = (await getTemporaryDirectory()).path;
+                    print(appDir);
+                    new Directory(appDir).delete(recursive: true);
+                  },
+                ),
+                ListTile(
+                  title: Text("Credits"),
+                  onTap: (){
+                    
+                  },
                 ),
               ],
             ),

@@ -102,18 +102,9 @@ flutter:
     - family: Nasalization
       fonts:
         - asset: assets/fonts/nasalization-rg.otf
-    - family: StarWars
-      fonts:
-        - asset: assets/fonts/Starjedi.ttf
     - family: Alien
       fonts:
         - asset: assets/fonts/Homepagebaukasten-Bold.ttf
-    - family: BTTF
-      fonts:
-        - asset: assets/fonts/BTTf.ttf
-    - family: StarTrek
-      fonts:
-        - asset: assets/fonts/starseri.TTF
   #   - family: Schyler
   #     fonts:
   #       - asset: fonts/Schyler-Regular.ttf

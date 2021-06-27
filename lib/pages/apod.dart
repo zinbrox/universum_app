@@ -262,7 +262,7 @@ class _APODState extends State<APOD> {
                            */
 
                           Align(
-                            child: Icon(Icons.touch_app),
+                            child: Icon(Icons.touch_app, size: 40,),
                             alignment: Alignment.bottomRight,
                           ),
                         ],

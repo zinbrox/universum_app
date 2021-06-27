@@ -8,9 +8,6 @@ import 'dart:io' show File, Platform;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/subjects.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:universum_app/helpers/sharedPreferencesClass.dart';
-import 'package:universum_app/pages/upcomingLaunches.dart';
 
 class LocalNotifyManager {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;

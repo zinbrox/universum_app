@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -269,7 +270,7 @@ class _ISSPageState extends State<ISSPage> {
     var message = jsonData['message'];
     numAstronauts = jsonData['number'];
     for(var i in jsonData['people']) {
-      if(i['name']!=null && i['craft']!=null) {
+      if(i['name']!=null && i['craft']=="ISS") {
         astronautNames.add(i['name']);
         astronautSpacecraft.add(i['craft']);
       }
@@ -440,57 +441,53 @@ class _ISSPageState extends State<ISSPage> {
                     children: [
                       Text("Latitude: " + latitude.toStringAsFixed(4)),
                       Text("Longitude: " + longitude.toStringAsFixed(4)),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            //width: MediaQuery.of(context).size.width*0.65,
-                            height: MediaQuery.of(context).size.width*0.075,
-                            child: OutlinedButton(onPressed: () async {
-                              getHumansInSpace();
-                            }, child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Icon(Icons.supervisor_account),
-                                SizedBox(width: 10,),
-                                Text("Current ISS Crew"),
-                              ],
-                            )),
+                      Container(
+                        width: MediaQuery.of(context).size.width*0.45,
+                        height: MediaQuery.of(context).size.width*0.075,
+                        child: ElevatedButton(onPressed: () async {
+                          getHumansInSpace();
+                        }, child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Icon(Icons.supervisor_account),
+                            //SizedBox(width: 10,),
+                            Text("Current ISS Crew"),
+                          ],
+                        )),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width*0.45,
+                        height: MediaQuery.of(context).size.width*0.075,
+                        child: ElevatedButton(
+                          onPressed: (){
+                            getReports();
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Icon(Icons.library_books),
+                              //SizedBox(width: 10,),
+                              Text("ISS Daily Reports"),
+                            ],
                           ),
-                          Container(
-                            //width: MediaQuery.of(context).size.width*0.65,
-                            height: MediaQuery.of(context).size.width*0.075,
-                            child: OutlinedButton(
-                              onPressed: (){
-                                getReports();
-                              },
-                              child: Row(
-                                children: [
-                                  Icon(Icons.library_books),
-                                  SizedBox(width: 10,),
-                                  Text("ISS Daily Reports"),
-                                ],
-                              ),
-                            ),
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width*0.45,
+                        height: MediaQuery.of(context).size.width*0.075,
+                        child: ElevatedButton(
+                          onPressed: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: "https://ustream.tv/channel/17074538", title: "ISS Live Stream",)));
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Icon(Icons.open_in_browser),
+                              //SizedBox(width: 10,),
+                              Text("ISS Live Stream"),
+                            ],
                           ),
-                          Container(
-                            //width: MediaQuery.of(context).size.width*0.65,
-                            height: MediaQuery.of(context).size.width*0.075,
-                            child: OutlinedButton(
-                              onPressed: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: "https://ustream.tv/channel/17074538", title: "ISS Live Stream",)));
-                              },
-                              child: Row(
-                                children: [
-                                  Icon(Icons.open_in_browser),
-                                  SizedBox(width: 10,),
-                                  Text("ISS Live Stream"),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
@@ -553,17 +550,25 @@ class ISSReports extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: 10,),
-                      Text(reports[index].summary, textAlign: TextAlign.center, style: TextStyle(fontSize: 18, color: isDark? Colors.white70 : Colors.black),),
+                      RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(text: reports[index].summary, style: TextStyle(fontSize: 18, color: isDark? Colors.grey[350] : Colors.black),),
+                          TextSpan(text: "Read Full Report",
+                            style: TextStyle(color: Colors.blue),
+                            recognizer: TapGestureRecognizer()..onTap = (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: reports[index].url, title: "Report Viewer",)));
+                            }
+                          ),
+                        ],
+                        ),
+                      ),
                       SizedBox(height: 10,),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text("News Site: " + reports[index].newsSite),
-                          InkWell(
-                            onTap: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: reports[index].url, title: "Report Viewer",)));
-                            },
-                              child: Text("Read Full Report", style: TextStyle(color: Colors.blue),)),
                         ],
                       )
                     ],
