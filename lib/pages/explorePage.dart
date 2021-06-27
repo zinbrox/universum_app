@@ -10,18 +10,29 @@ class ExplorePage extends StatefulWidget {
   _ExplorePageState createState() => _ExplorePageState();
 }
 
-class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClientMixin<ExplorePage>{
+class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClientMixin<ExplorePage>, WidgetsBindingObserver{
   @override
   bool get wantKeepAlive => true;
+
+  final FocusNode inputFocusNode = FocusNode();
 
   final TextEditingController _searchText = new TextEditingController();
   bool _loading=true;
 
-  bool _searchBarPressed = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+    final value = WidgetsBinding.instance.window.viewInsets.bottom;
+    if (value == 0) {
+      inputFocusNode.unfocus();
+    }
   }
 
   @override
@@ -42,6 +53,13 @@ class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClient
   Future cacheImage(BuildContext context, String image) => precacheImage(AssetImage(image), context);
 
   @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    inputFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -53,12 +71,9 @@ class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClient
           Container(
             margin: EdgeInsets.symmetric(horizontal: 5),
             child: TextField(
+              focusNode: inputFocusNode,
+              keyboardType: TextInputType.multiline,
               controller: _searchText,
-              onTap: () {
-                setState(() {
-                  _searchBarPressed=!_searchBarPressed;
-                });
-              },
               onSubmitted: (String text){
                 FocusScope.of(context).unfocus();
                 Navigator.push(context, MaterialPageRoute(builder: (context) => NASASearch(keyword: text)));
@@ -68,16 +83,7 @@ class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClient
                   border: new OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
-                  prefixIcon: IconButton(
-                      icon: _searchBarPressed ? Icon(Icons.arrow_back) : Icon(Icons.search),
-                    onPressed: () {
-                        setState(() {
-                          _searchBarPressed=!_searchBarPressed;
-                          if(!_searchBarPressed)
-                            FocusScope.of(context).unfocus();
-                        });
-                    },
-                  ),
+                  prefixIcon: Icon(Icons.search),
                   suffixIcon: IconButton(
                     icon: Icon(Icons.navigate_next),
                     onPressed: () {

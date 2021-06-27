@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
@@ -54,7 +57,8 @@ class _APODState extends State<APOD> {
       if (mediaType == "image") {
         imageURL = jsonData['hdurl'];
         smallImageURL = jsonData['url'];
-        precacheImage(CachedNetworkImageProvider(imageURL), context);
+        //precacheImage(CachedNetworkImageProvider(imageURL), context);
+        await precacheImage(CachedNetworkImageProvider(smallImageURL), context);
       }
       else {
         videoURL = jsonData['url'];
@@ -193,26 +197,28 @@ class _APODState extends State<APOD> {
                       //child: Image(image: CachedNetworkImageProvider(imageURL),),
 
                       child: Stack(
+                        alignment: Alignment.bottomRight,
                         children: [
-                          /*
                           CachedNetworkImage(
                             imageUrl: imageURL,
-                            placeholder: (context, imageURL) => Container(
-                              decoration: new BoxDecoration(
-                                image: DecorationImage(image: NetworkImage(smallImageURL),
-                                  fit: BoxFit.cover,
+                            progressIndicatorBuilder: (context, url, downloadProgress) => Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Container(
+                                  height: MediaQuery.of(context).size.height*0.5,
+                                  width: MediaQuery.of(context).size.width,
+                                  child: ClipRRect(
+                                    child: ImageFiltered(
+                                      imageFilter: downloadProgress.progress!=null? downloadProgress.progress>0.75? ImageFilter.blur(sigmaX: 3, sigmaY: 3) : downloadProgress.progress>0.4? ImageFilter.blur(sigmaX: 5, sigmaY: 5) : ImageFilter.blur(sigmaX: 7, sigmaY: 7) : ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                                        child: Image(image: CachedNetworkImageProvider(smallImageURL),)),
+                                  ),
                                 ),
-                              ),
-                              child: BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                                child: Container(
-                                  decoration: new BoxDecoration(color: Colors.white.withOpacity(0.0)),
-                                ),
-                              ),
+                                CircularProgressIndicator(value: downloadProgress.progress),
+                              ],
                             ),
                           ),
 
-                           */
+                          /*
                           Container(
                             height: MediaQuery.of(context).size.height*0.5,
                             width: MediaQuery.of(context).size.width,
@@ -236,6 +242,17 @@ class _APODState extends State<APOD> {
                               ),
                             ),
                           ),
+                          */
+                          /*
+                          Container(
+                            height: MediaQuery.of(context).size.height*0.5,
+                            width: MediaQuery.of(context).size.width,
+                            child: ClipRRect(
+                              child: Image.network(smallImageURL),
+                            ),
+                          ),
+
+                           */
 
                           Align(
                             child: Icon(Icons.touch_app),
@@ -336,8 +353,34 @@ class PictureView extends StatelessWidget {
                 PopupMenuItem(
                     value: 1,child: Text("Download")),
               ],
-            onSelected: (value){
-
+            onSelected: (value) async {
+                if(value==1) {
+                  Fluttertoast.showToast(
+                      msg: "Downloading Image...",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.white,
+                      textColor: Colors.black,
+                      fontSize: 16.0
+                  );
+                  var response = await http.get(Uri.parse(imageURL));
+                  var documentDirectory = await getApplicationDocumentsDirectory();
+                  var firstPath = documentDirectory.path + "/images";
+                  var filePathAndName = documentDirectory.path + '/images/$title.jpg';
+                  await Directory(firstPath).create(recursive: true);
+                  File file2 = new File(filePathAndName);
+                  file2.writeAsBytesSync(response.bodyBytes);
+                  Fluttertoast.showToast(
+                      msg: "Downloaded Image to $firstPath",
+                      toastLength: Toast.LENGTH_LONG,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.white,
+                      textColor: Colors.black,
+                      fontSize: 16.0
+                  );
+                }
             },
           )
         ],

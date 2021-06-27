@@ -49,7 +49,7 @@ class _ISSPageState extends State<ISSPage> {
   int numAstronauts;
   List<String> astronautNames = [], astronautSpacecraft = [];
 
-  bool _mapLoading = true;
+  bool _loading = true, _mapLoading=true;
 
   GoogleMapController mapController;
   LatLng _center;
@@ -86,6 +86,9 @@ class _ISSPageState extends State<ISSPage> {
       );
       setState(() {
         _markers["ISS"] = marker;
+      });
+      setState(() {
+        _mapLoading=false;
       });
   }
 
@@ -249,7 +252,7 @@ class _ISSPageState extends State<ISSPage> {
         setState(() {
           _markers["ISS"] = marker;
           _center = LatLng(latitude, longitude);
-          _mapLoading = false;
+          _loading = false;
         });
       }
     }
@@ -384,20 +387,34 @@ class _ISSPageState extends State<ISSPage> {
       appBar: AppBar(
         title: Text("ISS"),
       ),
-      body: _mapLoading ? Center(child: CircularProgressIndicator()) :
+      body: _loading ? Center(child: CircularProgressIndicator()) :
       Column(
         children: [
           Container(
             height: MediaQuery.of(context).size.height*0.65,
-            child: GoogleMap(
-                    onMapCreated: _onMapCreated,
-                    initialCameraPosition: CameraPosition(
-                      target: _center,
-                      zoom: 3.0,
-                    ),
-                    markers: _markers.values.toSet(),
-                    polylines: _polyline,
+            child: Stack(
+              children: [
+                GoogleMap(
+                        onMapCreated: _onMapCreated,
+                        initialCameraPosition: CameraPosition(
+                          target: _center,
+                          zoom: 3.0,
+                        ),
+                        markers: _markers.values.toSet(),
+                        polylines: _polyline,
+                      ),
+                (_mapLoading)
+                    ? Container(
+                  height: MediaQuery.of(context).size.height*0.65,
+                  width: MediaQuery.of(context).size.width,
+                  color: Colors.grey[200],
+                  child: Center(
+                    child: CircularProgressIndicator(),
                   ),
+                )
+                    : Container(),
+              ],
+            ),
 
 
             ),

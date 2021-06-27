@@ -21,10 +21,10 @@ main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AndroidAlarmManager.initialize();
   MobileAds.instance.initialize();
-  //names = await SharedPrefUtils.readPrefStr('launchNames');
-  //print(names);
+
   runApp(MyApp());
 }
+Future cacheImage(BuildContext context, String image) => precacheImage(AssetImage(image), context);
 
 
 class MyApp extends StatefulWidget {
@@ -44,10 +44,17 @@ class _MyAppState extends State<MyApp> {
     launchName.launchName = await launchName.launchNamePreference.getNames();
   }
 
+  Future<void> loadImages() async {
+    await Future.wait(
+      images.map((image) => cacheImage(context, image)).toList(),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     getCurrentAppTheme();
+    loadImages();
   }
   @override
   Widget build(BuildContext context) {

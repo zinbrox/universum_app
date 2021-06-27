@@ -197,12 +197,10 @@ class _roverPhotosState extends State<roverPhotos> {
             if (photosList[i].cameraFullName == roverCameraNames[j])
               finalList[j].add(photosList[i]);
 
-        /*
             await Future.wait(
           photosList.map((item) => cacheImage(context, item.imgURL)).toList(),
         );
 
-         */
 
         setState(() {
           _loading = false;
@@ -431,7 +429,8 @@ class _roverPhotosState extends State<roverPhotos> {
                       tag: "tag${pos+1}$i",
                       child: CachedNetworkImage(
                         imageUrl: filteredPhotosList[i].imgURL,
-                        progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(value: downloadProgress.progress),
+                        //progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(value: downloadProgress.progress),
+                        placeholder: (context, url) => CircularProgressIndicator(),
                       ),
                       //Image(image: NetworkImage(filteredPhotosList[i].imgURL)),
 
