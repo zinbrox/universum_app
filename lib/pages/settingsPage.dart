@@ -1,5 +1,6 @@
 import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universum_app/helpers/notificationsPlugin.dart';
@@ -87,16 +88,34 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                       if(notificationSwitch) {
                         print("Notifications Started");
                         AndroidAlarmManager.periodic(
-                            const Duration(hours: 1), 0,
+                            const Duration(minutes: 1), 0,
                             callAPODNotification,
                           exact: true,
                           startAt: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 12, 0),
                           rescheduleOnReboot: true,
                         );
+                        Fluttertoast.showToast(
+                            msg: "Daily Notifications turned on",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.white,
+                            textColor: Colors.black,
+                            fontSize: 16.0
+                        );
                       }
                         else {
                           print("Notifications Cancelled");
                           AndroidAlarmManager.cancel(0);
+                          Fluttertoast.showToast(
+                              msg: "Daily Notifications turned off",
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.white,
+                              textColor: Colors.black,
+                              fontSize: 16.0
+                          );
                       }
                     },
                   ),

@@ -35,6 +35,7 @@ class _APODState extends State<APOD> {
   String imageURL, smallImageURL, contentTitle, contentDescription, contentCopyRight, contentDate;
   String videoURL;
   int statusCode;
+  String statusMessage;
 
 
 
@@ -52,6 +53,7 @@ class _APODState extends State<APOD> {
       jsonData = jsonDecode(response.body);
       statusCode = response.statusCode;
     }
+    statusMessage = response.reasonPhrase;
     if(statusCode == 200) {
       mediaType = jsonData['media_type'];
       if (mediaType == "image") {
@@ -164,7 +166,12 @@ class _APODState extends State<APOD> {
           ],
         ),
       )
-          : statusCode==429? Center(child: Text("Too Many Requests! Try again in some time")) : statusCode!=200? Center(child: Text("Error Code: $statusCode")) :
+          : statusCode==429? Center(child: Text("Too Many Requests! Try again in some time")) : statusCode!=200? Center(child: Column(
+            children: [
+              Text("Error Code: $statusCode"),
+              Text("Reason Phrase: $statusMessage"),
+            ],
+          )) :
 
       Center(child: Card(
         shape: RoundedRectangleBorder(

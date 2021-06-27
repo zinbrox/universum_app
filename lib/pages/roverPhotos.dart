@@ -122,6 +122,7 @@ class _roverPhotosState extends State<roverPhotos> {
   var formatter = new DateFormat('yyyy-MM-dd');
 
   int statusCode;
+  String statusMessage;
 
   int picsLoaded=0;
 
@@ -138,6 +139,14 @@ class _roverPhotosState extends State<roverPhotos> {
 
     statusCode=response.statusCode;
 
+    if(statusCode == 429) {
+      url = "https://api.nasa.gov/mars-photos/api/v1/rovers/$rover/photos?earth_date=$formattedDate&api_key=DEMO_KEY";
+      response = await http.get(Uri.parse(url));
+      jsonData = jsonDecode(response.body);
+      statusCode = response.statusCode;
+    }
+
+    statusMessage = response.reasonPhrase;
     if(statusCode==200) {
       if (jsonData['photos'].isEmpty) {
         print("Empty");
@@ -197,9 +206,12 @@ class _roverPhotosState extends State<roverPhotos> {
             if (photosList[i].cameraFullName == roverCameraNames[j])
               finalList[j].add(photosList[i]);
 
+            /*
             await Future.wait(
           photosList.map((item) => cacheImage(context, item.imgURL)).toList(),
         );
+
+             */
 
 
         setState(() {
@@ -327,7 +339,12 @@ class _roverPhotosState extends State<roverPhotos> {
           Image(image: AssetImage("assets/Rover.gif")),
           picsLoaded!=0 ? Text("Loading $picsLoaded Rover Images..") : Text("Loading Rover Images.."),
         ],
-      ),) : statusCode==429? Center(child: Text("Too many requests! Try again in some time"),) :
+      ),) : statusCode==429? Center(child: Text("Too many requests! Try again in some time"),) : statusCode!=200? Center(child: Column(
+        children: [
+          Text("Error Code $statusCode"),
+          Text("Reason Phrase: $statusMessage"),
+        ],
+      ),) :
           roverCameraNames.length==0 ? Center(child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -429,8 +446,8 @@ class _roverPhotosState extends State<roverPhotos> {
                       tag: "tag${pos+1}$i",
                       child: CachedNetworkImage(
                         imageUrl: filteredPhotosList[i].imgURL,
-                        //progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(value: downloadProgress.progress),
-                        placeholder: (context, url) => CircularProgressIndicator(),
+                        progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(value: downloadProgress.progress),
+                        //placeholder: (context, url) => CircularProgressIndicator(),
                       ),
                       //Image(image: NetworkImage(filteredPhotosList[i].imgURL)),
 
