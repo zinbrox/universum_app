@@ -175,7 +175,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                 ),
                 ListTile(
                   title: Text("Clear Cache"),
-                  subtitle: Text("ASSSSET IMAGESSSS"),
+                  subtitle: Text("This can affect loading of images"),
                   trailing: Icon(Icons.navigate_next),
                   onTap: () async {
                     var appDir = (await getTemporaryDirectory()).path;
@@ -185,8 +185,39 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                 ),
                 ListTile(
                   title: Text("Credits"),
-                  onTap: (){
-
+                  onTap: () async {
+                    await showModalBottomSheet(
+                        context: context,
+                        builder: (context) {
+                      return Container(
+                        height: MediaQuery.of(context).size.height*0.6,
+                        child: ListView(
+                          children: [
+                            ListTile(
+                              title: Text("Content", style: TextStyle(fontSize: 20),),
+                              trailing: Text("Source", style: TextStyle(fontSize: 20),),
+                            ),
+                            Divider(color: isSwitched? Colors.white : Colors.black,),
+                            ListTile(
+                              title: Text("Rover Images"),
+                              trailing: Text("NASA"),
+                            ),
+                            ListTile(
+                              title: Text("Picture of the Day"),
+                              trailing: Text("NASA"),
+                            ),
+                            ListTile(
+                              title: Text("ISS Tracker"),
+                              trailing: Text("wheretheiss.at"),
+                            ),
+                            ListTile(
+                              title: Text("Upcoming Launches & Articles"),
+                              trailing: Text("thespacedevs"),
+                            ),
+                          ],
+                        ),
+                      );
+                    });
                   },
                 ),
               ],

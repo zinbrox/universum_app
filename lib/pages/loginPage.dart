@@ -21,7 +21,6 @@ class _LoginPageState extends State<LoginPage> {
 
     await Firebase.initializeApp();
 
-    /*
       User user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         Navigator.of(context).pushReplacement(
@@ -33,16 +32,18 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
       else
-        setState(() {
-          _buttonVisible=true;
+        Future.delayed(const Duration(seconds: 1), (){
+          setState(() {
+            _buttonVisible=true;
+          });
         });
 
-     */
 
+    /*
     setState(() {
       _buttonVisible=true;
     });
-
+     */
 
 
   }
