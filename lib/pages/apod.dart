@@ -106,11 +106,13 @@ class _APODState extends State<APOD> {
     _bannerAd.load();
   }
 
+
   @override
   void initState() {
     super.initState();
     initialiseBanner();
     getAPOD();
+
   }
   @override
   Widget build(BuildContext context) {
@@ -362,25 +364,29 @@ class PictureView extends StatelessWidget {
               ],
             onSelected: (value) async {
                 if(value==1) {
-                  Fluttertoast.showToast(
-                      msg: "Downloading Image...",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      timeInSecForIosWeb: 1,
-                      backgroundColor: Colors.white,
-                      textColor: Colors.black,
-                      fontSize: 16.0
-                  );
-                  var response = await http.get(Uri.parse(imageURL));
+                  /*
+                  var response = await http.get(Uri.parse(widget.imageURL));
                   var documentDirectory = await getApplicationDocumentsDirectory();
                   var firstPath = documentDirectory.path + "/images";
-                  var filePathAndName = documentDirectory.path + '/images/$title.jpg';
+                  var filePathAndName = documentDirectory.path + '/images/${widget.title}.jpg';
                   await Directory(firstPath).create(recursive: true);
                   File file2 = new File(filePathAndName);
                   file2.writeAsBytesSync(response.bodyBytes);
                   Fluttertoast.showToast(
                       msg: "Downloaded Image to $firstPath",
                       toastLength: Toast.LENGTH_LONG,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.white,
+                      textColor: Colors.black,
+                      fontSize: 16.0
+                  );
+
+                   */
+                  var dir = Platform.isAndroid? await getExternalStorageDirectory() : await getApplicationDocumentsDirectory();
+                  Fluttertoast.showToast(
+                      msg: "Downloading Image to ${dir.path}\nSee notifications for details",
+                      toastLength: Toast.LENGTH_SHORT,
                       gravity: ToastGravity.BOTTOM,
                       timeInSecForIosWeb: 1,
                       backgroundColor: Colors.white,
@@ -395,7 +401,7 @@ class PictureView extends StatelessWidget {
       body: Center(
         child: Container(
             child: Hero(
-              tag: "tag$index",
+              tag: "tag${index}",
               child: PhotoView(
                 imageProvider: CachedNetworkImageProvider(imageURL),
               ),

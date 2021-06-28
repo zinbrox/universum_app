@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:universum_app/helpers/sign_in.dart';
+import 'package:universum_app/pages/explorePage.dart';
 import 'package:universum_app/pages/home.dart';
 import 'package:universum_app/pages/homePage.dart';
 import 'package:delayed_display/delayed_display.dart';
@@ -48,9 +49,17 @@ class _LoginPageState extends State<LoginPage> {
 
   }
 
+  Future<void> loadImages() async {
+    await Future.wait(
+      images.map((image) => cacheImage(context, image)).toList(),
+    );
+  }
+  Future cacheImage(BuildContext context, String image) => precacheImage(AssetImage(image), context);
+
   @override
   void initState() {
     super.initState();
+    loadImages();
     authCall();
   }
 

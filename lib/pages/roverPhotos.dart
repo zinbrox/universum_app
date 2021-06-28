@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
@@ -126,6 +127,13 @@ class _roverPhotosState extends State<roverPhotos> {
 
   int picsLoaded=0;
 
+  static final customCacheManager = CacheManager(
+    Config(
+      'customCacheKey',
+      stalePeriod: Duration(days: 7),
+    ),
+  );
+
   Future<void> getPhotos(String rover) async {
     print("In getPhotos");
     setState(() {
@@ -214,6 +222,8 @@ class _roverPhotosState extends State<roverPhotos> {
              */
 
 
+
+
         setState(() {
           _loading = false;
           _visible = true;
@@ -225,11 +235,11 @@ class _roverPhotosState extends State<roverPhotos> {
     });
   }
 
-  Future cacheImage(BuildContext context, String imageURL) {
+  Future cacheImage(BuildContext context, String imageURL) async {
     setState(() {
       picsLoaded++;
     });
-    return precacheImage(
+    return await precacheImage(
         CachedNetworkImageProvider(imageURL), context);
   }
 
@@ -384,7 +394,23 @@ class _roverPhotosState extends State<roverPhotos> {
                                     borderRadius: BorderRadius.circular(10),
                                     child: Hero(
                                       tag: "tag${index+1}$i",
-                                      child: finalList[index][i].imgURL!=null? Image(image: CachedNetworkImageProvider(finalList[index][i].imgURL)) : Text("Empty"),
+                                      child: finalList[index][i].imgURL!=null?
+                                      CachedNetworkImage(
+                                        filterQuality: FilterQuality.low,
+                                        cacheManager: customCacheManager,
+                                        key: UniqueKey(),
+                                        imageUrl: finalList[index][i].imgURL,
+                                        //maxHeightDiskCache: 100,
+                                        //placeholder: (context, url) => Container(color: Colors.black12,),
+                                        errorWidget: (context, url, error) => Container(
+                                          child: Icon(Icons.error, color: Colors.red,),
+                                        ),
+                                        progressIndicatorBuilder: (context, url, downloadProgress) => Container(
+                                          width: MediaQuery.of(context).size.width,
+                                            child: Center(child: CircularProgressIndicator(value: downloadProgress.progress))),
+                                        //placeholder: (context, url) => CircularProgressIndicator(),
+                                      ) : Text("Empty"),
+                                      //Image(image: CachedNetworkImageProvider(finalList[index][i].imgURL)) : Text("Empty"),
                                     ),
                                   ),
                                 ),
@@ -421,105 +447,5 @@ class _roverPhotosState extends State<roverPhotos> {
   }
 
    */
-
-
-  Widget _returnList(int pos) {
-    //print("In _returnList");
-    filteredPhotosList.clear();
-    for(var i in photosList) {
-      if (i.cameraFullName == roverCameraNames[pos])
-        filteredPhotosList.add(i);
-    }
-    return Column(
-      children: [
-        Text(roverCameraNames[pos]),
-        Container(
-          height: 300,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: filteredPhotosList.length,
-              itemBuilder: (context, i){
-                return Card(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Hero(
-                      tag: "tag${pos+1}$i",
-                      child: CachedNetworkImage(
-                        imageUrl: filteredPhotosList[i].imgURL,
-                        progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(value: downloadProgress.progress),
-                        //placeholder: (context, url) => CircularProgressIndicator(),
-                      ),
-                      //Image(image: NetworkImage(filteredPhotosList[i].imgURL)),
-
-                    ),
-                  ),
-                );
-              }),
-        ),
-      ],
-    );
-    /*
-    return Column(
-            children: [
-              Text(roverCameraNames[pos]),
-              FutureBuilder(
-                future: _loadAllImages(),
-                builder: (context, snapshot) {
-                  return AnimatedContainer(
-                    duration: Duration(seconds: 1),
-                    height: 300, // card height
-                    child: PageView.builder(
-                      itemCount: filteredPhotosList.length,
-                      scrollDirection: Axis.horizontal,
-                      controller: PageController(
-                          initialPage: 0, keepPage: true, viewportFraction: 0.8),
-                      onPageChanged: (int index) {
-                        setState(() {
-                          indexSelected[pos] = index;
-                        });
-                      },
-                      itemBuilder: (_, i) {
-                        ImageProvider image = snapshot.data[i];
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              //expanded = !expanded;
-                              print((pos+1)*10+i);
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: filteredPhotosList[i].imgURL, title: roverCameraNames[pos], index: (pos+1)*10+i,)));
-                            });
-                          },
-                          child: Transform.scale(
-                            scale: i == indexSelected[pos] ? 1 : 0.90,
-                            child:
-                            Card(
-                              elevation: 6,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Hero(
-                                  tag: "tag${pos+1}$i",
-                                  child: Image(image: image,),
-
-                                ),
-                              ),
-                            ),
-
-                          ),
-                        );
-                      },
-                    ),
-
-
-                  );
-                }
-              ),
-
-              Divider(),
-            ],
-          );
-    */
-
-  }
 }
 

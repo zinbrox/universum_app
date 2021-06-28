@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:universum_app/styles/color_styles.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -153,48 +154,90 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<
               itemBuilder: (context, index){
               return InkWell(
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: articles[index].newsURL, title: "Article View",))),
-                child: Container(child: Card(
-                  elevation: 5,
-                  child: Column(
-                    children: [
-                      //Image(image: CachedNetworkImageProvider(articles[index].imageURL)),
-                      CachedNetworkImage(
-                          imageUrl: articles[index].imageURL,
-                        progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(value: downloadProgress.progress),
+                child: Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    Container(child: Card(
+                      elevation: 5,
+                      child: Column(
+                        children: [
+                          //Image(image: CachedNetworkImageProvider(articles[index].imageURL)),
+                          CachedNetworkImage(
+                              imageUrl: articles[index].imageURL,
+                            progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(value: downloadProgress.progress),
+                          ),
+                          Text(articles[index].title, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,),
+                          SizedBox(height: 10,),
+                          Text(articles[index].summary, style: TextStyle(fontSize: 15, color: isDark? Colors.white70 : Colors.black), textAlign: TextAlign.center,),
+                          SizedBox(height: 5,),
+                          Text("Source: " + articles[index].newsSite),
+                          Text(dateFormatter.format(articles[index].date)),
+                        ],
                       ),
-                      Text(articles[index].title, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,),
-                      SizedBox(height: 10,),
-                      Text(articles[index].summary, style: TextStyle(fontSize: 15, color: isDark? Colors.white70 : Colors.black), textAlign: TextAlign.center,),
-                      SizedBox(height: 5,),
-                      Text("Source: " + articles[index].newsSite),
-                      Text(dateFormatter.format(articles[index].date)),
-                    ],
-                  ),
-                ),),
+                    ),),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Container(
+                        child: PopupMenuButton(
+                          itemBuilder: (context) => [
+                            PopupMenuItem(value: 1, child: Text("Share"),)
+                          ],
+                          onSelected: (value){
+                            if(value==1)
+                              Share.share('Check out this article: ${articles[index].title}.\nLink: ${articles[index].newsURL}\nDownload OrbitFeed: ');
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               );
               }) :
       (dropdownValue=="Blogs" && _blogsLoading==false)?
       statusCodeBlogs==429? Center(child: Text("Too many requests! Try again in some time"),) : statusCodeBlogs!=200? Center(child: Text("Error. Status Code: $statusCodeBlogs"),) :
       ListView.separated(
-          itemCount: articles.length,
+          itemCount: blogs.length,
           separatorBuilder: (context, index) => SizedBox(height: 10,),
           itemBuilder: (context, index){
             return InkWell(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: blogs[index].newsURL,))),
-              child: Container(child: Card(
-                elevation: 5,
-                child: Column(
-                  children: [
-                    Image(image: CachedNetworkImageProvider(blogs[index].imageURL)),
-                    Text(blogs[index].title, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,),
-                    SizedBox(height: 10,),
-                    Text(blogs[index].summary, style: TextStyle(fontSize: 18), textAlign: TextAlign.center,),
-                    SizedBox(height: 5,),
-                    Text(dateFormatter.format(blogs[index].date)),
-                    Text("Source: " + blogs[index].newsSite),
-                  ],
-                ),
-              ),),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: articles[index].newsURL, title: "Article View",))),
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  Container(child: Card(
+                    elevation: 5,
+                    child: Column(
+                      children: [
+                        //Image(image: CachedNetworkImageProvider(articles[index].imageURL)),
+                        CachedNetworkImage(
+                          imageUrl: blogs[index].imageURL,
+                          progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(value: downloadProgress.progress),
+                        ),
+                        Text(blogs[index].title, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,),
+                        SizedBox(height: 10,),
+                        Text(blogs[index].summary, style: TextStyle(fontSize: 15, color: isDark? Colors.white70 : Colors.black), textAlign: TextAlign.center,),
+                        SizedBox(height: 5,),
+                        Text("Source: " + blogs[index].newsSite),
+                        Text(dateFormatter.format(blogs[index].date)),
+                      ],
+                    ),
+                  ),),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Container(
+                      child: PopupMenuButton(
+                        itemBuilder: (context) => [
+                          PopupMenuItem(value: 1, child: Text("Share"),)
+                        ],
+                        onSelected: (value){
+                          if(value==1)
+                            Share.share('Check out this blog: ${blogs[index].title}.\nLink: ${blogs[index].newsURL}\nDownload OrbitFeed: ');
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             );
           }) :
           Center(child: Image(image: AssetImage("assets/RocketLoading.gif"))),
@@ -217,7 +260,8 @@ class WebViewer extends StatelessWidget {
                 PopupMenuItem(value: 1, child: Text("Share"),)
               ],
             onSelected: (value){
-
+                if(value==1)
+                  Share.share('Check this out: $url\nDownload OrbitFeed: ');
             },
           )
         ],
