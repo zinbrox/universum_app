@@ -38,11 +38,11 @@ class ISSPage extends StatefulWidget {
 
 class _ISSPageState extends State<ISSPage> {
 
-  // TODO: Add _interstitialAd
-  InterstitialAd _interstitialAd;
+  // TODO: Add _bannerAd
+  BannerAd _bannerAd;
 
-  // TODO: Add _isInterstitialAdReady
-  bool _isInterstitialAdReady = false;
+  // TODO: Add _isBannerAdReady
+  bool _isBannerAdReady = false;
 
   String message;
   int timestamp;
@@ -334,30 +334,34 @@ class _ISSPageState extends State<ISSPage> {
           fontSize: 16.0
       );
   }
-  /*
+
   void initialiseBanner() {
-      _interstitialAd = InterstitialAd(
-        adUnitId: AdHelper.interstitialAdUnitId,
-        request: AdRequest(),
-        listener: AdListener(
-          onAdLoaded: (_) {
-            _isInterstitialAdReady = true;
-          },
-          onAdFailedToLoad: (ad, err) {
-            print('Failed to load an interstitial ad: ${err.message}');
-            _isInterstitialAdReady = false;
-            ad.dispose();
-          },
-          onAdClosed: (_) {
-            _moveToHome();
-          },
-        ),
-      );
+    _bannerAd = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Failed to load a banner ad: ${err.message}');
+          _isBannerAdReady = false;
+          ad.dispose();
+        },
+        // Called when an ad opens an overlay that covers the screen.
+        onAdOpened: (Ad ad) => print('Ad opened.'),
+        // Called when an ad removes an overlay that covers the screen.
+        onAdClosed: (Ad ad) => print('Ad closed.'),
+        // Called when an impression occurs on the ad.
+        onAdImpression: (Ad ad) => print('Ad impression.'),
+      ),
+    );
 
-      _interstitialAd.load();
-    });
-
-   */
+    _bannerAd.load();
+  }
 
 
   @override
@@ -367,7 +371,7 @@ class _ISSPageState extends State<ISSPage> {
     streamSubscription = getLocationWIS().listen((event) {
         print(event[0]);
     });
-    //initialiseBanner();
+    initialiseBanner();
 
   }
 
@@ -422,76 +426,85 @@ class _ISSPageState extends State<ISSPage> {
           SizedBox(height: 10,),
           Expanded(
             child: Center(
-              child: Row(
+              child: Column(
                 children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width*0.5,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text("Current Location: " + addressLine, textAlign: TextAlign.center, style: TextStyle(fontSize: 18), maxLines: 4,),
-                        Text("Altitude: " + altitude.toStringAsFixed(2) + " km"),
-                        Text("Velocity: " + velocity.toStringAsFixed(2) + " km/h"),
-                        Text("Visibility: $visibility"),
-                      ],
+                  Expanded(
+                    child: Container(
+                      child: Row(
+                        children: [
+                          Container(
+                            width: MediaQuery.of(context).size.width*0.5,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text("Current Location: " + addressLine, textAlign: TextAlign.center, style: TextStyle(fontSize: 18), maxLines: 4,),
+                                Text("Altitude: " + altitude.toStringAsFixed(2) + " km"),
+                                Text("Velocity: " + velocity.toStringAsFixed(2) + " km/h"),
+                                Text("Visibility: $visibility"),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text("Latitude: " + latitude.toStringAsFixed(4)),
+                              Text("Longitude: " + longitude.toStringAsFixed(4)),
+                              Container(
+                                width: MediaQuery.of(context).size.width*0.45,
+                                height: MediaQuery.of(context).size.width*0.075,
+                                child: ElevatedButton(onPressed: () async {
+                                  getHumansInSpace();
+                                }, child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Icon(Icons.supervisor_account),
+                                    //SizedBox(width: 10,),
+                                    Text("Current ISS Crew"),
+                                  ],
+                                )),
+                              ),
+                              Container(
+                                width: MediaQuery.of(context).size.width*0.45,
+                                height: MediaQuery.of(context).size.width*0.075,
+                                child: ElevatedButton(
+                                  onPressed: (){
+                                    getReports();
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Icon(Icons.library_books),
+                                      //SizedBox(width: 10,),
+                                      Text("ISS Daily Reports"),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                width: MediaQuery.of(context).size.width*0.45,
+                                height: MediaQuery.of(context).size.width*0.075,
+                                child: ElevatedButton(
+                                  onPressed: (){
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: "https://ustream.tv/channel/17074538", title: "ISS Live Stream",)));
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Icon(Icons.open_in_browser),
+                                      //SizedBox(width: 10,),
+                                      Text("ISS Live Stream"),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+
+
+                        ],
+                      ),
                     ),
                   ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text("Latitude: " + latitude.toStringAsFixed(4)),
-                      Text("Longitude: " + longitude.toStringAsFixed(4)),
-                      Container(
-                        width: MediaQuery.of(context).size.width*0.45,
-                        height: MediaQuery.of(context).size.width*0.075,
-                        child: ElevatedButton(onPressed: () async {
-                          getHumansInSpace();
-                        }, child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Icon(Icons.supervisor_account),
-                            //SizedBox(width: 10,),
-                            Text("Current ISS Crew"),
-                          ],
-                        )),
-                      ),
-                      Container(
-                        width: MediaQuery.of(context).size.width*0.45,
-                        height: MediaQuery.of(context).size.width*0.075,
-                        child: ElevatedButton(
-                          onPressed: (){
-                            getReports();
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Icon(Icons.library_books),
-                              //SizedBox(width: 10,),
-                              Text("ISS Daily Reports"),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: MediaQuery.of(context).size.width*0.45,
-                        height: MediaQuery.of(context).size.width*0.075,
-                        child: ElevatedButton(
-                          onPressed: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: "https://ustream.tv/channel/17074538", title: "ISS Live Stream",)));
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Icon(Icons.open_in_browser),
-                              //SizedBox(width: 10,),
-                              Text("ISS Live Stream"),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  /*
                   _isBannerAdReady ?
                   Container(
                     alignment: Alignment.bottomCenter,
@@ -501,7 +514,6 @@ class _ISSPageState extends State<ISSPage> {
                     height: _bannerAd.size.height.toDouble(),
                     child: AdWidget(ad: _bannerAd),
                   ) : Container(),
-                   */
                 ],
               ),
             ),

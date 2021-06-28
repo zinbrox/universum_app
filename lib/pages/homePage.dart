@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -39,6 +40,13 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<
   List<Blog> blogs = [];
 
   int statusCodeArticles, statusCodeBlogs;
+
+  static final customCacheManager = CacheManager(
+    Config(
+      'customCacheKey',
+      stalePeriod: Duration(days: 7),
+    ),
+  );
 
   final DateFormat dateFormatter = DateFormat('dd-MM-yyyy');
 
@@ -164,6 +172,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<
                           //Image(image: CachedNetworkImageProvider(articles[index].imageURL)),
                           CachedNetworkImage(
                               imageUrl: articles[index].imageURL,
+                            cacheManager: customCacheManager,
+                            key: UniqueKey(),
+                            errorWidget: (context, url, error) => Container(
+                              child: Icon(Icons.error, color: Colors.red,),
+                            ),
                             progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(value: downloadProgress.progress),
                           ),
                           Text(articles[index].title, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,),
@@ -211,6 +224,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<
                         //Image(image: CachedNetworkImageProvider(articles[index].imageURL)),
                         CachedNetworkImage(
                           imageUrl: blogs[index].imageURL,
+                          cacheManager: customCacheManager,
+                          key: UniqueKey(),
+                          errorWidget: (context, url, error) => Container(
+                            child: Icon(Icons.error, color: Colors.red,),
+                          ),
                           progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(value: downloadProgress.progress),
                         ),
                         Text(blogs[index].title, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,),

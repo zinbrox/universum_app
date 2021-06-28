@@ -38,13 +38,20 @@ class _MyAppState extends State<MyApp> {
   FontProvider fontProvider = new FontProvider();
   LaunchNamesProvider launchName = new LaunchNamesProvider();
 
+  List<String> mainImages = ["assets/LoginScreenBackground.jpg", "assets/OrbitFeedLogo.png"];
+
   void getCurrentAppTheme() async {
     themeChangeProvider.darkTheme = await themeChangeProvider.darkThemePreference.getTheme();
     fontProvider.fontName = await fontProvider.fontPreference.getTheme();
     launchName.launchName = await launchName.launchNamePreference.getNames();
-    await precacheImage(AssetImage("assets/LoginScreenBackground.jpg"), context);
-    await precacheImage(AssetImage("assets/OrbitFeedLogo.png"), context);
+    await Future.wait(
+      mainImages.map((item) => cacheImage(context, item)).toList());
+      await Future.wait(
+        images.map((item) => cacheImage(context, item)).toList());
   }
+
+  Future cacheImage(BuildContext context, String image) => precacheImage(
+      AssetImage(image), context);
 
 
   @override

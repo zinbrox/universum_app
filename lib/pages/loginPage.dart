@@ -87,8 +87,7 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
               ),
-              Text("Please Login", style: TextStyle(fontSize: 25),),
-              Container(height: MediaQuery.of(context).size.height*0.025,),
+              //Container(height: MediaQuery.of(context).size.height*0.025,),
               AnimatedOpacity(
                 opacity: _buttonVisible ? 1 : 0,
                 duration: Duration(milliseconds: 400),
@@ -96,11 +95,13 @@ class _LoginPageState extends State<LoginPage> {
                   fadingDuration: Duration(seconds: 1),
                   child: Column(
                     children: [
+                      Text("Please Login", style: TextStyle(fontSize: 25),),
+                      Container(height: 10,),
                       ElevatedButton(
                         onPressed: (){
                           signInWithGoogle().then((result) {
                             if (result != null) {
-                              Navigator.of(context).push(
+                              Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
                                   builder: (context) {
                                     return Home();
@@ -133,10 +134,9 @@ class _LoginPageState extends State<LoginPage> {
                         style: ElevatedButton.styleFrom(
                           primary: Colors.white,
                           padding: const EdgeInsets.all(8.0),
-                          elevation: 10,
+                          elevation: 3,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30)),
-                          side: BorderSide(width: 1.0, color: Colors.black),
                         ),
                       ),
                       Container(height: 10,),
@@ -144,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: (){
                           signInWithFacebook().then((result) {
                             if (result != null) {
-                              Navigator.of(context).push(
+                              Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
                                   builder: (context) {
                                     return Home();
@@ -177,10 +177,9 @@ class _LoginPageState extends State<LoginPage> {
                         style: ElevatedButton.styleFrom(
                           primary: Color(0xFF3c5a99),
                           padding: const EdgeInsets.all(8.0),
-                          elevation: 10,
+                          elevation: 3,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30)),
-                          side: BorderSide(width: 1.0, color: Colors.black),
                         ),
                       ),
                     ],

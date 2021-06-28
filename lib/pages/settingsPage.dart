@@ -92,7 +92,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                       if(notificationSwitch) {
                         print("Notifications Started");
                         AndroidAlarmManager.periodic(
-                            const Duration(minutes: 1), 0,
+                            const Duration(hours: 24), 0,
                             callAPODNotification,
                           exact: true,
                           startAt: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 12, 0),

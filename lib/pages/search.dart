@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -40,6 +41,13 @@ class _NASASearchState extends State<NASASearch> {
   int _index=0;
   bool expanded=false;
 
+  static final customCacheManager = CacheManager(
+    Config(
+      'customCacheKey',
+      stalePeriod: Duration(days: 7),
+    ),
+  );
+
   Future<void> getSearch(String text) async {
     print("In getSearch()");
     Items item;
@@ -62,9 +70,12 @@ class _NASASearchState extends State<NASASearch> {
     }
     searchList.sort((b,a) => a.date.compareTo(b.date));
 
+    /*
     await Future.wait(
       searchList.map((item) => cacheImage(context, item.imageURL)).toList(),
     );
+
+     */
 
     setState(() {
       _loading=false;
@@ -139,7 +150,16 @@ class _NASASearchState extends State<NASASearch> {
                         elevation: 5,
                         child: Column(
                           children: [
-                            Image(image: CachedNetworkImageProvider(searchList[index].imageURL),),
+                            CachedNetworkImage(
+                                imageUrl: searchList[index].imageURL,
+                                cacheManager: customCacheManager,
+                                key: UniqueKey(),
+                                errorWidget: (context, url, error) => Container(
+                                 child: Icon(Icons.error, color: Colors.red,),),
+                                progressIndicatorBuilder: (context, url, downloadProgress) => Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    child: Center(child: CircularProgressIndicator(value: downloadProgress.progress))),
+                            ),
                             Text(searchList[index].title, style: TextStyle(fontSize: 20),),
                             SizedBox(height: 10,),
                             Text(searchList[index].description, maxLines: 4, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, color: isDark? Colors.white70 : Colors.black), textAlign: TextAlign.center,),

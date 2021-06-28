@@ -373,7 +373,7 @@ class PictureView extends StatelessWidget {
             else
               break;
           }
-          newPath = newPath+"/OrbitFeed";
+          newPath = newPath+"/Download/OrbitFeed";
           directory = Directory(newPath);
         }
         else

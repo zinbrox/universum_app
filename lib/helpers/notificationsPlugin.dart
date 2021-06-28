@@ -70,7 +70,7 @@ class LocalNotifyManager {
     return pendingNotificationRequests;
   }
 
-  Future<void> scheduleNotification(String launchName, int newID) async {
+  Future<void> scheduleNotification(String launchName, DateTime date, int newID) async {
     print("In scheduleNotification");
 
     tz.initializeTimeZones();
@@ -89,13 +89,20 @@ class LocalNotifyManager {
     NotificationDetails(
         android: androidChannelSpecifics, iOS: iosChannelSpecifics);
 
+    /*
     var scheduleNotificationDateTime = DateTime.now().add(Duration(seconds: 10));
+    var timeInUtc = DateTime.now().toUtc();
+     */
+    
+    Duration remaining = date.difference(DateTime.now().add(const Duration(minutes: 15)));
+    print(tz.TZDateTime.now(tz.local).add(remaining));
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
       newID,
       'LAUNCH REMINDER',
       '$launchName is launching soon',
-      tz.TZDateTime.now(tz.local).add(const Duration(seconds: 15)),
+      tz.TZDateTime.now(tz.local).add(remaining),
+      //date.toUtc().subtract(const Duration(minutes: 15)),
       platformChannelSpecifics,
       androidAllowWhileIdle: true,
       payload: 'Launch',

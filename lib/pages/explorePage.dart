@@ -65,14 +65,18 @@ class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClient
       appBar: AppBar(
         title: Text("Explore"),
       ),
-      body: _loading? Center(child: CircularProgressIndicator(),) :
+      body: _loading? Center(child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image(image: AssetImage("assets/RocketLoading.gif")),
+          ])) :
       Center(child: Column(
         children: [
           Container(
             margin: EdgeInsets.symmetric(horizontal: 5),
             child: TextField(
               focusNode: inputFocusNode,
-              keyboardType: TextInputType.multiline,
+              //keyboardType: TextInputType.multiline,
               controller: _searchText,
               onSubmitted: (String text){
                 FocusScope.of(context).unfocus();

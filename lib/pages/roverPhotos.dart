@@ -214,6 +214,13 @@ class _roverPhotosState extends State<roverPhotos> {
             if (photosList[i].cameraFullName == roverCameraNames[j])
               finalList[j].add(photosList[i]);
 
+
+          setState(() {
+            for(var i in finalList)
+              for(var j in i)
+                picsLoaded++;
+          });
+
             /*
             await Future.wait(
           photosList.map((item) => cacheImage(context, item.imgURL)).toList(),
@@ -348,7 +355,7 @@ class _roverPhotosState extends State<roverPhotos> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image(image: AssetImage("assets/Rover.gif"),),
-          picsLoaded!=0 ? Text("Loading $picsLoaded Rover Images..") : Text("Loading Rover Images.."),
+          picsLoaded!=0 ? Text("Loading $picsLoaded Rover Images..", style: TextStyle(fontSize: 20),) : Text("Loading Rover Images..", style: TextStyle(fontSize: 20),),
         ],
       ),) : statusCode==429? Center(child: Text("Too many requests! Try again in some time"),) : statusCode!=200? Center(child: Column(
         children: [

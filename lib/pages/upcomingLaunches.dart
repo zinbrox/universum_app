@@ -201,9 +201,10 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
         title: Text("Upcoming Launches"),
       ),
       body: _loading? Center(child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image(image: AssetImage("assets/RocketLoading.gif")),
-          Text("Loading Upcoming Launches.."),
+          Text("Loading Upcoming Launches..", style: TextStyle(fontSize: 20),),
         ],
       )) : statusCode==429? Center(child: Text("Too Many Requests! Try again in some time")) :
           Column(
@@ -284,7 +285,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                                 textColor: Colors.black,
                                                 fontSize: 16.0
                                             );
-                                            localNotifyManager.scheduleNotification(launches[index].launchName, newID);
+                                            localNotifyManager.scheduleNotification(launches[index].launchName, launches[index].dateObject, newID);
                                             setState(() {
                                               launches[index].notification=true;
                                             });
