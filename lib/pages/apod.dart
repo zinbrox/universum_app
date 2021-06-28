@@ -2,16 +2,19 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'dart:async';
-
 import 'package:shimmer/shimmer.dart';
 import 'package:universum_app/helpers/ad_helper.dart';
 import 'package:universum_app/styles/color_styles.dart';
@@ -351,6 +354,93 @@ class PictureView extends StatelessWidget {
   int index;
   PictureView({Key key, @required this.imageURL, @required this.title, @required this.index}) : super(key: key);
 
+  final Dio dio = Dio();
+  File filePathFinal;
+
+  Future<bool> saveImage(String url, String fileName) async {
+    Directory directory;
+    try {
+      if(Platform.isAndroid) {
+        if(await _requestPermission(Permission.storage)){
+          directory = await getExternalStorageDirectory();
+          print(directory.path);
+          String newPath = "";
+          List<String> folders = directory.path.split("/");
+          for(int i=1;i<folders.length;++i){
+            if(folders[i]!="Android") {
+              newPath += "/"+folders[i];
+            }
+            else
+              break;
+          }
+          newPath = newPath+"/OrbitFeed";
+          directory = Directory(newPath);
+        }
+        else
+          return false;
+      }
+      // For IOS
+      else {
+        if(await _requestPermission(Permission.photos)) {
+          directory = await getTemporaryDirectory();
+        }
+        else
+          return false;
+      }
+      // If OrbitFeed folder doesn't exist, create it
+      if(!await directory.exists()){
+        await directory.create(recursive: true);
+      }
+      if(await directory.exists()) {
+        Fluttertoast.showToast(
+            msg: "Downloading Image...",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.white,
+            textColor: Colors.black,
+            fontSize: 16.0
+        );
+        File saveFile = File(directory.path+"/$fileName.png");
+        filePathFinal = saveFile;
+        await dio.download(url, saveFile.path);
+
+        if(Platform.isIOS){
+          await ImageGallerySaver.saveFile(saveFile.path, isReturnPathOfIOS: true);
+        }
+
+        Fluttertoast.showToast(
+            msg: "Downloaded Image to ${directory.path}",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.white,
+            textColor: Colors.black,
+            fontSize: 16.0
+        );
+        return true;
+      }
+    } catch(e) {
+      print(e);
+    }
+    return false;
+  }
+
+  Future<bool> _requestPermission(Permission permission) async {
+    if(await permission.isGranted){
+      return true;
+    }
+    else {
+      var result = await permission.request();
+      if(result == PermissionStatus.granted) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -361,38 +451,28 @@ class PictureView extends StatelessWidget {
               itemBuilder: (context) => [
                 PopupMenuItem(
                     value: 1,child: Text("Download")),
+                PopupMenuItem(
+                    value: 2,child: Text("Share")),
               ],
             onSelected: (value) async {
                 if(value==1) {
-                  /*
-                  var response = await http.get(Uri.parse(widget.imageURL));
-                  var documentDirectory = await getApplicationDocumentsDirectory();
-                  var firstPath = documentDirectory.path + "/images";
-                  var filePathAndName = documentDirectory.path + '/images/${widget.title}.jpg';
-                  await Directory(firstPath).create(recursive: true);
-                  File file2 = new File(filePathAndName);
-                  file2.writeAsBytesSync(response.bodyBytes);
-                  Fluttertoast.showToast(
-                      msg: "Downloaded Image to $firstPath",
-                      toastLength: Toast.LENGTH_LONG,
-                      gravity: ToastGravity.BOTTOM,
-                      timeInSecForIosWeb: 1,
-                      backgroundColor: Colors.white,
-                      textColor: Colors.black,
-                      fontSize: 16.0
-                  );
-
-                   */
-                  var dir = Platform.isAndroid? await getExternalStorageDirectory() : await getApplicationDocumentsDirectory();
-                  Fluttertoast.showToast(
-                      msg: "Downloading Image to ${dir.path}\nSee notifications for details",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      timeInSecForIosWeb: 1,
-                      backgroundColor: Colors.white,
-                      textColor: Colors.black,
-                      fontSize: 16.0
-                  );
+                  if(!await saveImage(imageURL, title))
+                    Fluttertoast.showToast(
+                        msg: "Image couldn't be downloaded",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.white,
+                        textColor: Colors.black,
+                        fontSize: 16.0
+                    );
+                }
+                if(value==2) {
+                  saveImage(imageURL, title);
+                  if(await saveImage(imageURL, title)) {
+                    if(await filePathFinal.exists())
+                      Share.shareFiles([filePathFinal.path], text: !title.contains("ID")? "Check out today's Picture of the Day:\n$title\nDownload OrbitFeed" : "Check out this picture from the Mars rover:\n$title\nDownload OrbitFeed");
+                  }
                 }
             },
           )

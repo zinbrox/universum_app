@@ -50,6 +50,9 @@ dependencies:
   timezone: ^0.7.0
   flutter_login_facebook: ^1.0.1
   flutter_cache_manager: ^3.1.2
+  permission_handler: ^8.1.2
+  dio: ^4.0.0
+  image_gallery_saver: ^1.6.9
 
 
   # The following adds the Cupertino Icons font to your application.

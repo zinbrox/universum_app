@@ -345,8 +345,9 @@ class _roverPhotosState extends State<roverPhotos> {
         ],
       ),
       body: _loading? Center(child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image(image: AssetImage("assets/Rover.gif")),
+          Image(image: AssetImage("assets/Rover.gif"),),
           picsLoaded!=0 ? Text("Loading $picsLoaded Rover Images..") : Text("Loading Rover Images.."),
         ],
       ),) : statusCode==429? Center(child: Text("Too many requests! Try again in some time"),) : statusCode!=200? Center(child: Column(
@@ -388,7 +389,7 @@ class _roverPhotosState extends State<roverPhotos> {
                             scrollDirection: Axis.horizontal,
                             itemBuilder: (context, i){
                               return InkWell(
-                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: finalList[index][i].imgURL, title: "Photo ID: ${finalList[index][i].photoID}", index: -1,))),
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: finalList[index][i].imgURL, title: "${roverCameraNames[index]} ID: ${finalList[index][i].photoID}", index: -1,))),
                                 child: Card(
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(10),
