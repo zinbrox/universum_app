@@ -186,7 +186,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                 ListTile(
                   title: Text("Credits"),
                   onTap: (){
-                    
+
                   },
                 ),
               ],
