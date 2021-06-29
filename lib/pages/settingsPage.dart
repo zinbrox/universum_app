@@ -2,13 +2,11 @@ import 'dart:io';
 
 import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universum_app/helpers/notificationsPlugin.dart';
-import 'package:universum_app/helpers/sharedPreferencesClass.dart';
 import 'package:universum_app/styles/color_styles.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -66,8 +64,6 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
     final _fontChanger = Provider.of<FontProvider>(context);
     String fontName = _fontChanger.fontName;
     String dropdownValue = fontName;
-    final _launchNamesChanger = Provider.of<LaunchNamesProvider>(context);
-    List<String> launchNames = _launchNamesChanger.launchName;
 
     return Scaffold(
       appBar: AppBar(
@@ -127,12 +123,6 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                 ),
                 ListTile(
                   title: Text("Font"),
-                  /*
-                  trailing: Icon(Icons.navigate_next),
-                  onTap: () {
-                    _changeFont();
-                  },
-                   */
                   trailing: DropdownButton<String>(
                     value: dropdownValue,
                     onChanged: (String newValue){
@@ -146,20 +136,6 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                     }).toList(),
                     ),
                   ),
-
-
-                //Text(dropdownValue),
-                /*
-                ListTile(
-                  title: Text(launchNames.toString()),
-                  onTap: (){
-                    print("Removed");
-                    launchNames.clear();
-                  },
-                ),
-
-                 */
-                //Text(launchNames.toString()),
                 ListTile(
                   title: Text("Theme"),
                   subtitle: Text("Light/ Dark mode"),
@@ -237,19 +213,6 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
           SizedBox(height: 10,)
         ],
       ),
-      /*
-      Center(
-        child: Switch(
-          value: isSwitched,
-          onChanged: (value){
-            setState(() {
-              isSwitched=value;
-              isSwitched? _themeChanger.darkTheme=true : _themeChanger.darkTheme=false;
-            });
-          },
-        ),
-      ),
-      */
     );
   }
 }

@@ -191,14 +191,6 @@ class _APODState extends State<APOD> {
                 height: MediaQuery.of(context).size.height*0.5,
                 child: InkWell(
                   onTap: (){
-                    /*
-                        Navigator.of(context).push(
-                          PageRouteBuilder(
-                            opaque: true, // set to false
-                            pageBuilder: (_, __, ___) => PictureView(imageURL: imageURL, title: imageTitle,)),
-                          );
-
-                         */
                     if(mediaType=="image")
                     Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: imageURL, title: contentTitle, index: -1,)));
                   },
@@ -272,9 +264,9 @@ class _APODState extends State<APOD> {
                 height: 200,
                 child: ListView(
                   children: [
-                    Center(child: Text(contentTitle, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,)),
+                    Center(child: SelectableText(contentTitle, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,)),
                     SizedBox(height: 10,),
-                    Text(contentDescription, textAlign: TextAlign.center, style: TextStyle(fontSize: 15),),
+                    SelectableText(contentDescription, textAlign: TextAlign.center, style: TextStyle(fontSize: 15),),
                     SizedBox(height: 10,),
                     Text(contentDate, textAlign: TextAlign.center,),
                     contentCopyRight==null ? Container() : Center(child: Text(contentCopyRight)),
@@ -282,6 +274,7 @@ class _APODState extends State<APOD> {
                 ),
               ),
             ),
+
             _isBannerAdReady ?
             Container(
               alignment: Alignment.bottomCenter,
@@ -323,7 +316,7 @@ class PictureView extends StatelessWidget {
             else
               break;
           }
-          newPath = newPath+"/Download/OrbitFeed";
+          newPath = newPath+"/OrbitFeed";
           directory = Directory(newPath);
         }
         else

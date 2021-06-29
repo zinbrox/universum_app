@@ -6,7 +6,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:universum_app/helpers/sign_in.dart';
 import 'package:universum_app/pages/explorePage.dart';
 import 'package:universum_app/pages/home.dart';
-import 'package:universum_app/pages/homePage.dart';
 import 'package:delayed_display/delayed_display.dart';
 
 class LoginPage extends StatefulWidget {
@@ -119,10 +118,10 @@ class _LoginPageState extends State<LoginPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Image.asset("assets/GoogleLogo.png", height: 40.0,),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 10),
+                              Flexible(
                                 child: Text(
                                   "Sign In With Google",
+                                  textAlign: TextAlign.center,
                                   style: GoogleFonts.getFont("Open Sans",
                                       color: Colors.black,
                                       fontSize: 20.0
@@ -162,10 +161,10 @@ class _LoginPageState extends State<LoginPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Image.asset("assets/FacebookLogo.png", height: 40.0,),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 10),
+                              Flexible(
                                 child: Text(
                                   "Sign In With Facebook",
+                                  textAlign: TextAlign.center,
                                   style: GoogleFonts.getFont("Open Sans",
                                       color: Colors.white,
                                       fontSize: 20.0

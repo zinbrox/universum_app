@@ -6,7 +6,6 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 import 'package:universum_app/helpers/ad_helper.dart';
 import 'package:universum_app/pages/apod.dart';
@@ -87,20 +86,10 @@ class _NASASearchState extends State<NASASearch> {
     }
     searchList.sort((b,a) => a.date.compareTo(b.date));
 
-    /*
-    await Future.wait(
-      searchList.map((item) => cacheImage(context, item.imageURL)).toList(),
-    );
-
-     */
-
     setState(() {
       _loading=false;
     });
   }
-
-  Future cacheImage(BuildContext context, String imageURL) => precacheImage(
-      CachedNetworkImageProvider(imageURL), context);
 
   void initialiseBanner() {
     _bannerAd = BannerAd(
@@ -158,40 +147,42 @@ class _NASASearchState extends State<NASASearch> {
         child: Column(
           children: [
             Expanded(
-              child: ListView.separated(
-                itemCount: searchList.length,
-                  separatorBuilder: (context, index) => SizedBox(height: 10),
-                  itemBuilder: (context, index){
-                  return InkWell(
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ArticleView(item: searchList[index], imageURL: searchList[index].imageURL,))),
-                    child: Container(
-                      child: Card(
-                        elevation: 5,
-                        child: Column(
-                          children: [
-                            CachedNetworkImage(
-                                imageUrl: searchList[index].imageURL,
-                                cacheManager: customCacheManager,
-                                key: UniqueKey(),
-                                errorWidget: (context, url, error) => Container(
-                                 child: Icon(Icons.error, color: Colors.red,),),
-                                progressIndicatorBuilder: (context, url, downloadProgress) => Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    child: Center(child: CircularProgressIndicator(value: downloadProgress.progress))),
-                            ),
-                            Text(searchList[index].title, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,),
-                            SizedBox(height: 10,),
-                            Text(searchList[index].description, maxLines: 4, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, color: isDark? Colors.white70 : Colors.black), textAlign: TextAlign.center,),
-                            SizedBox(height: 5,),
-                            Text(dateFormatter.format(searchList[index].date)),
-                            Text("Center: " + searchList[index].center),
-                            SizedBox(height: 10,)
-                          ],
+              child: Scrollbar(
+                child: ListView.separated(
+                  itemCount: searchList.length,
+                    separatorBuilder: (context, index) => SizedBox(height: 10),
+                    itemBuilder: (context, index){
+                    return InkWell(
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ArticleView(item: searchList[index], imageURL: searchList[index].imageURL,))),
+                      child: Container(
+                        child: Card(
+                          elevation: 5,
+                          child: Column(
+                            children: [
+                              CachedNetworkImage(
+                                  imageUrl: searchList[index].imageURL,
+                                  cacheManager: customCacheManager,
+                                  key: UniqueKey(),
+                                  errorWidget: (context, url, error) => Container(
+                                   child: Icon(Icons.error, color: Colors.red,),),
+                                  progressIndicatorBuilder: (context, url, downloadProgress) => Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      child: Center(child: CircularProgressIndicator(value: downloadProgress.progress))),
+                              ),
+                              Text(searchList[index].title, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,),
+                              SizedBox(height: 10,),
+                              Text(searchList[index].description, maxLines: 4, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, color: isDark? Colors.white70 : Colors.black), textAlign: TextAlign.center,),
+                              SizedBox(height: 5,),
+                              Text(dateFormatter.format(searchList[index].date)),
+                              Text("Center: " + searchList[index].center),
+                              SizedBox(height: 10,)
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                  }),
+                    );
+                    }),
+              ),
             ),
             _isBannerAdReady ?
             Container(
@@ -202,6 +193,7 @@ class _NASASearchState extends State<NASASearch> {
               height: _bannerAd.size.height.toDouble(),
               child: AdWidget(ad: _bannerAd),
             ) : Container(),
+
           ],
         ),
       ),
@@ -249,9 +241,9 @@ class ArticleView extends StatelessWidget {
               Expanded(
                 child: ListView(
                   children: [
-                    Text(item.title, textAlign: TextAlign.center, style: TextStyle(fontSize: 20),),
+                    SelectableText(item.title, textAlign: TextAlign.center, style: TextStyle(fontSize: 20),),
                     SizedBox(height: 10,),
-                    Text(item.description, style: TextStyle(fontSize: 18, color: isDark? Colors.white70 : Colors.black), textAlign: TextAlign.center,),
+                    SelectableText(item.description, style: TextStyle(fontSize: 18, color: isDark? Colors.white70 : Colors.black), textAlign: TextAlign.center,),
                     SizedBox(height: 10,),
                     Text(dateFormatter.format(item.date), textAlign: TextAlign.center,),
                     Text("Center: " + item.center, textAlign: TextAlign.center,),

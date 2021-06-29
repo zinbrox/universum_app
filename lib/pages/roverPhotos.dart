@@ -43,7 +43,7 @@ class roverSelect extends StatelessWidget {
                   child: Center(child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(child: Text(roverNames[index], style: TextStyle(color: Colors.white, fontSize: 25),)),
+                      Expanded(child: Text(roverNames[index], style: TextStyle(color: Colors.white, fontSize: 25), textAlign: TextAlign.center,)),
                       Text("Images Available From: ${activeDays[index]}", style: TextStyle(color: Colors.white, fontSize: 15), textAlign: TextAlign.center,),
                     ],
                   )),
@@ -54,18 +54,6 @@ class roverSelect extends StatelessWidget {
                       image: AssetImage(roverImages[index]),
                     ),
                   ),
-
-                  /*
-                  child: Stack(
-                    children: [
-                      FittedBox(
-                          child: Image(image: AssetImage(roverImages[index]),
-                            fit: BoxFit.fill,
-                          )),
-                      Text(roverNames[index]),
-                    ],
-                  ),
-                  */
                 ),
               ),
             );
@@ -177,13 +165,6 @@ class _roverPhotosState extends State<roverPhotos> {
         finalList.clear();
         roverCameraNames.clear();
         for (var elements in jsonData['photos']) {
-          /*
-      print(elements['id'].runtimeType);
-      print(elements['sol'].runtimeType);
-      print(elements['earth_date'].runtimeType);
-      print(elements['id'].runtimeType);
-
-       */
           //numRoverCameras = elements['camera']['name'].length();
           if (!roverCameraNames.contains(elements['camera']['full_name']))
             roverCameraNames.add(elements['camera']['full_name']);
@@ -221,16 +202,6 @@ class _roverPhotosState extends State<roverPhotos> {
                 picsLoaded++;
           });
 
-            /*
-            await Future.wait(
-          photosList.map((item) => cacheImage(context, item.imgURL)).toList(),
-        );
-
-             */
-
-
-
-
         setState(() {
           _loading = false;
           _visible = true;
@@ -242,25 +213,6 @@ class _roverPhotosState extends State<roverPhotos> {
     });
   }
 
-  Future cacheImage(BuildContext context, String imageURL) async {
-    setState(() {
-      picsLoaded++;
-    });
-    return await precacheImage(
-        CachedNetworkImageProvider(imageURL), context);
-  }
-
-  /*
-  void filterList(String roverCameraName) {
-    filteredPhotosList = [];
-    for(var i in photosList){
-      if(i.cameraName == roverCameraName)
-        filteredPhotosList.add(i);
-    }
-
-  }
-
-   */
 
   void initialiseBanner() {
     _bannerAd = BannerAd(
@@ -314,7 +266,7 @@ class _roverPhotosState extends State<roverPhotos> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Rover Images"),
+            Flexible(child: Text("Rover Images")),
             Text(formatter.format(selectedDate), style: TextStyle(fontSize: 18),),
           ],
         ),
@@ -389,7 +341,7 @@ class _roverPhotosState extends State<roverPhotos> {
                 //return _returnList(index);
                   return Column(
                     children: [
-                      Text(roverCameraNames[index], style: TextStyle(fontSize: 20),),
+                      Text(roverCameraNames[index], style: TextStyle(fontSize: 20), textAlign: TextAlign.center,),
                       Container(
                         height: 300,
                         child: ListView.builder(
@@ -409,17 +361,13 @@ class _roverPhotosState extends State<roverPhotos> {
                                         cacheManager: customCacheManager,
                                         key: UniqueKey(),
                                         imageUrl: finalList[index][i].imgURL,
-                                        //maxHeightDiskCache: 100,
-                                        //placeholder: (context, url) => Container(color: Colors.black12,),
                                         errorWidget: (context, url, error) => Container(
                                           child: Icon(Icons.error, color: Colors.red,),
                                         ),
                                         progressIndicatorBuilder: (context, url, downloadProgress) => Container(
                                           width: MediaQuery.of(context).size.width,
                                             child: Center(child: CircularProgressIndicator(value: downloadProgress.progress))),
-                                        //placeholder: (context, url) => CircularProgressIndicator(),
                                       ) : Text("Empty"),
-                                      //Image(image: CachedNetworkImageProvider(finalList[index][i].imgURL)) : Text("Empty"),
                                     ),
                                   ),
                                 ),
@@ -444,17 +392,5 @@ class _roverPhotosState extends State<roverPhotos> {
     );
   }
 
-
-  /*
-  Future<List<CachedNetworkImageProvider>> _loadAllImages() async{
-    List<CachedNetworkImageProvider> cachedImages = [];
-    for(int i=0;i<filteredPhotosList.length;i++) {
-      var configuration = createLocalImageConfiguration(context);
-      cachedImages.add(new CachedNetworkImageProvider("${filteredPhotosList[i].imgURL}")..resolve(configuration));
-    }
-    return cachedImages;
-  }
-
-   */
 }
 

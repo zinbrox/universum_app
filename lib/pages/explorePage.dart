@@ -140,7 +140,7 @@ class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClient
                           alignment: Alignment.bottomCenter,
                           child: Container(
                           color: Colors.black12,
-                            child: Text(titles[index], style: TextStyle(fontSize: 30, color: Colors.white), textAlign: TextAlign.center,)),),
+                            child: Text(titles[index], style: TextStyle(fontSize: 28, color: Colors.white), textAlign: TextAlign.center,)),),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
                           /*
@@ -162,93 +162,6 @@ class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClient
           ),
         ],
       ),
-          /*
-      Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TextField(
-            //controller: _searchText,
-            decoration: InputDecoration(
-                filled: true,
-                //fillColor: Colors.grey,
-                //border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
-                /*
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: () {
-                    setState(() {
-                      //searchList.clear();
-                    });
-                    //getSearch(_searchText.text);
-                    FocusScope.of(context).unfocus();
-                  },
-                ),
-                */
-                hintText: "Search"
-            ),
-          ),
-          Text("Hello"),
-          ElevatedButton(
-            child: Text("APOD"),
-            onPressed: (){
-              Navigator.pushNamed(context, '/apod');
-            },
-          ),
-          ElevatedButton(
-            child: Text("Weather"),
-            onPressed: (){
-              Navigator.pushNamed(context, '/marsWeather');
-            },
-          ),
-          ElevatedButton(
-            child: Text("Search"),
-            onPressed: (){
-              Navigator.pushNamed(context, '/search');
-            },
-          ),
-          ElevatedButton(
-            child: Text("Rover Photos"),
-            onPressed: (){
-              Navigator.pushNamed(context, '/roverSelect');
-            },
-          ),
-          ElevatedButton(
-            child: Text("ISS Location"),
-            onPressed: (){
-              Navigator.pushNamed(context, '/issLoc');
-            },
-          ),
-          ElevatedButton(
-            child: Text("Settings"),
-            onPressed: (){
-              Navigator.pushNamed(context, '/settings');
-            },
-          ),
-          ElevatedButton(
-            child: Text("Upcoming Launches"),
-            onPressed: (){
-              Navigator.pushNamed(context, '/upcomingLaunches');
-            },
-          ),
-          /*
-          ElevatedButton(
-              onPressed: (){
-                print("Started");
-                AndroidAlarmManager.periodic(const Duration(seconds: 10), 0, showPrint);
-              },
-              child: Text("Alarm Manager")),
-          ElevatedButton(onPressed: (){
-            print("Cancelled");
-            AndroidAlarmManager.cancel(0);
-            localNotifyManager.cancelAllNotification();
-
-          }, child: Text("Cancel Notifications"))
-           */
-          Spacer(),
-        ],
-      )
-          */
       ),
     );
   }

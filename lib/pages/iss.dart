@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
@@ -12,11 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:universum_app/helpers/ad_helper.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:ui' as ui;
-
-import 'package:universum_app/pages/homePage.dart';
 import 'package:universum_app/styles/color_styles.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -287,7 +282,7 @@ class _ISSPageState extends State<ISSPage> {
       Column(
         children: [
           Container(
-            height: MediaQuery.of(context).size.height*0.65,
+            height: MediaQuery.of(context).size.height*0.60,
             child: Stack(
               children: [
                 GoogleMap(
@@ -301,7 +296,7 @@ class _ISSPageState extends State<ISSPage> {
                       ),
                 (_mapLoading)
                     ? Container(
-                  height: MediaQuery.of(context).size.height*0.65,
+                  height: MediaQuery.of(context).size.height*0.60,
                   width: MediaQuery.of(context).size.width,
                   color: Colors.grey[200],
                   child: Center(
@@ -338,8 +333,8 @@ class _ISSPageState extends State<ISSPage> {
                         Text("Latitude: " + latitude.toStringAsFixed(4)),
                         Text("Longitude: " + longitude.toStringAsFixed(4)),
                         Container(
-                          width: MediaQuery.of(context).size.width*0.45,
-                          height: MediaQuery.of(context).size.width*0.075,
+                          width: MediaQuery.of(context).size.width*0.5,
+                          //height: MediaQuery.of(context).size.width*0.075,
                           child: ElevatedButton(onPressed: () async {
                             getHumansInSpace();
                           }, child: Row(
@@ -347,13 +342,13 @@ class _ISSPageState extends State<ISSPage> {
                             children: [
                               Icon(Icons.supervisor_account),
                               //SizedBox(width: 10,),
-                              Text("Current ISS Crew"),
+                              Flexible(child: Text("Current ISS Crew", textAlign: TextAlign.center,)),
                             ],
                           )),
                         ),
                         Container(
-                          width: MediaQuery.of(context).size.width*0.45,
-                          height: MediaQuery.of(context).size.width*0.075,
+                          width: MediaQuery.of(context).size.width*0.5,
+                          //height: MediaQuery.of(context).size.width*0.075,
                           child: ElevatedButton(
                             onPressed: (){
                               getReports();
@@ -363,14 +358,14 @@ class _ISSPageState extends State<ISSPage> {
                               children: [
                                 Icon(Icons.library_books),
                                 //SizedBox(width: 10,),
-                                Text("ISS Daily Reports"),
+                                Flexible(child: Text("ISS Daily Reports", textAlign: TextAlign.center,)),
                               ],
                             ),
                           ),
                         ),
                         Container(
-                          width: MediaQuery.of(context).size.width*0.45,
-                          height: MediaQuery.of(context).size.width*0.075,
+                          width: MediaQuery.of(context).size.width*0.5,
+                          //height: MediaQuery.of(context).size.width*0.075,
                           child: ElevatedButton(
                             onPressed: () async {
                               await canLaunch("https://ustream.tv/channel/17074538") ? await launch("https://ustream.tv/channel/17074538") : throw 'Could not launch https://ustream.tv/channel/17074538';
@@ -381,7 +376,7 @@ class _ISSPageState extends State<ISSPage> {
                               children: [
                                 Icon(Icons.open_in_new),
                                 //SizedBox(width: 10,),
-                                Text("ISS Live Stream"),
+                                Flexible(child: Text("ISS Live Stream", textAlign: TextAlign.center,)),
                               ],
                             ),
                           ),

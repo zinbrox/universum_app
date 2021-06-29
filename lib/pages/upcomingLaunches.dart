@@ -1,26 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
-
-import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universum_app/helpers/ad_helper.dart';
 import 'package:universum_app/helpers/notificationsPlugin.dart';
-import 'package:universum_app/helpers/sharedPreferencesClass.dart';
 import 'package:universum_app/styles/color_styles.dart';
 
 
 class LaunchDetails {
-  String launchName, date, time;
+  String launchName, date, time, windowStartTime, windowStopTime;
   DateTime dateObject;
   String rocketName, rocketFamily;
   String missionName, missionDescription;
@@ -30,7 +24,7 @@ class LaunchDetails {
   int probability;
   bool notification;
 
-  LaunchDetails({this.launchName, this.date, this.time, this.dateObject, this.rocketName, this.rocketFamily,
+  LaunchDetails({this.launchName, this.date, this.time, this.windowStartTime, this.windowStopTime, this.dateObject, this.rocketName, this.rocketFamily,
     this.missionName, this.missionDescription, this.padName, this.padLocation, this.padURL, this.type,
     this.status, this.imageURL, this.probability, this.holdReason, this.failReason, this.notification});
 }
@@ -120,6 +114,8 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
           launchName: results['name'],
           date: dateFormatter.format(date),
           time: timeFormatter.format(date),
+          windowStartTime: timeFormatter.format(DateTime.parse(results['window_start']).toLocal()),
+          windowStopTime: timeFormatter.format(DateTime.parse(results['window_end']).toLocal()),
           dateObject: date,
           rocketName: rocketName,
           rocketFamily: rocketFamily,
@@ -189,13 +185,13 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
   @override
   void initState() {
     super.initState();
-    //initialiseBanner();
+    initialiseBanner();
     getLaunches();
   }
 
   @override
   void dispose() {
-    //_bannerAd.dispose();
+    _bannerAd.dispose();
     super.dispose();
   }
 
@@ -277,7 +273,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                               else
                                                 notificationIDTemp.add(true);
                                             }
-                                            print(notificationIDTemp);
+                                            //print(notificationIDTemp);
                                             for(int i=1;i<30;++i)
                                               if(notificationIDTemp[i-1]) {
                                                 newID = i;
@@ -293,6 +289,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                                 textColor: Colors.black,
                                                 fontSize: 16.0
                                             );
+                                            print(launches[index].dateObject);
                                             localNotifyManager.scheduleNotification(launches[index].launchName, launches[index].dateObject, newID);
                                             setState(() {
                                               launches[index].notification=true;
@@ -316,11 +313,14 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                   width: MediaQuery.of(context).size.width*0.5,
                                     child: launches[index].missionName.isEmpty ? Text(launches[index].launchName, style: TextStyle(fontSize: 25), maxLines: 3,)
                                         : Text(launches[index].missionName, style: TextStyle(fontSize: 25), maxLines: 3,)),
-                                Column(
-                                  children: [
-                                    Text("Date: " + launches[index].date, style: TextStyle(fontSize: 20), textAlign: TextAlign.right,),
-                                    Text("Time: " + launches[index].time, style: TextStyle(fontSize: 20), textAlign: TextAlign.right,),
-                                  ],
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      Text("Date: " + launches[index].date, style: TextStyle(fontSize: 20), textAlign: TextAlign.right,),
+                                      Text("Time: " + launches[index].time, style: TextStyle(fontSize: 20), textAlign: TextAlign.right,),
+                                      launches[index].windowStartTime!=launches[index].windowStopTime?Text("Window: " + launches[index].windowStartTime + "-" + launches[index].windowStopTime, style: TextStyle(fontSize: 10), textAlign: TextAlign.right,) : Container(),
+                                    ],
+                                  ),
                                 ),
 
                               ],
@@ -365,9 +365,9 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                               ),
                             ],),
 
-                            launches[index].probability!=null? Text("Probability: ${launches[index].probability}%") : Container(),
-                            launches[index].holdReason!=null? Text("Hold Reason: ${launches[index].holdReason}", textAlign: TextAlign.center,) : Container(),
-                            launches[index].failReason!=null? Text("Hold Reason: ${launches[index].failReason}", textAlign: TextAlign.center,) : Container(),
+                            launches[index].probability!=null && launches[index].probability!=-1? Text("Probability: ${launches[index].probability}%") : Container(),
+                            launches[index].holdReason!=null && launches[index].holdReason.length!=0? Text("Hold Reason: ${launches[index].holdReason}", textAlign: TextAlign.center,) : Container(),
+                            launches[index].failReason!=null && launches[index].failReason.length!=0? Text("Hold Reason: ${launches[index].failReason}", textAlign: TextAlign.center,) : Container(),
 
                             StreamBuilder(
                               stream: Stream.periodic(Duration(seconds: 1), (i) => 1),
@@ -412,15 +412,6 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
     );
   }
   _returnCountdown(int index){
-    /*
-    if(DateTime.now().isBefore(launches[index].dateObject)) {
-      Duration difference = launches[index].dateObject.difference(
-          DateTime.now());
-      //return Text("CountDown: " + difference.toString());
-      return difference;
-    }
-
-     */
     return launches[index].dateObject.difference(DateTime.now());
   }
 }

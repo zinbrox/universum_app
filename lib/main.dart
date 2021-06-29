@@ -1,10 +1,7 @@
 import 'package:android_alarm_manager/android_alarm_manager.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:universum_app/helpers/sharedPreferencesClass.dart';
 import 'package:universum_app/pages/explorePage.dart';
 import 'package:universum_app/pages/home.dart';
 import 'package:universum_app/pages/apod.dart';
@@ -35,14 +32,12 @@ class _MyAppState extends State<MyApp> {
 
   DarkThemeProvider themeChangeProvider =  new DarkThemeProvider();
   FontProvider fontProvider = new FontProvider();
-  LaunchNamesProvider launchName = new LaunchNamesProvider();
 
   List<String> mainImages = ["assets/LoginScreenBackground.jpg", "assets/OrbitFeedLogo.png"];
 
   void getCurrentAppTheme() async {
     themeChangeProvider.darkTheme = await themeChangeProvider.darkThemePreference.getTheme();
     fontProvider.fontName = await fontProvider.fontPreference.getTheme();
-    launchName.launchName = await launchName.launchNamePreference.getNames();
     await Future.wait(
       mainImages.map((item) => cacheImage(context, item)).toList());
       await Future.wait(
@@ -64,10 +59,9 @@ class _MyAppState extends State<MyApp> {
       providers: [
         ChangeNotifierProvider<DarkThemeProvider>(create: (_) => themeChangeProvider),
         ChangeNotifierProvider<FontProvider>(create: (_) => fontProvider),
-        ChangeNotifierProvider<LaunchNamesProvider>(create: (_) => launchName)
       ],
-      child: Consumer3<FontProvider, DarkThemeProvider, LaunchNamesProvider>(
-        builder: (BuildContext, darkTheme, fontName, launchName, child){
+      child: Consumer2<FontProvider, DarkThemeProvider>(
+        builder: (BuildContext, darkTheme, fontName, child){
           return MaterialApp(
             title: "OrbitFeed",
             debugShowCheckedModeBanner: false,
@@ -88,31 +82,6 @@ class _MyAppState extends State<MyApp> {
           );
         },
       ),
-      /*
-      create: (_) => themeChangeProvider,
-      child: Consumer<DarkThemeProvider>(
-        builder: (BuildContext context, value, Widget child) {
-          return MaterialApp(
-            title: "OrbitFeed",
-            debugShowCheckedModeBanner: false,
-            theme: Styles.themeData(themeChangeProvider.darkTheme, fontProvider.fontName, context),
-            initialRoute: '/loginPage',
-            routes: {
-              '/loginPage':(context) => LoginPage(),
-              '/home':(context) => Home(),
-              '/apod':(context) => APOD(),
-              '/marsWeather':(context) => MarsWeather(),
-              '/search':(context) => NASASearch(),
-              '/settings':(context) => SettingsPage(),
-              '/roverSelect':(context) => roverSelect(),
-              '/roverPhotos':(context) => roverPhotos(),
-              '/issLoc':(context) => ISSPage(),
-              '/upcomingLaunches':(context) => upcomingLaunches(),
-            },
-          );
-        },
-      ),
-      */
     );
   }
 }

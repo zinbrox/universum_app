@@ -72,19 +72,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<
         articles.add(article);
       }
     }
-    /*
-    await Future.wait(
-      articles.map((item) => cacheImage(context, item.imageURL)).toList(),
-    );
-
-     */
     setState(() {
       _articlesLoading=false;
     });
   }
 
-  Future cacheImage(BuildContext context, String imageURL) => precacheImage(
-      CachedNetworkImageProvider(imageURL), context);
 
   Future<void> getBlogs() async {
     print("In getBlogs");
@@ -106,9 +98,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<
         blogs.add(blog);
       }
     }
-    await Future.wait(
-      blogs.map((item) => cacheImage(context, item.imageURL)).toList(),
-    );
     setState(() {
       _blogsLoading=false;
     });
@@ -279,7 +268,7 @@ class WebViewer extends StatelessWidget {
               ],
             onSelected: (value){
                 if(value==1)
-                  Share.share('Check this out: $url\nDownload OrbitFeed: ');
+                  Share.share('Check this out: $url\nDownload OrbitFeed');
             },
           )
         ],
