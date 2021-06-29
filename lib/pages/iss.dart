@@ -276,7 +276,7 @@ class _ISSPageState extends State<ISSPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("ISS"),
+        title: Text("ISS Tracker"),
       ),
       body: _loading ? Center(child: CircularProgressIndicator()) :
       Column(
