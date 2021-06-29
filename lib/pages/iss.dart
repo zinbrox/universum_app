@@ -18,6 +18,7 @@ import 'dart:ui' as ui;
 
 import 'package:universum_app/pages/homePage.dart';
 import 'package:universum_app/styles/color_styles.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MarkerPoints {
   double latitude, longitude;
@@ -37,12 +38,6 @@ class ISSPage extends StatefulWidget {
 }
 
 class _ISSPageState extends State<ISSPage> {
-
-  // TODO: Add _bannerAd
-  BannerAd _bannerAd;
-
-  // TODO: Add _isBannerAdReady
-  bool _isBannerAdReady = false;
 
   String message;
   int timestamp;
@@ -93,56 +88,9 @@ class _ISSPageState extends State<ISSPage> {
       });
   }
 
-  /*
-  // OpenNotify API
-  getLocation() async {
-    print("In getLocation()");
-
-    //while (true) {
-      //await Future.delayed(Duration(seconds: 5));
-      String url = "http://api.open-notify.org/iss-now.json?";
-      var response = await http.get(Uri.parse(url));
-      var jsonData = jsonDecode(response.body);
-      //print(jsonData);
-      message = jsonData['message'];
-      timestamp = jsonData['timestamp'];
-      ISSLocLat = jsonData['iss_position']['latitude'];
-      ISSLocLong = jsonData['iss_position']['longitude'];
-      print(ISSLocLong);
-      print(ISSLocLat);
-      _center = LatLng(double.parse(ISSLocLat), double.parse(ISSLocLong));
-      //_getLocationAddress(ISSLocLat, ISSLocLong);
-      setState(() {
-        _mapLoading = false;
-      });
-    //}
-  }
-
-   */
 
   double latitude, longitude, altitude, velocity;
   String visibility;
-
-  /*
-  // WheretheISSAt API
-  getLoocationWIS() async {
-    print("In getLocationWIS");
-    String url = "https://api.wheretheiss.at/v1/satellites/25544";
-    var response = await http.get(Uri.parse(url));
-    var jsonData = jsonDecode(response.body);
-    latitude = jsonData['latitude'];
-    longitude = jsonData['longitude'];
-    altitude = jsonData['altitude'];
-    velocity = jsonData['velocity'];
-    visibility = jsonData['visibility'];
-    _center = LatLng(latitude, longitude);
-    _getLocationAddress(latitude, longitude);
-    setState(() {
-      _mapLoading=false;
-    });
-
-  }
-   */
 
 
 
@@ -162,37 +110,8 @@ class _ISSPageState extends State<ISSPage> {
       addressName="Couldn't find Location";
       addressLine="Couldn't find Location";
     }
-    //var addresses = await Geocoder.google('AIzaSyC9bO1piARTK7Q-GdSXCODscUgQkR8-WsA').findAddressesFromCoordinates(coordinates);
-   //print(addressName);
-    //print(addressLine);
-    //print("${first.featureName} : ${first.addressLine}");
   }
 
-  /*
-  // For Continuously getting Locations every 5sec
-  Stream<List<String>> getLocation() async* {
-    //print("In getLocation()");
-    while(true) {
-      await Future.delayed(Duration(seconds: 5));
-      String url = "http://api.open-notify.org/iss-now.json?";
-      var response = await http.get(Uri.parse(url));
-      var jsonData = jsonDecode(response.body);
-      //print(jsonData);
-      message = jsonData['message'];
-      timestamp = jsonData['timestamp'];
-      ISSLocLat = jsonData['iss_position']['latitude'];
-      ISSLocLong = jsonData['iss_position']['longitude'];
-      print(ISSLocLong);
-      print(ISSLocLat);
-
-      List<String> l = [];
-      l.add(ISSLocLat);
-      l.add(ISSLocLong);
-      yield l;
-    }
-  }
-
-   */
 
   bool firstIter = true;
   Stream<List<Marker>> getLocationWIS() async* {
@@ -246,6 +165,7 @@ class _ISSPageState extends State<ISSPage> {
         //latlng is List<LatLng>
         points: latlng,
         width: 3,
+        color: Colors.grey[700],
       ));
 
 
@@ -335,43 +255,14 @@ class _ISSPageState extends State<ISSPage> {
       );
   }
 
-  void initialiseBanner() {
-    _bannerAd = BannerAd(
-      adUnitId: AdHelper.bannerAdUnitId,
-      request: AdRequest(),
-      size: AdSize.banner,
-      listener: BannerAdListener(
-        onAdLoaded: (_) {
-          setState(() {
-            _isBannerAdReady = true;
-          });
-        },
-        onAdFailedToLoad: (ad, err) {
-          print('Failed to load a banner ad: ${err.message}');
-          _isBannerAdReady = false;
-          ad.dispose();
-        },
-        // Called when an ad opens an overlay that covers the screen.
-        onAdOpened: (Ad ad) => print('Ad opened.'),
-        // Called when an ad removes an overlay that covers the screen.
-        onAdClosed: (Ad ad) => print('Ad closed.'),
-        // Called when an impression occurs on the ad.
-        onAdImpression: (Ad ad) => print('Ad impression.'),
-      ),
-    );
-
-    _bannerAd.load();
-  }
 
 
   @override
   void initState() {
     super.initState();
-    //getLoocationWIS();
     streamSubscription = getLocationWIS().listen((event) {
         print(event[0]);
     });
-    initialiseBanner();
 
   }
 
@@ -426,95 +317,81 @@ class _ISSPageState extends State<ISSPage> {
           SizedBox(height: 10,),
           Expanded(
             child: Center(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Container(
-                      child: Row(
+              child: Container(
+                child: Row(
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width*0.5,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Container(
-                            width: MediaQuery.of(context).size.width*0.5,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text("Current Location: " + addressLine, textAlign: TextAlign.center, style: TextStyle(fontSize: 18), maxLines: 4,),
-                                Text("Altitude: " + altitude.toStringAsFixed(2) + " km"),
-                                Text("Velocity: " + velocity.toStringAsFixed(2) + " km/h"),
-                                Text("Visibility: $visibility"),
-                              ],
-                            ),
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Text("Latitude: " + latitude.toStringAsFixed(4)),
-                              Text("Longitude: " + longitude.toStringAsFixed(4)),
-                              Container(
-                                width: MediaQuery.of(context).size.width*0.45,
-                                height: MediaQuery.of(context).size.width*0.075,
-                                child: ElevatedButton(onPressed: () async {
-                                  getHumansInSpace();
-                                }, child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Icon(Icons.supervisor_account),
-                                    //SizedBox(width: 10,),
-                                    Text("Current ISS Crew"),
-                                  ],
-                                )),
-                              ),
-                              Container(
-                                width: MediaQuery.of(context).size.width*0.45,
-                                height: MediaQuery.of(context).size.width*0.075,
-                                child: ElevatedButton(
-                                  onPressed: (){
-                                    getReports();
-                                  },
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Icon(Icons.library_books),
-                                      //SizedBox(width: 10,),
-                                      Text("ISS Daily Reports"),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                width: MediaQuery.of(context).size.width*0.45,
-                                height: MediaQuery.of(context).size.width*0.075,
-                                child: ElevatedButton(
-                                  onPressed: (){
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: "https://ustream.tv/channel/17074538", title: "ISS Live Stream",)));
-                                  },
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Icon(Icons.open_in_browser),
-                                      //SizedBox(width: 10,),
-                                      Text("ISS Live Stream"),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-
-
+                          Text("Current Location: " + addressLine, textAlign: TextAlign.center, style: TextStyle(fontSize: 18), maxLines: 4,),
+                          Text("Altitude: " + altitude.toStringAsFixed(2) + " km"),
+                          Text("Velocity: " + velocity.toStringAsFixed(2) + " km/h"),
+                          Text("Visibility: $visibility"),
                         ],
                       ),
                     ),
-                  ),
-                  _isBannerAdReady ?
-                  Container(
-                    alignment: Alignment.bottomCenter,
-                    //height: 100,
-                    //width: MediaQuery.of(context).size.width*0.4,
-                    width: _bannerAd.size.width.toDouble(),
-                    height: _bannerAd.size.height.toDouble(),
-                    child: AdWidget(ad: _bannerAd),
-                  ) : Container(),
-                ],
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text("Latitude: " + latitude.toStringAsFixed(4)),
+                        Text("Longitude: " + longitude.toStringAsFixed(4)),
+                        Container(
+                          width: MediaQuery.of(context).size.width*0.45,
+                          height: MediaQuery.of(context).size.width*0.075,
+                          child: ElevatedButton(onPressed: () async {
+                            getHumansInSpace();
+                          }, child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Icon(Icons.supervisor_account),
+                              //SizedBox(width: 10,),
+                              Text("Current ISS Crew"),
+                            ],
+                          )),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width*0.45,
+                          height: MediaQuery.of(context).size.width*0.075,
+                          child: ElevatedButton(
+                            onPressed: (){
+                              getReports();
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Icon(Icons.library_books),
+                                //SizedBox(width: 10,),
+                                Text("ISS Daily Reports"),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width*0.45,
+                          height: MediaQuery.of(context).size.width*0.075,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              await canLaunch("https://ustream.tv/channel/17074538") ? await launch("https://ustream.tv/channel/17074538") : throw 'Could not launch https://ustream.tv/channel/17074538';
+                              //Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: "https://ustream.tv/channel/17074538", title: "ISS Live Stream",)));
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Icon(Icons.open_in_new),
+                                //SizedBox(width: 10,),
+                                Text("ISS Live Stream"),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+
+                  ],
+                ),
               ),
             ),
           ),
@@ -565,13 +442,17 @@ class ISSReports extends StatelessWidget {
                       RichText(
                         textAlign: TextAlign.center,
                         text: TextSpan(
-                        children: <TextSpan>[
+                        children: [
                           TextSpan(text: reports[index].summary, style: TextStyle(fontSize: 18, color: isDark? Colors.grey[350] : Colors.black),),
                           TextSpan(text: "Read Full Report",
                             style: TextStyle(color: Colors.blue),
-                            recognizer: TapGestureRecognizer()..onTap = (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: reports[index].url, title: "Report Viewer",)));
+                            recognizer: TapGestureRecognizer()..onTap = () async {
+                              await canLaunch(reports[index].url) ? await launch(reports[index].url) : throw 'Could not launch ${reports[index].url}';
+                              //Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: reports[index].url, title: "Report Viewer",)));
                             }
+                          ),
+                          WidgetSpan(
+                            child: Icon(Icons.open_in_new, color: Colors.blue,),
                           ),
                         ],
                         ),

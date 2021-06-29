@@ -44,7 +44,7 @@ class roverSelect extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Expanded(child: Text(roverNames[index], style: TextStyle(color: Colors.white, fontSize: 25),)),
-                      Text("Active Dates: ${activeDays[index]}", style: TextStyle(color: Colors.white, fontSize: 15), textAlign: TextAlign.center,),
+                      Text("Images Available From: ${activeDays[index]}", style: TextStyle(color: Colors.white, fontSize: 15), textAlign: TextAlign.center,),
                     ],
                   )),
                   decoration: BoxDecoration(
@@ -328,6 +328,7 @@ class _roverPhotosState extends State<roverPhotos> {
                   firstDate: DateTime(2000),
                   lastDate: DateTime(2025),
                 );
+                picsLoaded=0;
                 if(picked!=null) {
                   if (picked != null && picked != selectedDate &&
                       picked.isBefore(
@@ -376,7 +377,7 @@ class _roverPhotosState extends State<roverPhotos> {
           Column(
             children: [
               Text(widget.roverName + " Rover"),
-              Text("Active Days: " + widget.activeDays),
+              Text("Images Available Period:\n" + widget.activeDays),
               Text("Sol: " + finalList[0][0].sol.toString(), style: TextStyle(fontSize: 20),),
             ],
           ),

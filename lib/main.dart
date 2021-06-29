@@ -22,7 +22,6 @@ main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AndroidAlarmManager.initialize();
   MobileAds.instance.initialize();
-
   runApp(MyApp());
 }
 

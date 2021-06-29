@@ -40,6 +40,8 @@ class _NASASearchState extends State<NASASearch> {
   bool _loading=true;
   int _index=0;
   bool expanded=false;
+  int statusCode;
+  String statusMessage;
 
   static final customCacheManager = CacheManager(
     Config(
@@ -55,16 +57,23 @@ class _NASASearchState extends State<NASASearch> {
     var response = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(response.body);
 
+    statusCode = response.statusCode;
+    statusMessage = response.reasonPhrase;
 
+    print(statusCode);
+    print(jsonData['collection']['metadata']['total_hits']);
+    if(jsonData['collection']['metadata']['total_hits'] == 0)
+      print("Yes");
+    else print("No");
     for(var elements in jsonData['collection']['items']) {
         item = Items(
-          imageURL: elements['links'][0]['href'],
-          center: elements['data'][0]['center'],
-          media_type: elements['data'][0]['media_type'],
-          description: elements['data'][0]['description'],
-          title: elements['data'][0]['title'],
-          date: DateTime.parse(elements['data'][0]['date_created']),
-          keywords: elements['data'][0]['keywords'],
+          imageURL: elements['links'][0]['href']?? null,
+          center: elements['data'][0]['center']?? null,
+          media_type: elements['data'][0]['media_type']?? null,
+          description: elements['data'][0]['description']?? null,
+          title: elements['data'][0]['title']?? null,
+          date: DateTime.parse(elements['data'][0]['date_created'])?? null,
+          keywords: elements['data'][0]['keywords']?? null,
         );
         searchList.add(item);
     }
@@ -135,7 +144,9 @@ class _NASASearchState extends State<NASASearch> {
         title: Text("Results for \"${widget.keyword}\""),
         centerTitle: true,
       ),
-      body: _loading? Center(child: CircularProgressIndicator(),) : Center(
+      body: _loading? Center(child: CircularProgressIndicator(),) :
+          searchList.length==0? Center(child: Text("Couldn't find anything for that"),) :
+      Center(
         child: Column(
           children: [
             Expanded(

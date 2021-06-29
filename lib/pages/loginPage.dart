@@ -23,22 +23,23 @@ class _LoginPageState extends State<LoginPage> {
     await Firebase.initializeApp();
 
       User user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) {
-              return Home();
-            },
-          ),
-        );
-      }
-      else
-        Future.delayed(const Duration(seconds: 1), (){
-          setState(() {
-            _buttonVisible=true;
+      Future.delayed(const Duration(seconds: 1), (){
+        if (user != null) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) {
+                return Home();
+              },
+            ),
+          );
+        }
+        else
+          Future.delayed(const Duration(seconds: 2), (){
+            setState(() {
+              _buttonVisible=true;
+            });
           });
-        });
-
+      });
 
     /*
     setState(() {

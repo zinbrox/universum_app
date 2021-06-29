@@ -221,7 +221,7 @@ class _APODState extends State<APOD> {
                                   width: MediaQuery.of(context).size.width,
                                   child: ClipRRect(
                                     child: ImageFiltered(
-                                      imageFilter: downloadProgress.progress!=null? downloadProgress.progress>0.75? ImageFilter.blur(sigmaX: 3, sigmaY: 3) : downloadProgress.progress>0.4? ImageFilter.blur(sigmaX: 5, sigmaY: 5) : ImageFilter.blur(sigmaX: 7, sigmaY: 7) : ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                                      imageFilter: downloadProgress.progress!=null? downloadProgress.progress>0.75? ImageFilter.blur(sigmaX: 3, sigmaY: 3) : downloadProgress.progress>0.4? ImageFilter.blur(sigmaX: 5, sigmaY: 5) : ImageFilter.blur(sigmaX: 8, sigmaY: 8) : ImageFilter.blur(sigmaX: 3, sigmaY: 3),
                                         child: Image(image: CachedNetworkImageProvider(smallImageURL),)),
                                   ),
                                 ),
@@ -230,62 +230,12 @@ class _APODState extends State<APOD> {
                             ),
                           ),
 
-                          /*
-                          Container(
-                            height: MediaQuery.of(context).size.height*0.5,
-                            width: MediaQuery.of(context).size.width,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: NetworkImage(smallImageURL),
-                                fit: BoxFit.fitHeight,
-                              ),
-                            ),
-                            child: ClipRRect( // make sure we apply clip it properly
-                              child: BackdropFilter(
-                                filter: new ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  decoration: new BoxDecoration(color: Colors.white.withOpacity(0.0)),
-                                  child: Text(
-                                    "CHOCOLATE",
-                                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          */
-                          /*
-                          Container(
-                            height: MediaQuery.of(context).size.height*0.5,
-                            width: MediaQuery.of(context).size.width,
-                            child: ClipRRect(
-                              child: Image.network(smallImageURL),
-                            ),
-                          ),
-
-                           */
-
                           Align(
                             child: Icon(Icons.touch_app, size: 40,),
                             alignment: Alignment.bottomRight,
                           ),
                         ],
                       ),
-                      /*
-                      FadeInImage.assetNetwork(
-                          placeholder: 'assets/LoadingGif.gif',
-                          imageErrorBuilder: (BuildContext context,
-                              Object exception,
-                              StackTrace stackTrace) {
-                            return Column(
-                              children: [
-                                Text("Couldn't Load Image"),
-                              ],
-                            );
-                          },
-                          image: imageURL),
-                      */
 
 
                     ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:universum_app/pages/search.dart';
 
 List<String> titles = ["Picture of the Day", "ISS Tracker", "Mars Rover Photos", "Upcoming Launches"];
@@ -80,7 +81,18 @@ class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClient
               controller: _searchText,
               onSubmitted: (String text){
                 FocusScope.of(context).unfocus();
+                if(text!="" || text!=null)
                 Navigator.push(context, MaterialPageRoute(builder: (context) => NASASearch(keyword: text)));
+                else
+                  Fluttertoast.showToast(
+                      msg: "Invalid Search",
+                      toastLength: Toast.LENGTH_LONG,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.white,
+                      textColor: Colors.black,
+                      fontSize: 16.0
+                  );
               },
               decoration: InputDecoration(
                   //contentPadding: EdgeInsets.all(20.0),
@@ -92,7 +104,18 @@ class _ExplorePageState extends State<ExplorePage> with AutomaticKeepAliveClient
                     icon: Icon(Icons.navigate_next),
                     onPressed: () {
                       FocusScope.of(context).unfocus();
+                      if(_searchText.text!="" || _searchText.text!=null)
                       Navigator.push(context, MaterialPageRoute(builder: (context) => NASASearch(keyword: _searchText.text)));
+                      else
+                        Fluttertoast.showToast(
+                            msg: "Invalid Search",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.white,
+                            textColor: Colors.black,
+                            fontSize: 16.0
+                        );
                     },
                   ),
                   hintText: "Search NASA's Library"

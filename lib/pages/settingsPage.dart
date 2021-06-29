@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -181,6 +182,15 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                     var appDir = (await getTemporaryDirectory()).path;
                     print(appDir);
                     new Directory(appDir).delete(recursive: true);
+                    Fluttertoast.showToast(
+                        msg: "Cache Cleared",
+                        toastLength: Toast.LENGTH_LONG,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.white,
+                        textColor: Colors.black,
+                        fontSize: 16.0
+                    );
                   },
                 ),
                 ListTile(
