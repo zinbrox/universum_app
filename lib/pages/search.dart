@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 import 'package:universum_app/helpers/ad_helper.dart';
+import 'package:universum_app/pages/apod.dart';
 import 'package:universum_app/styles/color_styles.dart';
 
 class Items {
@@ -61,19 +62,26 @@ class _NASASearchState extends State<NASASearch> {
     statusMessage = response.reasonPhrase;
 
     print(statusCode);
-    print(jsonData['collection']['metadata']['total_hits']);
-    if(jsonData['collection']['metadata']['total_hits'] == 0)
-      print("Yes");
-    else print("No");
+    String imageURL, center, media_type, description, title, date;
+    var keywords;
     for(var elements in jsonData['collection']['items']) {
+      imageURL = elements['links']==null? "" : elements['links'][0]['href']!=null? elements['links'][0]['href'] : "";
+      center = elements['data']==null? "" : elements['data'][0]['center']!=null? elements['data'][0]['center'] : "";
+      media_type = elements['data']==null? "" : elements['data'][0]['media_type']!=null? elements['data'][0]['media_type'] : "";
+      description = elements['data']==null? "" : elements['data'][0]['description']!=null? elements['data'][0]['description'] : "";
+      title = elements['data']==null? "" : elements['data'][0]['title']!=null? elements['data'][0]['title'] : "";
+      date = elements['data']==null? "" : elements['data'][0]['date_created']!=null? elements['data'][0]['date_created'] : "";
+      keywords = elements['data']==null? "" : elements['data'][0]['keywords']!=null? elements['data'][0]['keywords'] : "";
+      if(media_type == "video")
+        continue;
         item = Items(
-          imageURL: elements['links'][0]['href']?? null,
-          center: elements['data'][0]['center']?? null,
-          media_type: elements['data'][0]['media_type']?? null,
-          description: elements['data'][0]['description']?? null,
-          title: elements['data'][0]['title']?? null,
-          date: DateTime.parse(elements['data'][0]['date_created'])?? null,
-          keywords: elements['data'][0]['keywords']?? null,
+          imageURL: imageURL,
+          center: center,
+          media_type: media_type,
+          description: description,
+          title: title,
+          date: DateTime.parse(date),
+          keywords: keywords,
         );
         searchList.add(item);
     }
@@ -171,7 +179,7 @@ class _NASASearchState extends State<NASASearch> {
                                     width: MediaQuery.of(context).size.width,
                                     child: Center(child: CircularProgressIndicator(value: downloadProgress.progress))),
                             ),
-                            Text(searchList[index].title, style: TextStyle(fontSize: 20),),
+                            Text(searchList[index].title, style: TextStyle(fontSize: 20), textAlign: TextAlign.center,),
                             SizedBox(height: 10,),
                             Text(searchList[index].description, maxLines: 4, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, color: isDark? Colors.white70 : Colors.black), textAlign: TextAlign.center,),
                             SizedBox(height: 5,),
@@ -229,10 +237,10 @@ class ArticleView extends StatelessWidget {
                   height: MediaQuery.of(context).size.height*0.5,
                   child: InkWell(
                     onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: imageURL, title: item.title,)));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: imageURL, title: item.title + " Article", index: -1)));
                     },
                     child: Hero(
-                      tag: item.title,
+                      tag: "tag-1",
                         child: Image(image: NetworkImage(imageURL),),
                   ),
                   ),
@@ -259,28 +267,5 @@ class ArticleView extends StatelessWidget {
   }
 }
 
-class PictureView extends StatelessWidget {
-  String title, imageURL;
-  PictureView({Key key, @required this.imageURL, @required this.title}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: Center(
-        child: Container(
-            child: Hero(
-              tag: "APODPhoto",
-              child: PhotoView(
-                imageProvider: NetworkImage(imageURL),
-              ),
-            )
-        ),
-      ),
-    );
-  }
-}
 
 

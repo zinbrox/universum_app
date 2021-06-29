@@ -421,7 +421,7 @@ class PictureView extends StatelessWidget {
                   saveImage(imageURL, title);
                   if(await saveImage(imageURL, title)) {
                     if(await filePathFinal.exists())
-                      Share.shareFiles([filePathFinal.path], text: !title.contains("ID")? "Check out today's Picture of the Day:\n$title\nDownload OrbitFeed" : "Check out this picture from the Mars rover:\n$title\nDownload OrbitFeed");
+                      Share.shareFiles([filePathFinal.path], text: title.contains("ID")? "Check out this picture from the Mars rover:\n$title\nDownload OrbitFeed" : !title.contains("Article")? "Check out today's Picture of the Day:\n$title\nDownload OrbitFeed" : "Check out this Image:\n$title\nDownload OrbitFeed");
                   }
                 }
             },

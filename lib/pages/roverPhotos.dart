@@ -397,7 +397,7 @@ class _roverPhotosState extends State<roverPhotos> {
                             scrollDirection: Axis.horizontal,
                             itemBuilder: (context, i){
                               return InkWell(
-                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: finalList[index][i].imgURL, title: "${roverCameraNames[index]} ID: ${finalList[index][i].photoID}", index: -1,))),
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => PictureView(imageURL: finalList[index][i].imgURL, title: "${roverCameraNames[index]} ID: ${finalList[index][i].photoID}", index: int.parse("${index+1}$i"),))),
                                 child: Card(
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(10),
