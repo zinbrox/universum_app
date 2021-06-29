@@ -25,11 +25,14 @@ class LaunchDetails {
   String rocketName, rocketFamily;
   String missionName, missionDescription;
   String padName, padLocation, padURL;
-  String type, status;
+  String type, status, holdReason, failReason;
   String imageURL;
+  int probability;
   bool notification;
 
-  LaunchDetails({this.launchName, this.date, this.time, this.dateObject, this.rocketName, this.rocketFamily, this.missionName, this.missionDescription, this.padName, this.padLocation, this.padURL, this.type, this.status, this.imageURL, this.notification});
+  LaunchDetails({this.launchName, this.date, this.time, this.dateObject, this.rocketName, this.rocketFamily,
+    this.missionName, this.missionDescription, this.padName, this.padLocation, this.padURL, this.type,
+    this.status, this.imageURL, this.probability, this.holdReason, this.failReason, this.notification});
 }
 
 class upcomingLaunches extends StatefulWidget {
@@ -61,7 +64,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
     var jsonData = jsonDecode(response.body);
 
       final DateFormat dateFormatter = DateFormat('dd-MM-yyyy');
-    final DateFormat timeFormatter = DateFormat('HH:MM:SS');
+    final DateFormat timeFormatter = DateFormat('HH:mm:ss');
     print(DateTime.now());
 
     statusCode = response.statusCode;
@@ -71,6 +74,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
 
       String rocketName, rocketFamily, missionName, missionDescription, padName,
           padLocation, padURL, type, status, imageURL;
+      int probability;
       for (var results in jsonData['results']) {
         date = DateTime.parse(results['net']).toLocal();
         rocketName =
@@ -107,6 +111,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
             ? results['status']['name']
             : "";
         imageURL = results['image'] == null ? null : results['image'];
+        probability = results['probability'];
         var pending = await localNotifyManager.returnPendingNotifications();
         List pendingNotifications = [];
         for(var i in pending)
@@ -126,6 +131,9 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
           type: type,
           status: status,
           imageURL: imageURL,
+          probability: probability,
+          holdReason: results['holdreason'],
+          failReason: results['failreason'],
           notification: pendingNotifications.contains(results['name'])? true : false,
         );
 
@@ -181,13 +189,13 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
   @override
   void initState() {
     super.initState();
-    initialiseBanner();
+    //initialiseBanner();
     getLaunches();
   }
 
   @override
   void dispose() {
-    _bannerAd.dispose();
+    //_bannerAd.dispose();
     super.dispose();
   }
 
@@ -356,6 +364,10 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                 ),
                               ),
                             ],),
+
+                            launches[index].probability!=null? Text("Probability: ${launches[index].probability}%") : Container(),
+                            launches[index].holdReason!=null? Text("Hold Reason: ${launches[index].holdReason}", textAlign: TextAlign.center,) : Container(),
+                            launches[index].failReason!=null? Text("Hold Reason: ${launches[index].failReason}", textAlign: TextAlign.center,) : Container(),
 
                             StreamBuilder(
                               stream: Stream.periodic(Duration(seconds: 1), (i) => 1),
