@@ -213,7 +213,7 @@ class LocalNotifyManager {
     }
   }
 
-  String mediaType, imageURL, contentTitle, contentDescription, contentCopyRight, contentDate;
+  String mediaType, imageURL, contentTitle, contentDescription;
   var picturePath;
 
   Future<void> getAPOD() async {

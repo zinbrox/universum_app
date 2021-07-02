@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:android_alarm_manager/android_alarm_manager.dart';
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
@@ -89,9 +89,10 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                       if(notificationSwitch) {
                         print("Notifications Started");
                         AndroidAlarmManager.periodic(
-                            const Duration(hours: 24), 0,
+                            const Duration(days: 1), 0,
                             callAPODNotification,
                           exact: true,
+                          wakeup: true,
                           startAt: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 12, 0),
                           rescheduleOnReboot: true,
                         );
@@ -204,6 +205,17 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                         ),
                       );
                     });
+                  },
+                ),
+                ListTile(
+                  title: Text("Pending Notifications"),
+                  onTap: () async {
+                    var pending = await localNotifyManager.returnPendingNotifications();
+                    List pendingNotifications = [];
+                    for(var i in pending) {
+                      pendingNotifications.add(i);
+                    }
+                    print(pendingNotifications);
                   },
                 ),
               ],

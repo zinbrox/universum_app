@@ -39,7 +39,7 @@ dependencies:
   youtube_player_flutter: ^8.0.0
   intl: ^0.17.0
   fluttertoast: ^8.0.7
-  android_alarm_manager: ^2.0.1
+  android_alarm_manager_plus: ^1.0.2
   path_provider: ^2.0.2
   google_mobile_ads: ^0.13.0
   webview_flutter: ^2.0.8

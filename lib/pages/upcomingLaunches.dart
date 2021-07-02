@@ -69,6 +69,11 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
       String rocketName, rocketFamily, missionName, missionDescription, padName,
           padLocation, padURL, type, status, imageURL;
       int probability;
+      var pending = await localNotifyManager.returnPendingNotifications();
+      List pendingNotifications = [];
+      for(var i in pending)
+        pendingNotifications.add(i.body);
+      print(pendingNotifications);
       for (var results in jsonData['results']) {
         date = DateTime.parse(results['net']).toLocal();
         rocketName =
@@ -106,10 +111,13 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
             : "";
         imageURL = results['image'] == null ? null : results['image'];
         probability = results['probability'];
-        var pending = await localNotifyManager.returnPendingNotifications();
-        List pendingNotifications = [];
-        for(var i in pending)
-          pendingNotifications.add(i);
+
+        bool notification = false;
+        for(var i in pendingNotifications)
+          if(i.contains(results['name']) || i.contains(missionName))
+            notification=true;
+
+
         launch = LaunchDetails(
           launchName: results['name'],
           date: dateFormatter.format(date),
@@ -130,7 +138,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
           probability: probability,
           holdReason: results['holdreason'],
           failReason: results['failreason'],
-          notification: pendingNotifications.contains(results['name'])? true : false,
+          notification: notification,
         );
 
         launches.add(launch);
@@ -138,9 +146,13 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
 
     }
 
+    /*
     await Future.wait(
       launches.map((launch) => cacheImage(context, launch.imageURL)).toList(),
     );
+
+     */
+
     
     setState(() {
       _loading=false;
@@ -149,8 +161,9 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
 
   }
 
-  Future cacheImage(BuildContext context, String imageURL) => precacheImage(
-      CachedNetworkImageProvider(imageURL), context);
+  Future cacheImage(BuildContext context, String imageURL) =>
+    precacheImage(
+        CachedNetworkImageProvider(imageURL), context);
 
 
   void initialiseBanner() {
@@ -224,8 +237,20 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                           children: [
                             Stack(
                               children: [
-                                Image(image: CachedNetworkImageProvider(launches[index].imageURL),),
+                                //launches[index].imageURL!=null? Image(image: CachedNetworkImageProvider(launches[index].imageURL),) : Center(child: Icon(Icons.error)),
                                 //Image(image: NetworkImage(launches[index].imageURL)),
+                                CachedNetworkImage(
+                                  //filterQuality: FilterQuality.low,
+                                  //cacheManager: customCacheManager,
+                                  key: UniqueKey(),
+                                  imageUrl: launches[index].imageURL,
+                                  errorWidget: (context, url, error) => Container(
+                                    child: Icon(Icons.error, color: Colors.red,),
+                                  ),
+                                  progressIndicatorBuilder: (context, url, downloadProgress) => Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      child: Center(child: CircularProgressIndicator(value: downloadProgress.progress))),
+                                ),
                                 Align(
                                   alignment: Alignment.topRight,
                                   child: Container(
@@ -397,6 +422,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                     );
                     }),
               ),
+              /*
               _isBannerAdReady ?
               Container(
                 alignment: Alignment.bottomCenter,
@@ -406,6 +432,8 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                 height: _bannerAd.size.height.toDouble(),
                 child: AdWidget(ad: _bannerAd),
               ) : Container(),
+
+               */
             ],
           ),
 

@@ -1,3 +1,4 @@
+/*
 package com.zinbrox.universum_app
 
 import androidx.annotation.NonNull;
@@ -10,4 +11,12 @@ class MainActivity: FlutterActivity() {
         GeneratedPluginRegistrant.registerWith(flutterEngine);
 
     }
+}
+
+ */
+package com.zinbrox.universum_app
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity() {
 }
