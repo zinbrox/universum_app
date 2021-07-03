@@ -186,7 +186,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<
                           ],
                           onSelected: (value){
                             if(value==1)
-                              Share.share('Check out this article: ${articles[index].title}.\nLink: ${articles[index].newsURL}\nDownload OrbitFeed: ');
+                              Share.share('Check out this article: ${articles[index].title}.\nLink: ${articles[index].newsURL}\n\nDownload OrbitFeed, your one stop app for all things spaceflight related: https://tinyurl.com/OrbitFeed');
                           },
                         ),
                       ),
@@ -238,7 +238,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin<
                         ],
                         onSelected: (value){
                           if(value==1)
-                            Share.share('Check out this blog: ${blogs[index].title}.\nLink: ${blogs[index].newsURL}\nDownload OrbitFeed: ');
+                            Share.share('Check out this blog: ${blogs[index].title}.\nLink: ${blogs[index].newsURL}\n\nDownload OrbitFeed, your one stop app for all things spaceflight related: https://tinyurl.com/OrbitFeed');
                         },
                       ),
                     ),
@@ -268,7 +268,7 @@ class WebViewer extends StatelessWidget {
               ],
             onSelected: (value){
                 if(value==1)
-                  Share.share('Check this out: $url\nDownload OrbitFeed');
+                  Share.share('Check this out: $url\n\nDownload OrbitFeed, your one stop app for all things spaceflight related: https://tinyurl.com/OrbitFeed');
             },
           )
         ],

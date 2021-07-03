@@ -36,25 +36,22 @@ class roverSelect extends StatelessWidget {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => roverPhotos(roverName: roverNames[index], lastActiveDay: date, activeDays: activeDays[index])));
                 },
               child: Center(
-                child: Hero(
-                  tag: "curiosity${index+4}",
-                  child: Container(
-                    height: 400,
-                    //height: MediaQuery.of(context).size.height*0.8,
-                    width: MediaQuery.of(context).size.width*0.45,
-                    child: Center(child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(child: Text(roverNames[index], style: TextStyle(color: Colors.white, fontSize: 25), textAlign: TextAlign.center,)),
-                        Text("Images Available From: ${activeDays[index]}", style: TextStyle(color: Colors.white, fontSize: 15), textAlign: TextAlign.center,),
-                      ],
-                    )),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      image: DecorationImage(
-                        fit: BoxFit.fitHeight,
-                        image: AssetImage(roverImages[index]),
-                      ),
+                child: Container(
+                  height: 400,
+                  //height: MediaQuery.of(context).size.height*0.8,
+                  width: MediaQuery.of(context).size.width*0.45,
+                  child: Center(child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(child: Text(roverNames[index], style: TextStyle(color: Colors.white, fontSize: 25), textAlign: TextAlign.center,)),
+                      Text("Images Available From: ${activeDays[index]}", style: TextStyle(color: Colors.white, fontSize: 15), textAlign: TextAlign.center,),
+                    ],
+                  )),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    image: DecorationImage(
+                      fit: BoxFit.fitHeight,
+                      image: AssetImage(roverImages[index]),
                     ),
                   ),
                 ),

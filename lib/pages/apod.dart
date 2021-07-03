@@ -386,6 +386,9 @@ class PictureView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _themeChanger = Provider.of<DarkThemeProvider>(context);
+    bool isDark = _themeChanger.darkTheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
@@ -405,8 +408,8 @@ class PictureView extends StatelessWidget {
                         toastLength: Toast.LENGTH_SHORT,
                         gravity: ToastGravity.BOTTOM,
                         timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.white,
-                        textColor: Colors.black,
+                        backgroundColor: isDark? Colors.white : Colors.black,
+                        textColor: isDark? Colors.black : Colors.white,
                         fontSize: 16.0
                     );
                 }
@@ -414,7 +417,9 @@ class PictureView extends StatelessWidget {
                   saveImage(imageURL, title);
                   if(await saveImage(imageURL, title)) {
                     if(await filePathFinal.exists())
-                      Share.shareFiles([filePathFinal.path], text: title.contains("ID")? "Check out this picture from the Mars rover:\n$title\nDownload OrbitFeed" : !title.contains("Article")? "Check out today's Picture of the Day:\n$title\nDownload OrbitFeed" : "Check out this Image:\n$title\nDownload OrbitFeed");
+                      Share.shareFiles([filePathFinal.path], text: title.contains("ID")? "Check out this picture from the Mars rover:\n$title\n\nDownload OrbitFeed, your one stop app for all things spaceflight related: https://tinyurl.com/OrbitFeed" :
+                      !title.contains("Article")? "Check out today's Picture of the Day:\n$title\n\nDownload OrbitFeed, your one stop app for all things spaceflight related: https://tinyurl.com/OrbitFeed" :
+                      "Check out this Image:\n$title\n\nDownload OrbitFeed, your one stop app for all things spaceflight related: https://tinyurl.com/OrbitFeed");
                   }
                 }
             },

@@ -98,10 +98,12 @@ class Styles {
           buttonColor: isDarkTheme ? Colors.black12 : Colors.black,
           colorScheme: isDarkTheme ? ColorScheme.dark() : ColorScheme.light()),
 
+
       toggleButtonsTheme: Theme.of(context).toggleButtonsTheme.copyWith(
           color: Colors.orange,
         selectedColor: Colors.orange,
       ),
+
 
 
       appBarTheme: AppBarTheme(

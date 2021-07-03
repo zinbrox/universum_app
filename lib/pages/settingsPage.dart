@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -37,6 +38,46 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
 
                 },
                   title: Text(fonts[index]),
+                );
+              }),
+        ),
+      );
+    });
+  }
+
+  showNotification() async {
+    var pending = await localNotifyManager.returnPendingNotifications();
+    List<String> pendingNotificationsBody = [];
+    List<String> pendingNotificationsDate = [];
+    for(var i in pending) {
+      pendingNotificationsBody.add(i.body.replaceAll(" is launching soon", ""));
+      pendingNotificationsDate.add(i.payload.replaceAll("Launch-", ""));
+    }
+
+    await showModalBottomSheet(
+        context: context,
+        builder: (context) {
+      return Container(
+        height: 300,
+        child: Scrollbar(
+          isAlwaysShown: true,
+          child: ListView.builder(
+              itemCount: pendingNotificationsBody == null ? 1 : pendingNotificationsBody.length + 1,
+              itemBuilder: (BuildContext context, index){
+                if(index==0)
+                  return Column(
+                    children: [
+                      ListTile(
+                        title: Text("Notification"),
+                        trailing: Text("Time"),
+                      ),
+                      //Divider(color: isSwitched? Colors.white : Colors.black,),
+                    ],
+                  );
+                index-=1;
+                return ListTile(
+                  title: Text(pendingNotificationsBody[index]),
+                  trailing: Text(pendingNotificationsDate[index]),
                 );
               }),
         ),
@@ -81,6 +122,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                     activeColor: Colors.orange,
                     value: notificationSwitch,
                     onChanged: (value) async {
+                      HapticFeedback.vibrate();
                       setState((){
                         notificationSwitch=value;
                       });
@@ -88,6 +130,9 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                       prefs.setBool('APODNotification', notificationSwitch);
                       if(notificationSwitch) {
                         print("Notifications Started");
+                        //AndroidAlarmManager.oneShot(Duration(seconds: 5), 10, callAPODNotification);
+                        AndroidAlarmManager.periodic(Duration(hours: 4), 0, callAPODNotification, startAt: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 12, 0),);
+                        /*
                         AndroidAlarmManager.periodic(
                             const Duration(days: 1), 0,
                             callAPODNotification,
@@ -96,6 +141,9 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                           startAt: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 12, 0),
                           rescheduleOnReboot: true,
                         );
+
+                         */
+                        //localNotifyManager.repeatNotification2();
                         Fluttertoast.showToast(
                             msg: "Daily Notifications turned on",
                             toastLength: Toast.LENGTH_LONG,
@@ -109,6 +157,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                         else {
                           print("Notifications Cancelled");
                           AndroidAlarmManager.cancel(0);
+                          //await localNotifyManager.cancelNotificationID(1);
                           Fluttertoast.showToast(
                               msg: "Daily Notifications turned off",
                               toastLength: Toast.LENGTH_LONG,
@@ -209,13 +258,25 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                 ),
                 ListTile(
                   title: Text("Pending Notifications"),
-                  onTap: () async {
+                  onTap: () {
+                    showNotification();
+                    /*
                     var pending = await localNotifyManager.returnPendingNotifications();
                     List pendingNotifications = [];
                     for(var i in pending) {
                       pendingNotifications.add(i);
                     }
                     print(pendingNotifications);
+
+                     */
+                  },
+                ),
+                ListTile(
+                  title: Text("Change to First Time"),
+                  onTap: () async {
+                    print("Opened Settings");
+                    final prefs = await SharedPreferences.getInstance();
+                    prefs.setBool("firstTime", true);
                   },
                 ),
               ],
@@ -229,6 +290,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
   }
 }
 
-callAPODNotification(){
-  localNotifyManager.repeatNotification();
+
+Future<void> callAPODNotification() async {
+  await localNotifyManager.repeatNotification();
 }

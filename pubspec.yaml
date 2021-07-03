@@ -53,6 +53,7 @@ dependencies:
   dio: ^4.0.0
   image_gallery_saver: ^1.6.9
   url_launcher: ^6.0.7
+  app_settings: ^4.1.1
 
 
   # The following adds the Cupertino Icons font to your application.

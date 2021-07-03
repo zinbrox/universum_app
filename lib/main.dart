@@ -2,6 +2,7 @@ import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
+import 'package:universum_app/helpers/notificationsPlugin.dart';
 import 'package:universum_app/pages/explorePage.dart';
 import 'package:universum_app/pages/home.dart';
 import 'package:universum_app/pages/apod.dart';
@@ -85,3 +86,4 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+

@@ -278,7 +278,13 @@ class _ISSPageState extends State<ISSPage> {
       appBar: AppBar(
         title: Text("ISS Tracker"),
       ),
-      body: _loading ? Center(child: CircularProgressIndicator()) :
+      body: _loading ? Center(child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image(image: AssetImage("assets/ISSLoading.gif")),
+          Text("Loading ISS Location..", style: TextStyle(fontSize: 20),),
+        ],
+      )) :
       Column(
         children: [
           Container(
@@ -328,7 +334,7 @@ class _ISSPageState extends State<ISSPage> {
                       ),
                     ),
                     Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text("Latitude: " + latitude.toStringAsFixed(4)),
                         Text("Longitude: " + longitude.toStringAsFixed(4)),

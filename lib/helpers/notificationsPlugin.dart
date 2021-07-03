@@ -8,6 +8,7 @@ import 'dart:io' show File, Platform;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:workmanager/workmanager.dart';
 
 class LocalNotifyManager {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
@@ -80,7 +81,12 @@ class LocalNotifyManager {
       "Launch Reminders",
       importance: Importance.max,
       priority: Priority.max,
-      playSound: true,
+      enableLights: true,
+      enableVibration: true,
+      showWhen: true,
+      color: Colors.orange,
+      channelShowBadge: true,
+      visibility: NotificationVisibility.public,
       styleInformation: BigTextStyleInformation(''),
     );
 
@@ -93,9 +99,10 @@ class LocalNotifyManager {
     var scheduleNotificationDateTime = DateTime.now().add(Duration(seconds: 10));
     var timeInUtc = DateTime.now().toUtc();
      */
-    
+    //Duration remaining = Duration(minutes: 1);
     Duration remaining = date.difference(DateTime.now().add(const Duration(minutes: 15)));
     print(tz.TZDateTime.now(tz.local).add(remaining));
+
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
       newID,
@@ -105,15 +112,17 @@ class LocalNotifyManager {
       //date.toUtc().subtract(const Duration(minutes: 15)),
       platformChannelSpecifics,
       androidAllowWhileIdle: true,
-      payload: 'Launch',
+      payload: 'Launch-$date',
     );
 
 
   }
 
   /*
-  Future<void> showNotification() async {
-    print("In showNotification");
+  Future<void> repeatNotification2() async {
+    print("In repeatNotification2");
+
+    tz.initializeTimeZones();
     var androidChannelSpecifics = AndroidNotificationDetails(
       'CHANNEL 1',
       'Launch Notifications',
@@ -129,35 +138,27 @@ class LocalNotifyManager {
     NotificationDetails(
         android: androidChannelSpecifics, iOS: iosChannelSpecifics);
 
-    //_getLaunches();
-    //names.clear();
+    String url = "https://api.wheretheiss.at/v1/satellites/25544";
+    var response = await http.get(Uri.parse(url));
+    var jsonData = jsonDecode(response.body);
+    double latitude = jsonData['latitude'];
+    double longitude = jsonData['longitude'];
 
-
-    //List<String> names = await SharedPrefUtils.readPrefStr('launchNames');
-    List<String> names = await getTestFunction();
-    print(names);
-    String name;
-    if(names.isEmpty)
-      name = "Launch happening soon";
-    else
-      name = "${names[0]} will be launching soon";
-      await flutterLocalNotificationsPlugin.show(
+    print(latitude);
+    print(longitude);
+    await flutterLocalNotificationsPlugin.periodicallyShow(
         1,
-        'LAUNCH REMINDER!',
-        '$name', //null
+        "Test",
+        "$latitude & $longitude",
+        RepeatInterval.everyMinute,
         platformChannelSpecifics,
-        payload: 'New Payload',
-      );
-      names.remove(names[0]);
-      //SharedPrefUtils.saveStr('launchNames', names);
-      updateTestFunction(names);
-      //names.clear();
-      //names = await SharedPrefUtils.readPrefStr('launchNames');
-      //print(await SharedPrefUtils.readPrefStr('launchNames'));
-    print(await getTestFunction());
-    }
+      payload: "APOD"
+    );
 
+  }
    */
+
+
 
   _downloadAndSaveFile(String url, String fileName) async {
     var directory = await getApplicationDocumentsDirectory();
@@ -171,7 +172,7 @@ class LocalNotifyManager {
 
   Future<void> repeatNotification() async {
     print("In repeatNotification");
-    getAPOD();
+    await getAPOD();
     if(mediaType=="image") {
       var attachmentPicturePath = await _downloadAndSaveFile(
           imageURL, 'attachment_img.jpg');
@@ -223,12 +224,14 @@ class LocalNotifyManager {
     var response = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(response.body);
     mediaType = jsonData['media_type'];
+    print("Hello");
     if(mediaType=="image") {
       imageURL = jsonData['url'];
       contentTitle = jsonData['title'];
       contentDescription = jsonData['explanation'];
     }
     print(mediaType);
+    return;
 
   }
 

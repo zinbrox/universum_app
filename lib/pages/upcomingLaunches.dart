@@ -1,13 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:app_settings/app_settings.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universum_app/helpers/ad_helper.dart';
 import 'package:universum_app/helpers/notificationsPlugin.dart';
 import 'package:universum_app/styles/color_styles.dart';
@@ -45,9 +49,15 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
   List<LaunchDetails> launches = [];
 
 
-  bool _loading = true;
+  bool _loading = true, firstTime;
   int statusCode;
 
+  static final customCacheManager = CacheManager(
+    Config(
+      'customCacheKey',
+      stalePeriod: Duration(days: 7),
+    ),
+  );
 
   Future<void> getLaunches() async {
     print("In getLaunches");
@@ -145,13 +155,17 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
       }
 
     }
+    final prefs = await SharedPreferences.getInstance();
+    firstTime = prefs.getBool('firstTime')?? true;
 
-    /*
     await Future.wait(
-      launches.map((launch) => cacheImage(context, launch.imageURL)).toList(),
-    );
+      launches.map((launch) {
+        cacheImage(context, launch.imageURL);
+      }).toList(),
+    ).catchError((error){
+      print(error);
+    });
 
-     */
 
     
     setState(() {
@@ -161,6 +175,9 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
 
   }
 
+  Future doNothing(){
+    return null;
+  }
   Future cacheImage(BuildContext context, String imageURL) =>
     precacheImage(
         CachedNetworkImageProvider(imageURL), context);
@@ -237,11 +254,13 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                           children: [
                             Stack(
                               children: [
-                                //launches[index].imageURL!=null? Image(image: CachedNetworkImageProvider(launches[index].imageURL),) : Center(child: Icon(Icons.error)),
+                                launches[index].imageURL!=null? Image(image: CachedNetworkImageProvider(launches[index].imageURL),) : Center(child: Icon(Icons.error, color: Colors.red,)),
                                 //Image(image: NetworkImage(launches[index].imageURL)),
+                                /*
+                                launches[index].imageURL!=null?
                                 CachedNetworkImage(
                                   //filterQuality: FilterQuality.low,
-                                  //cacheManager: customCacheManager,
+                                  cacheManager: customCacheManager,
                                   key: UniqueKey(),
                                   imageUrl: launches[index].imageURL,
                                   errorWidget: (context, url, error) => Container(
@@ -250,13 +269,33 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                   progressIndicatorBuilder: (context, url, downloadProgress) => Container(
                                       width: MediaQuery.of(context).size.width,
                                       child: Center(child: CircularProgressIndicator(value: downloadProgress.progress))),
-                                ),
+                                ) : Center(child: Icon(Icons.error, color: Colors.red,)),
+
+                                 */
                                 Align(
                                   alignment: Alignment.topRight,
                                   child: Container(
                                       color: Colors.black12,
                                       child: IconButton(icon: launches[index].notification? Icon(Icons.notifications_on, color: Colors.white) : Icon(Icons.notifications_off, color: Colors.white,),
                                         onPressed: () async {
+                                          if(firstTime) {
+                                            await AppSettings.openNotificationSettings();
+                                            Fluttertoast.showToast(
+                                                msg: "Please allow all to get effective Launch Reminders",
+                                                toastLength: Toast.LENGTH_LONG,
+                                                gravity: ToastGravity.BOTTOM,
+                                                timeInSecForIosWeb: 1,
+                                                backgroundColor: isDark? Colors.white : Colors.black,
+                                                textColor: isDark? Colors.black : Colors.white,
+                                                fontSize: 16.0
+                                            );
+                                            firstTime=false;
+                                            final prefs = await SharedPreferences.getInstance();
+                                            await prefs.setBool('firstTime', firstTime);
+                                          }
+
+
+                                          else {
                                         if(launches[index].dateObject.isAfter(DateTime.now())) {
                                           print("Started Notification Wait");
 
@@ -274,11 +313,12 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                                   toastLength: Toast.LENGTH_LONG,
                                                   gravity: ToastGravity.BOTTOM,
                                                   timeInSecForIosWeb: 1,
-                                                  backgroundColor: Colors.white,
-                                                  textColor: Colors.black,
+                                                  backgroundColor: isDark? Colors.white : Colors.black,
+                                                  textColor: isDark? Colors.black : Colors.white,
                                                   fontSize: 16.0
                                               );
                                               await localNotifyManager.cancelNotificationID(i.id);
+                                              HapticFeedback.vibrate();
                                               check=1;
                                               setState(() {
                                                 launches[index].notification=false;
@@ -305,13 +345,14 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                                 break;
                                               }
                                             print("NewID = $newID");
+                                            HapticFeedback.vibrate();
                                             Fluttertoast.showToast(
                                                 msg: "You'll be reminded 15min before the launch of ${launches[index].rocketName}",
                                                 toastLength: Toast.LENGTH_LONG,
                                                 gravity: ToastGravity.BOTTOM,
                                                 timeInSecForIosWeb: 1,
-                                                backgroundColor: Colors.white,
-                                                textColor: Colors.black,
+                                                backgroundColor: isDark? Colors.white : Colors.black,
+                                                textColor: isDark? Colors.black : Colors.white,
                                                 fontSize: 16.0
                                             );
                                             print(launches[index].dateObject);
@@ -325,6 +366,7 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                         }
                                         else {
                                           print("Launch Over");
+                                        }
                                         }
                                       },
                                       )),
@@ -422,7 +464,6 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                     );
                     }),
               ),
-              /*
               _isBannerAdReady ?
               Container(
                 alignment: Alignment.bottomCenter,
@@ -433,7 +474,6 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                 child: AdWidget(ad: _bannerAd),
               ) : Container(),
 
-               */
             ],
           ),
 
