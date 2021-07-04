@@ -334,7 +334,7 @@ class _ISSPageState extends State<ISSPage> {
                       ),
                     ),
                     Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Text("Latitude: " + latitude.toStringAsFixed(4)),
                         Text("Longitude: " + longitude.toStringAsFixed(4)),

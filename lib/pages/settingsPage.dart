@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -21,29 +22,6 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
 
   List<String> fonts = ["Default", 'Retro NASA', 'Star Wars', 'Star Trek', 'Alien', 'Back to the Future'];
   bool notificationSwitch=false;
-
-  _changeFont() async {
-    await showModalBottomSheet(
-        context: context,
-        builder: (context) {
-      return Container(
-        height: 300,
-        child: Scrollbar(
-          isAlwaysShown: true,
-          child: ListView.builder(
-              itemCount: fonts.length,
-              itemBuilder: (BuildContext context, index){
-                return CheckboxListTile(
-                    value: false, onChanged: (bool value){
-
-                },
-                  title: Text(fonts[index]),
-                );
-              }),
-        ),
-      );
-    });
-  }
 
   showNotification() async {
     var pending = await localNotifyManager.returnPendingNotifications();
@@ -68,13 +46,15 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                   return Column(
                     children: [
                       ListTile(
-                        title: Text("Notification"),
-                        trailing: Text("Time"),
+                        title: Text("Notification", style: TextStyle(fontSize: 20),),
+                        trailing: Text("Time", style: TextStyle(fontSize: 20),),
                       ),
                       //Divider(color: isSwitched? Colors.white : Colors.black,),
                     ],
                   );
                 index-=1;
+                if(pendingNotificationsBody.length==0)
+                  return Center(child: Text("No pending Notifications"),);
                 return ListTile(
                   title: Text(pendingNotificationsBody[index]),
                   trailing: Text(pendingNotificationsDate[index]),
@@ -91,6 +71,8 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
     setState(() {
     });
   }
+
+
 
   @override
   void initState() {
@@ -115,6 +97,64 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
           Expanded(
             child: ListView(
               children: [
+                /*
+                ListTile(
+                  title: Text("Daily Test"),
+                  trailing: IconButton(
+                    icon: notificationSwitch? Icon(Icons.notifications_active) : Icon(Icons.notifications_off),
+                    onPressed: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      setState(() {
+                        notificationSwitch = !notificationSwitch;
+                      });
+                      if(notificationSwitch) {
+                        prefs.setBool('APODNotification', notificationSwitch);
+                        print("Started Notifications");
+                        HapticFeedback.vibrate();
+                        Fluttertoast.showToast(
+                            msg: "You'll be notified",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.BOTTOM,
+                            backgroundColor: Colors.white,
+                            textColor: Colors.black,
+                            fontSize: 16.0
+                        );
+                        //AndroidAlarmManager.oneShot(const Duration(seconds: 1), 0, )
+                        AndroidAlarmManager.periodic(const Duration(seconds: 30), 0, callAPODNotification);
+                        //Workmanager().registerOneOffTask("apod", "apod", initialDelay: Duration(seconds: 15));
+                        /*
+                        BackgroundFetch.scheduleTask(TaskConfig(
+                            taskId: "test",
+                            delay: 20000,
+                            periodic: true,
+                            forceAlarmManager: true,
+                            stopOnTerminate: false,
+                            enableHeadless: true
+                        ));
+
+                         */
+
+                      }
+                      else {
+                        print("Cancelled Notifications");
+                        prefs.setBool('APODNotification', notificationSwitch);
+                        Fluttertoast.showToast(
+                            msg: "Notifications turned off",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.BOTTOM,
+                            backgroundColor: Colors.white,
+                            textColor: Colors.black,
+                            fontSize: 16.0
+                        );
+                        AndroidAlarmManager.cancel(0);
+                        //Workmanager().cancelByTag("apod");
+                        //BackgroundFetch.stop("test");
+                      }
+                    },
+                  ),
+                ),
+
+                 */
                 ListTile(
                   title: Text("Daily Notification"),
                   subtitle: Text("We'll send you the Picture of the Day"),
@@ -130,8 +170,20 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                       prefs.setBool('APODNotification', notificationSwitch);
                       if(notificationSwitch) {
                         print("Notifications Started");
-                        //AndroidAlarmManager.oneShot(Duration(seconds: 5), 10, callAPODNotification);
-                        AndroidAlarmManager.periodic(Duration(hours: 4), 0, callAPODNotification, startAt: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 12, 0),);
+                        /*
+                        BackgroundFetch.scheduleTask(TaskConfig(
+                            taskId: "test",
+                            delay: 10000,
+                            periodic: false,
+                            forceAlarmManager: true,
+                            stopOnTerminate: false,
+                            enableHeadless: true
+                        ));
+
+                         */
+                        //await AndroidAlarmManager.periodic(Duration(seconds: 20), 0, callAPODNotification, wakeup: true, exact: true, rescheduleOnReboot: true);
+                        //AndroidAlarmManager.periodic(const Duration(seconds: 45), 0, callAPODNotification);
+                        //AndroidAlarmManager.periodic(const Duration(minutes: 15), 0, callAPODNotification, startAt: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 20, 45), exact: true, wakeup:true, rescheduleOnReboot: true);
                         /*
                         AndroidAlarmManager.periodic(
                             const Duration(days: 1), 0,
@@ -144,33 +196,37 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
 
                          */
                         //localNotifyManager.repeatNotification2();
+                        await FirebaseMessaging.instance.subscribeToTopic('apod');
                         Fluttertoast.showToast(
                             msg: "Daily Notifications turned on",
                             toastLength: Toast.LENGTH_LONG,
                             gravity: ToastGravity.BOTTOM,
                             timeInSecForIosWeb: 1,
-                            backgroundColor: Colors.white,
-                            textColor: Colors.black,
+                            backgroundColor: isSwitched? Colors.white : Colors.black,
+                            textColor: isSwitched? Colors.black : Colors.white,
                             fontSize: 16.0
                         );
                       }
                         else {
                           print("Notifications Cancelled");
-                          AndroidAlarmManager.cancel(0);
+                          //BackgroundFetch.stop("test");
+                          //AndroidAlarmManager.cancel(0);
                           //await localNotifyManager.cancelNotificationID(1);
+                          await FirebaseMessaging.instance.unsubscribeFromTopic('apod');
                           Fluttertoast.showToast(
                               msg: "Daily Notifications turned off",
                               toastLength: Toast.LENGTH_LONG,
                               gravity: ToastGravity.BOTTOM,
                               timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.white,
-                              textColor: Colors.black,
+                              backgroundColor: isSwitched? Colors.white : Colors.black,
+                              textColor: isSwitched? Colors.black : Colors.white,
                               fontSize: 16.0
                           );
                       }
                     },
                   ),
                 ),
+
                 ListTile(
                   title: Text("Font"),
                   trailing: DropdownButton<String>(
@@ -213,8 +269,8 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                         toastLength: Toast.LENGTH_LONG,
                         gravity: ToastGravity.BOTTOM,
                         timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.white,
-                        textColor: Colors.black,
+                        backgroundColor: isSwitched? Colors.white : Colors.black,
+                        textColor: isSwitched? Colors.black : Colors.white,
                         fontSize: 16.0
                     );
                   },
@@ -254,6 +310,15 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                         ),
                       );
                     });
+                    Fluttertoast.showToast(
+                        msg: "If you like the app, please do rate it!",
+                        toastLength: Toast.LENGTH_LONG,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: isSwitched? Colors.white : Colors.black,
+                        textColor: isSwitched? Colors.black : Colors.white,
+                        fontSize: 16.0
+                    );
                   },
                 ),
                 ListTile(
@@ -294,3 +359,4 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
 Future<void> callAPODNotification() async {
   await localNotifyManager.repeatNotification();
 }
+

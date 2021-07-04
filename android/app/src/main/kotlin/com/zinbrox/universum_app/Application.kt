@@ -2,8 +2,8 @@
 package com.zinbrox.universum_app
 
 import io.flutter.app.FlutterApplication
-import io.flutter.plugins.androidalarmmanager.AlarmService
-import io.flutter.plugins.androidalarmmanager.AndroidAlarmManagerPlusPlugin
+import io.flutter.plugins.androidalarmmanagerplus.AlarmService
+import io.flutter.plugins.androidalarmmanagerplus.AndroidAlarmManagerPlusPlugin
 
 
 class Application : FlutterApplication(), io.flutter.plugin.common.PluginRegistry.PluginRegistrantCallback {
@@ -14,14 +14,15 @@ class Application : FlutterApplication(), io.flutter.plugin.common.PluginRegistr
     }
 
     override fun registerWith(registry: io.flutter.plugin.common.PluginRegistry) {
-        AndroidAlarmManagerPlugin.registerWith(
-                registry.registrarFor("io.flutter.plugins.androidalarmmanager.AndroidAlarmManagerPlusPlugin"))
-        AndroidAlarmManagerPlugin.registerWith(
+        AndroidAlarmManagerPlusPlugin.registerWith(
+                registry.registrarFor("io.flutter.plugins.androidalarmmanagerplus.AndroidAlarmManagerPlusPlugin"))
+        AndroidAlarmManagerPlusPlugin.registerWith(
                 registry.registrarFor("com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin"))
-        AndroidAlarmManagerPlugin.registerWith(
+        AndroidAlarmManagerPlusPlugin.registerWith(
                 registry.registrarFor("io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin"))
     }
 }
 
-
  */
+
+

@@ -8,7 +8,6 @@ import 'dart:io' show File, Platform;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/subjects.dart';
-import 'package:workmanager/workmanager.dart';
 
 class LocalNotifyManager {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
@@ -194,6 +193,12 @@ class LocalNotifyManager {
         importance: Importance.max,
         priority: Priority.max,
         onlyAlertOnce: false,
+        enableLights: true,
+        enableVibration: true,
+        showWhen: true,
+        color: Colors.orange,
+        channelShowBadge: true,
+        visibility: NotificationVisibility.public,
         largeIcon: FilePathAndroidBitmap(picturePath),
         styleInformation: bigPictureStyleInformation,
       );

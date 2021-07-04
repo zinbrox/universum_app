@@ -1,5 +1,9 @@
 
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:universum_app/helpers/notificationsPlugin.dart';
 import 'package:universum_app/pages/explorePage.dart';
 import 'package:universum_app/pages/homePage.dart';
@@ -31,6 +35,28 @@ class _HomeState extends State<Home> {
     super.initState();
     localNotifyManager.setListenerForLowerVersions(onNotificationInLowerVersions);
     localNotifyManager.setOnNotificationClick(onNotificationClick);
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage message) {
+      if (message != null) {
+        print(message);
+      }
+    });
+
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification notification = message.notification;
+      AndroidNotification android = message.notification?.android;
+      if (notification != null && android != null && !kIsWeb) {
+        print(notification.title);
+        AndroidAlarmManager.oneShot(Duration(seconds: 5), 0, callAPODNotification, wakeup: true, exact: true, rescheduleOnReboot: true, allowWhileIdle: true, alarmClock: true);
+      }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('A new onMessageOpenedApp event was published!');
+      print("App opened after message");
+    });
   }
 
   onNotificationInLowerVersions(ReceivedNotification receivedNotification) {}

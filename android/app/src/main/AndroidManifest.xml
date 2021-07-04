@@ -24,21 +24,6 @@
            </intent-filter>
        </receiver>
 
-       <service
-           android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmService"
-           android:permission="android.permission.BIND_JOB_SERVICE"
-           android:exported="false"/>
-       <receiver
-           android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmBroadcastReceiver"
-           android:exported="false"/>
-       <receiver
-           android:name="dev.fluttercommunity.plus.androidalarmmanager.RebootBroadcastReceiver"
-           android:enabled="false">
-           <intent-filter>
-               <action android:name="android.intent.action.BOOT_COMPLETED"></action>
-           </intent-filter>
-       </receiver>
-
        <meta-data
            android:name="com.google.android.gms.ads.APPLICATION_ID"
            android:value="ca-app-pub-7046141522235121~5523375875"/>
@@ -96,6 +81,21 @@
                <data android:scheme="@string/fb_login_protocol_scheme" />
            </intent-filter>
        </activity>
+
+       <service
+           android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmService"
+           android:permission="android.permission.BIND_JOB_SERVICE"
+           android:exported="false"/>
+       <receiver
+           android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmBroadcastReceiver"
+           android:exported="false"/>
+       <receiver
+           android:name="dev.fluttercommunity.plus.androidalarmmanager.RebootBroadcastReceiver"
+           android:enabled="false">
+           <intent-filter>
+               <action android:name="android.intent.action.BOOT_COMPLETED"/>
+           </intent-filter>
+       </receiver>
 
 
    </application>
