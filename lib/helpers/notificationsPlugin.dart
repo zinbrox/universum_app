@@ -117,48 +117,6 @@ class LocalNotifyManager {
 
   }
 
-  /*
-  Future<void> repeatNotification2() async {
-    print("In repeatNotification2");
-
-    tz.initializeTimeZones();
-    var androidChannelSpecifics = AndroidNotificationDetails(
-      'CHANNEL 1',
-      'Launch Notifications',
-      "Launch Reminders",
-      importance: Importance.max,
-      priority: Priority.max,
-      playSound: true,
-      styleInformation: BigTextStyleInformation(''),
-    );
-
-    var iosChannelSpecifics = IOSNotificationDetails();
-    var platformChannelSpecifics =
-    NotificationDetails(
-        android: androidChannelSpecifics, iOS: iosChannelSpecifics);
-
-    String url = "https://api.wheretheiss.at/v1/satellites/25544";
-    var response = await http.get(Uri.parse(url));
-    var jsonData = jsonDecode(response.body);
-    double latitude = jsonData['latitude'];
-    double longitude = jsonData['longitude'];
-
-    print(latitude);
-    print(longitude);
-    await flutterLocalNotificationsPlugin.periodicallyShow(
-        1,
-        "Test",
-        "$latitude & $longitude",
-        RepeatInterval.everyMinute,
-        platformChannelSpecifics,
-      payload: "APOD"
-    );
-
-  }
-   */
-
-
-
   _downloadAndSaveFile(String url, String fileName) async {
     var directory = await getApplicationDocumentsDirectory();
     var filePath = '${directory.path}/$fileName';
@@ -190,8 +148,8 @@ class LocalNotifyManager {
         'Channel 1',
         'Picture of the Day',
         "NASA Astronomical Picture of the Day",
-        importance: Importance.max,
-        priority: Priority.max,
+        importance: Importance.high,
+        priority: Priority.high,
         onlyAlertOnce: false,
         enableLights: true,
         enableVibration: true,

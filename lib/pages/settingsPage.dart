@@ -27,9 +27,13 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
     var pending = await localNotifyManager.returnPendingNotifications();
     List<String> pendingNotificationsBody = [];
     List<String> pendingNotificationsDate = [];
+    DateTime date, now = DateTime.now();
     for(var i in pending) {
-      pendingNotificationsBody.add(i.body.replaceAll(" is launching soon", ""));
-      pendingNotificationsDate.add(i.payload.replaceAll("Launch-", ""));
+      date = DateTime.parse(i.payload.replaceAll("Launch-", ""));
+      if(date.isAfter(now)) {
+        pendingNotificationsBody.add(i.body.replaceAll(" is launching soon", ""));
+        pendingNotificationsDate.add(date.toString());
+      }
     }
 
     await showModalBottomSheet(
@@ -97,154 +101,52 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
           Expanded(
             child: ListView(
               children: [
-                /*
                 ListTile(
-                  title: Text("Daily Test"),
+                  title: Text("Daily Notification"),
+                  subtitle: Text("We'll send you the Picture of the Day"),
                   trailing: IconButton(
                     icon: notificationSwitch? Icon(Icons.notifications_active) : Icon(Icons.notifications_off),
                     onPressed: () async {
-                      final prefs = await SharedPreferences.getInstance();
                       setState(() {
                         notificationSwitch = !notificationSwitch;
                       });
+                      final prefs = await SharedPreferences.getInstance();
+                      prefs.setBool('APODNotification', notificationSwitch);
+
                       if(notificationSwitch) {
-                        prefs.setBool('APODNotification', notificationSwitch);
-                        print("Started Notifications");
+                        await FirebaseMessaging.instance.subscribeToTopic('apod');
+                        print("Daily Notifications turned on");
                         HapticFeedback.vibrate();
                         Fluttertoast.showToast(
                             msg: "You'll be notified",
                             toastLength: Toast.LENGTH_LONG,
                             gravity: ToastGravity.BOTTOM,
-                            backgroundColor: Colors.white,
-                            textColor: Colors.black,
+                            backgroundColor: isSwitched? Colors.white : Colors.black,
+                            textColor: isSwitched? Colors.black : Colors.white,
                             fontSize: 16.0
                         );
-                        //AndroidAlarmManager.oneShot(const Duration(seconds: 1), 0, )
-                        AndroidAlarmManager.periodic(const Duration(seconds: 30), 0, callAPODNotification);
-                        //Workmanager().registerOneOffTask("apod", "apod", initialDelay: Duration(seconds: 15));
-                        /*
-                        BackgroundFetch.scheduleTask(TaskConfig(
-                            taskId: "test",
-                            delay: 20000,
-                            periodic: true,
-                            forceAlarmManager: true,
-                            stopOnTerminate: false,
-                            enableHeadless: true
-                        ));
 
-                         */
 
                       }
                       else {
                         print("Cancelled Notifications");
-                        prefs.setBool('APODNotification', notificationSwitch);
+                        await FirebaseMessaging.instance.unsubscribeFromTopic('apod');
                         Fluttertoast.showToast(
-                            msg: "Notifications turned off",
+                            msg: "Daily Notifications turned off",
                             toastLength: Toast.LENGTH_LONG,
                             gravity: ToastGravity.BOTTOM,
-                            backgroundColor: Colors.white,
-                            textColor: Colors.black,
-                            fontSize: 16.0
-                        );
-                        AndroidAlarmManager.cancel(0);
-                        //Workmanager().cancelByTag("apod");
-                        //BackgroundFetch.stop("test");
-                      }
-                    },
-                  ),
-                ),
-
-                 */
-                ListTile(
-                  title: Text("Daily Notification"),
-                  subtitle: Text("We'll send you the Picture of the Day"),
-                  trailing: Switch(
-                    activeColor: Colors.orange,
-                    value: notificationSwitch,
-                    onChanged: (value) async {
-                      HapticFeedback.vibrate();
-                      setState((){
-                        notificationSwitch=value;
-                      });
-                      final prefs = await SharedPreferences.getInstance();
-                      prefs.setBool('APODNotification', notificationSwitch);
-                      if(notificationSwitch) {
-                        print("Notifications Started");
-                        /*
-                        BackgroundFetch.scheduleTask(TaskConfig(
-                            taskId: "test",
-                            delay: 10000,
-                            periodic: false,
-                            forceAlarmManager: true,
-                            stopOnTerminate: false,
-                            enableHeadless: true
-                        ));
-
-                         */
-                        //await AndroidAlarmManager.periodic(Duration(seconds: 20), 0, callAPODNotification, wakeup: true, exact: true, rescheduleOnReboot: true);
-                        //AndroidAlarmManager.periodic(const Duration(seconds: 45), 0, callAPODNotification);
-                        //AndroidAlarmManager.periodic(const Duration(minutes: 15), 0, callAPODNotification, startAt: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 20, 45), exact: true, wakeup:true, rescheduleOnReboot: true);
-                        /*
-                        AndroidAlarmManager.periodic(
-                            const Duration(days: 1), 0,
-                            callAPODNotification,
-                          exact: true,
-                          wakeup: true,
-                          startAt: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 12, 0),
-                          rescheduleOnReboot: true,
-                        );
-
-                         */
-                        //localNotifyManager.repeatNotification2();
-                        await FirebaseMessaging.instance.subscribeToTopic('apod');
-                        Fluttertoast.showToast(
-                            msg: "Daily Notifications turned on",
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIosWeb: 1,
                             backgroundColor: isSwitched? Colors.white : Colors.black,
                             textColor: isSwitched? Colors.black : Colors.white,
                             fontSize: 16.0
                         );
                       }
-                        else {
-                          print("Notifications Cancelled");
-                          //BackgroundFetch.stop("test");
-                          //AndroidAlarmManager.cancel(0);
-                          //await localNotifyManager.cancelNotificationID(1);
-                          await FirebaseMessaging.instance.unsubscribeFromTopic('apod');
-                          Fluttertoast.showToast(
-                              msg: "Daily Notifications turned off",
-                              toastLength: Toast.LENGTH_LONG,
-                              gravity: ToastGravity.BOTTOM,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: isSwitched? Colors.white : Colors.black,
-                              textColor: isSwitched? Colors.black : Colors.white,
-                              fontSize: 16.0
-                          );
-                      }
                     },
                   ),
                 ),
 
                 ListTile(
-                  title: Text("Font"),
-                  trailing: DropdownButton<String>(
-                    value: dropdownValue,
-                    onChanged: (String newValue){
-                      setState(() {
-                        dropdownValue = newValue;
-                        _fontChanger.fontName=newValue;
-                      });
-                    },
-                    items: <String>['Default', 'Retro NASA', 'Alien', 'Comfortaa'].map<DropdownMenuItem<String>>((String value){
-                      return DropdownMenuItem<String>(value: value, child: Text(value),);
-                    }).toList(),
-                    ),
-                  ),
-                ListTile(
                   title: Text("Theme"),
-                  subtitle: Text("Light/ Dark mode"),
+                  subtitle: isSwitched? Text("Dark Mode") : Text("Light Mode"),
                   trailing: Switch(
                     activeColor: Colors.orange,
                     value: isSwitched,
@@ -256,10 +158,28 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                     },
                   ),
                 ),
+
+                ListTile(
+                  title: Text("Font"),
+                  trailing: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: dropdownValue,
+                      onChanged: (String newValue){
+                        setState(() {
+                          dropdownValue = newValue;
+                          _fontChanger.fontName=newValue;
+                        });
+                      },
+                      items: <String>['Default', 'Retro NASA', 'Alien', 'Comfortaa'].map<DropdownMenuItem<String>>((String value){
+                        return DropdownMenuItem<String>(value: value, child: Text(value),);
+                      }).toList(),
+                      ),
+                  ),
+                  ),
                 ListTile(
                   title: Text("Clear Cache"),
                   subtitle: Text("This can affect loading of images"),
-                  trailing: Icon(Icons.navigate_next),
+                  //trailing: Icon(Icons.navigate_next),
                   onTap: () async {
                     var appDir = (await getTemporaryDirectory()).path;
                     print(appDir);
@@ -273,6 +193,13 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                         textColor: isSwitched? Colors.black : Colors.white,
                         fontSize: 16.0
                     );
+                  },
+                ),
+                ListTile(
+                  title: Text("Pending Notifications"),
+                  subtitle: Text("View scheduled launch reminders"),
+                  onTap: () {
+                    showNotification();
                   },
                 ),
                 ListTile(
@@ -319,29 +246,6 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                         textColor: isSwitched? Colors.black : Colors.white,
                         fontSize: 16.0
                     );
-                  },
-                ),
-                ListTile(
-                  title: Text("Pending Notifications"),
-                  onTap: () {
-                    showNotification();
-                    /*
-                    var pending = await localNotifyManager.returnPendingNotifications();
-                    List pendingNotifications = [];
-                    for(var i in pending) {
-                      pendingNotifications.add(i);
-                    }
-                    print(pendingNotifications);
-
-                     */
-                  },
-                ),
-                ListTile(
-                  title: Text("Change to First Time"),
-                  onTap: () async {
-                    print("Opened Settings");
-                    final prefs = await SharedPreferences.getInstance();
-                    prefs.setBool("firstTime", true);
                   },
                 ),
               ],

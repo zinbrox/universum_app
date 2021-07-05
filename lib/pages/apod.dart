@@ -76,10 +76,10 @@ class _APODState extends State<APOD> {
       contentDate = jsonData['date'];
     }
 
-
     setState(() {
       _loading=false;
     });
+
   }
 
   void initialiseBanner() {
@@ -156,7 +156,7 @@ class _APODState extends State<APOD> {
             SizedBox(height: 10,),
             Expanded(
               child: ListView.separated(
-                itemCount: 10,
+                itemCount: 12,
                 separatorBuilder: (context, index) => SizedBox(height: 10,),
                 itemBuilder: (context, index){
                   return Container(

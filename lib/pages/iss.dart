@@ -91,8 +91,8 @@ class _ISSPageState extends State<ISSPage> {
 
   _getLocationAddress(double ISSLocLat, double ISSLocLong) async
   {
-    print("In _getLocationAddress");
-    print(ISSLocLat);
+    //print("In _getLocationAddress");
+    //print(ISSLocLat);
     final coordinates = new Coordinates(ISSLocLat, ISSLocLong);
     try {
       var addresses = await Geocoder.local.findAddressesFromCoordinates(
@@ -375,7 +375,6 @@ class _ISSPageState extends State<ISSPage> {
                           child: ElevatedButton(
                             onPressed: () async {
                               await canLaunch("https://ustream.tv/channel/17074538") ? await launch("https://ustream.tv/channel/17074538") : throw 'Could not launch https://ustream.tv/channel/17074538';
-                              //Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: "https://ustream.tv/channel/17074538", title: "ISS Live Stream",)));
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
