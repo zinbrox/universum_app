@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 import 'package:universum_app/pages/explorePage.dart';
@@ -22,7 +23,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // make sure you call `initializeApp` before using other Firebase services.
   //await Firebase.initializeApp();
   //print('Handling a background message ${message.messageId}');
-  AndroidAlarmManager.oneShot(Duration(seconds: 5), 0, callAPODNotification, wakeup: true, exact: true, rescheduleOnReboot: true, allowWhileIdle: true, alarmClock: true);
+  AndroidAlarmManager.oneShot(Duration(seconds: 1), 0, callAPODNotification, wakeup: true, exact: true, rescheduleOnReboot: true, allowWhileIdle: true, alarmClock: true);
   //callAPODNotification();
 }
 
@@ -31,6 +32,8 @@ main() async {
   await AndroidAlarmManager.initialize();
   MobileAds.instance.initialize();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   runApp(MyApp());
 }
 

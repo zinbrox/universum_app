@@ -40,6 +40,7 @@ class _HomeState extends State<Home> {
         .then((RemoteMessage message) {
       if (message != null) {
         print(message);
+        print("Hello");
       }
     });
 
@@ -47,10 +48,11 @@ class _HomeState extends State<Home> {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification notification = message.notification;
       AndroidNotification android = message.notification?.android;
-      if (notification != null && android != null && !kIsWeb) {
-        print(notification.title);
-        AndroidAlarmManager.oneShot(Duration(seconds: 5), 0, callAPODNotification, wakeup: true, exact: true, rescheduleOnReboot: true, allowWhileIdle: true, alarmClock: true);
-      }
+      print("Message Received");
+      //if (message != null && android != null && !kIsWeb) {
+        //print(notification.title);
+        AndroidAlarmManager.oneShot(Duration(seconds: 1), 0, callAPODNotification, wakeup: true, exact: true, rescheduleOnReboot: true, allowWhileIdle: true, alarmClock: true);
+      //}
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {

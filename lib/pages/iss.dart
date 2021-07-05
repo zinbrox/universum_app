@@ -413,63 +413,72 @@ class ISSReports extends StatelessWidget {
     bool isDark = _themeChanger.darkTheme;
 
     return Scaffold(
+      /*
       appBar: AppBar(
         title: Text("ISS Reports"),
       ),
-      body: Center(
-        child: ListView.separated(
-            itemCount: reports.length,
-            separatorBuilder: (context, index) => SizedBox(height: 10),
-            itemBuilder: (context, index){
-              return Container(
-                child: Card(
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            width: MediaQuery.of(context).size.width*0.5,
-                              child: Text(reports[index].title, style: TextStyle(fontSize: 18),)),
-                          Column(
-                            children: [
-                              Text(dateFormatter.format(reports[index].date), textAlign: TextAlign.right, style: TextStyle(fontSize: 18),),
-                              Text(timeFormatter.format(reports[index].date), textAlign: TextAlign.right, style: TextStyle(fontSize: 18),)
-                            ],
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10,),
-                      RichText(
-                        textAlign: TextAlign.center,
-                        text: TextSpan(
-                        children: [
-                          TextSpan(text: reports[index].summary, style: TextStyle(fontSize: 18, color: isDark? Colors.grey[350] : Colors.black),),
-                          TextSpan(text: "Read Full Report",
-                            style: TextStyle(color: Colors.blue),
-                            recognizer: TapGestureRecognizer()..onTap = () async {
-                              await canLaunch(reports[index].url) ? await launch(reports[index].url) : throw 'Could not launch ${reports[index].url}';
-                              //Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: reports[index].url, title: "Report Viewer",)));
-                            }
-                          ),
-                          WidgetSpan(
-                            child: Icon(Icons.open_in_new, color: Colors.blue,),
-                          ),
-                        ],
+
+       */
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            snap: false,
+            floating: true,
+            expandedHeight: 160.0,
+            flexibleSpace: const FlexibleSpaceBar(
+              title: Text('ISS Daily Reports'),
+              background: Image(image: AssetImage("assets/ISS.jpg"), fit: BoxFit.cover,),
+            ),
+          ),
+
+      SliverList(
+          delegate: SliverChildBuilderDelegate((context, index){
+            return Container(
+              child: Card(
+                child: Column(
+                  children: [
+                    Text(reports[index].title, style: TextStyle(fontSize: 18,),),
+                    SizedBox(height: 10,),
+                    RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                      children: [
+                        TextSpan(text: reports[index].summary, style: TextStyle(fontSize: 18, color: isDark? Colors.white70 : Colors.black),),
+                        TextSpan(text: "Read Full Report",
+                          style: TextStyle(color: Colors.blue, fontSize: 18),
+                          recognizer: TapGestureRecognizer()..onTap = () async {
+                            await canLaunch(reports[index].url) ? await launch(reports[index].url) : throw 'Could not launch ${reports[index].url}';
+                            //Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewer(url: reports[index].url, title: "Report Viewer",)));
+                          }
                         ),
+                        WidgetSpan(
+                          child: Icon(Icons.open_in_new, color: Colors.blue, size: 15,),
+                        ),
+                      ],
                       ),
-                      SizedBox(height: 10,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("News Site: " + reports[index].newsSite),
-                        ],
-                      )
-                    ],
-                  ),
+                    ),
+                    SizedBox(height: 10,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("News Site: " + reports[index].newsSite),
+                        Column(
+                          children: [
+                            Text(dateFormatter.format(reports[index].date), textAlign: TextAlign.right, style: TextStyle(fontSize: 18),),
+                            Text(timeFormatter.format(reports[index].date), textAlign: TextAlign.right, style: TextStyle(fontSize: 18),)
+                          ],
+                        ),
+                      ],
+                    )
+                  ],
                 ),
-              );
-            }),
+              ),
+            );
+          },
+            childCount: reports.length,
+          ),),
+        ],
       ),
     );
   }

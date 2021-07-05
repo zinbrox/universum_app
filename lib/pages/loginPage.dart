@@ -23,14 +23,6 @@ class _LoginPageState extends State<LoginPage> {
 
     await Firebase.initializeApp();
     if (!kIsWeb) {
-
-      /// Create an Android Notification Channel.
-      ///
-      /// We use this channel in the `AndroidManifest.xml` file to override the
-      /// default FCM channel to enable heads up notifications.
-
-      /// Update the iOS foreground notification presentation options to allow
-      /// heads up notifications.
       await FirebaseMessaging.instance
           .setForegroundNotificationPresentationOptions(
         alert: true,
@@ -62,7 +54,9 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _buttonVisible=true;
     });
+
      */
+
 
 
   }
@@ -99,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image(image: AssetImage("assets/OrbitFeedLogo.png"), height: 150,),
+                    Image(image: AssetImage("assets/OrbitFeedLogo.png"), height: 120,),
                     Text("orbitfeed", style: GoogleFonts.getFont("Comfortaa", fontSize: 30,)),
                     //Text("OrbitFeed", style: TextStyle(fontSize: 25),),
                   ],

@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
@@ -237,6 +238,9 @@ class _APODState extends State<APOD> {
             )
                 :
             YoutubePlayerBuilder(
+              onExitFullScreen: () {
+                SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+              },
               player: YoutubePlayer(
                 controller: YoutubePlayerController(
                   initialVideoId: YoutubePlayer.convertUrlToId(videoURL), //Add videoID.
