@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -118,7 +116,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                         print("Daily Notifications turned on");
                         HapticFeedback.vibrate();
                         Fluttertoast.showToast(
-                            msg: "You'll be notified",
+                            msg: "Daily Notifications turned on",
                             toastLength: Toast.LENGTH_LONG,
                             gravity: ToastGravity.BOTTOM,
                             backgroundColor: isSwitched? Colors.white : Colors.black,
@@ -197,7 +195,7 @@ class _SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClie
                 ),
                 ListTile(
                   title: Text("Pending Notifications"),
-                  subtitle: Text("View scheduled launch reminders"),
+                  subtitle: Text("View scheduled Launch Reminders"),
                   onTap: () {
                     showNotification();
                   },

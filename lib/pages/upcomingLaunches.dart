@@ -10,6 +10,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universum_app/helpers/ad_helper.dart';
@@ -279,9 +280,13 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                       child: IconButton(icon: launches[index].notification? Icon(Icons.notifications_on, color: Colors.white) : Icon(Icons.notifications_off, color: Colors.white,),
                                         onPressed: () async {
                                           if(firstTime) {
-                                            await AppSettings.openNotificationSettings();
+                                            try {
+                                              await AppSettings.openNotificationSettings();
+                                            }catch(e) {
+                                              openAppSettings();
+                                            }
                                             Fluttertoast.showToast(
-                                                msg: "Please allow all to get effective Launch Reminders",
+                                                msg: "Please allow all notification permissions to get effective Launch Reminders",
                                                 toastLength: Toast.LENGTH_LONG,
                                                 gravity: ToastGravity.BOTTOM,
                                                 timeInSecForIosWeb: 1,
@@ -445,11 +450,6 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
                                   int estimateTs = launches[index].dateObject.millisecondsSinceEpoch;
                                   Duration remaining = Duration(milliseconds: estimateTs - now);
                                   Format(Duration d) => d.toString().split('.').first.padLeft(8, "0");
-                                  /*
-                                  var dateString = '${remaining.inDays}:${remaining.inHours}:${format.format(
-                                      DateTime.fromMillisecondsSinceEpoch(remaining.inMilliseconds))}';
-
-                                   */
                                   return Text("Countdown: " +
                                       Format(remaining).toString(), style: TextStyle(fontSize: 20),);
                                 }
@@ -478,9 +478,6 @@ class _upcomingLaunchesState extends State<upcomingLaunches> {
           ),
 
     );
-  }
-  _returnCountdown(int index){
-    return launches[index].dateObject.difference(DateTime.now());
   }
 }
 

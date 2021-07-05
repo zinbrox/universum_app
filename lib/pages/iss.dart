@@ -317,80 +317,83 @@ class _ISSPageState extends State<ISSPage> {
             ),
           SizedBox(height: 10,),
           Expanded(
-            child: Center(
-              child: Container(
-                child: Row(
-                  children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width*0.5,
-                      child: Column(
+            child: FittedBox(
+              fit: BoxFit.fitWidth,
+              child: Center(
+                child: Container(
+                  child: Row(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width*0.5,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text("Current Location: " + addressLine, textAlign: TextAlign.center, style: TextStyle(fontSize: 18), maxLines: 4,),
+                            Text("\nAltitude: " + altitude.toStringAsFixed(2) + " km"),
+                            Text("Velocity: " + velocity.toStringAsFixed(2) + " km/h"),
+                            Text("Visibility: $visibility"),
+                          ],
+                        ),
+                      ),
+                      Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Text("Current Location: " + addressLine, textAlign: TextAlign.center, style: TextStyle(fontSize: 18), maxLines: 4,),
-                          Text("Altitude: " + altitude.toStringAsFixed(2) + " km"),
-                          Text("Velocity: " + velocity.toStringAsFixed(2) + " km/h"),
-                          Text("Visibility: $visibility"),
+                          Text("Latitude: " + latitude.toStringAsFixed(4)),
+                          Text("Longitude: " + longitude.toStringAsFixed(4)),
+                          Container(
+                            width: MediaQuery.of(context).size.width*0.5,
+                            //height: MediaQuery.of(context).size.width*0.075,
+                            child: ElevatedButton(onPressed: () async {
+                              getHumansInSpace();
+                            }, child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Icon(Icons.supervisor_account),
+                                //SizedBox(width: 10,),
+                                Flexible(child: Text("Current ISS Crew", textAlign: TextAlign.center,)),
+                              ],
+                            )),
+                          ),
+                          Container(
+                            width: MediaQuery.of(context).size.width*0.5,
+                            //height: MediaQuery.of(context).size.width*0.075,
+                            child: ElevatedButton(
+                              onPressed: (){
+                                getReports();
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Icon(Icons.library_books),
+                                  //SizedBox(width: 10,),
+                                  Flexible(child: Text("ISS Daily Reports", textAlign: TextAlign.center,)),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: MediaQuery.of(context).size.width*0.5,
+                            //height: MediaQuery.of(context).size.width*0.075,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                await canLaunch("https://ustream.tv/channel/17074538") ? await launch("https://ustream.tv/channel/17074538") : throw 'Could not launch https://ustream.tv/channel/17074538';
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Icon(Icons.open_in_new),
+                                  //SizedBox(width: 10,),
+                                  Flexible(child: Text("ISS Live Stream", textAlign: TextAlign.center,)),
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text("Latitude: " + latitude.toStringAsFixed(4)),
-                        Text("Longitude: " + longitude.toStringAsFixed(4)),
-                        Container(
-                          width: MediaQuery.of(context).size.width*0.5,
-                          //height: MediaQuery.of(context).size.width*0.075,
-                          child: ElevatedButton(onPressed: () async {
-                            getHumansInSpace();
-                          }, child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Icon(Icons.supervisor_account),
-                              //SizedBox(width: 10,),
-                              Flexible(child: Text("Current ISS Crew", textAlign: TextAlign.center,)),
-                            ],
-                          )),
-                        ),
-                        Container(
-                          width: MediaQuery.of(context).size.width*0.5,
-                          //height: MediaQuery.of(context).size.width*0.075,
-                          child: ElevatedButton(
-                            onPressed: (){
-                              getReports();
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Icon(Icons.library_books),
-                                //SizedBox(width: 10,),
-                                Flexible(child: Text("ISS Daily Reports", textAlign: TextAlign.center,)),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: MediaQuery.of(context).size.width*0.5,
-                          //height: MediaQuery.of(context).size.width*0.075,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              await canLaunch("https://ustream.tv/channel/17074538") ? await launch("https://ustream.tv/channel/17074538") : throw 'Could not launch https://ustream.tv/channel/17074538';
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Icon(Icons.open_in_new),
-                                //SizedBox(width: 10,),
-                                Flexible(child: Text("ISS Live Stream", textAlign: TextAlign.center,)),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
 
 
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
