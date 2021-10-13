@@ -29,12 +29,12 @@ Scroll through the latest spaceflight articles provided to you directly on the h
 Looking for something in NASA's vast library of material? Just search and we'll show you all the results and articles from right within the app.  
 <img src = "https://user-images.githubusercontent.com/53508807/137165567-dc63468a-6fb8-4f10-9a17-14055f4f2e03.jpg" width="200">    
 
-## Sign in possible using Google or Facebook  
+## Sign in using Google or Facebook  
 (Using Firebase)  
 <img src = "https://user-images.githubusercontent.com/53508807/137167580-4cb60780-f3eb-4efb-af59-e0b7f2743086.jpg" width="200">  
   
 
-Ads added with Admobs  
+Ads added with Admob 
   
 ## Credits for the API used:  
 APOD, Mars Rover Pcitures, NASA Library - https://api.nasa.gov/  
