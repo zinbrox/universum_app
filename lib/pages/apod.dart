@@ -47,7 +47,7 @@ class _APODState extends State<APOD> {
   Future<void> getAPOD() async {
     print("in getAPOD");
     String url;
-    url = "https://api.nasa.gov/planetary/apod?api_key=4bzcuj3O9pBfQzaCONWqeIlD3RbbyaXgjnp9yvxa";
+    url = "https://api.nasa.gov/planetary/apod?api_key=//YOUR-API-KEY-HERE";
     var response = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(response.body);
     statusCode = response.statusCode;
