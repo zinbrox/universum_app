@@ -1,6 +1,6 @@
 # OrbitFeed - ISS and Rocket Launch Tracker
 
-#### A Flutter application for all things spaceflight related  
+#### An app for all things spaceflight related, made with Flutter 
 #### Published on the Play Store: https://tinyurl.com/OrbitFeed
 
 ## Full description of features:  
