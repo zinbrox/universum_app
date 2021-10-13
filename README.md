@@ -5,7 +5,7 @@
 
 ## Full description of features:  
 ## Track the ISS Location 🛰️  
-View the coordiantes and geographical location of the ISS, integrated with Google Maps to provide you with real time location viewing along with speed and visibility. Additionally, view the current crew of the ISS and the daily reports that they submit everyday. 
+View the coordiantes and geographical location of the ISS, integrated with Google Maps to provide you with real time location viewing along with speed and visibility. Additionally, view the current crew of the ISS and the daily reports that they submit everyday.  
 <img src = "https://user-images.githubusercontent.com/53508807/137164818-b02d5ece-40e7-4386-a3a2-b7c2414289cf.jpg" width="200">  
   
 ## Upcoming Launches 🚀  
