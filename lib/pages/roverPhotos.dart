@@ -129,7 +129,7 @@ class _roverPhotosState extends State<roverPhotos> {
     });
     photoDetails item;
     String formattedDate = formatter.format(selectedDate);
-    String url = "https://api.nasa.gov/mars-photos/api/v1/rovers/$rover/photos?earth_date=$formattedDate&api_key=4bzcuj3O9pBfQzaCONWqeIlD3RbbyaXgjnp9yvxa";
+    String url = "https://api.nasa.gov/mars-photos/api/v1/rovers/$rover/photos?earth_date=$formattedDate&api_key=//YOUR-API-KEY-HERE";
     var response = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(response.body);
 
