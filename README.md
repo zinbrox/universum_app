@@ -1,7 +1,7 @@
 # OrbitFeed - ISS and Rocket Launch Tracker
 
-## A Flutter application for all things spaceflight related  
-## Published on the Play Store: https://tinyurl.com/OrbitFeed
+### A Flutter application for all things spaceflight related  
+### Published on the Play Store: https://tinyurl.com/OrbitFeed
 
 ## Full description of features:  
 ## Track the ISS Location 🛰️  
@@ -36,7 +36,7 @@ Looking for something in NASA's vast library of material? Just search and we'll 
 
 Ads added with Admobs  
   
-Credits for the API used:  
+## Credits for the API used:  
 APOD, Mars Rover Pcitures, NASA Library - https://api.nasa.gov/  
 ISS Location - https://wheretheiss.at/w/developer  
 Upcoming Launches & Spaceflight News - https://thespacedevs.com/llapi  
