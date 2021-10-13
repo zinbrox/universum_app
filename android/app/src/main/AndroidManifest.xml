@@ -15,7 +15,7 @@
         android:usesCleartextTraffic="true">
 
        <meta-data android:name="com.google.android.geo.API_KEY"
-           android:value="AIzaSyC9bO1piARTK7Q-GdSXCODscUgQkR8-WsA"/>
+           android:value="// Your ID here"/>
 
        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
            <intent-filter>
@@ -26,7 +26,7 @@
 
        <meta-data
            android:name="com.google.android.gms.ads.APPLICATION_ID"
-           android:value="ca-app-pub-7046141522235121~5523375875"/>
+           android:value="ca-app-pub-//Your ID ere"/>
 
         <activity
             android:name=".MainActivity"
